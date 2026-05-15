@@ -1,0 +1,82 @@
+{
+  "asOf": "2025-01-31",
+  "segments": [
+    { "segment": "blue-chip", "current": 268.4, "quarterlyChangePct": 0.018, "componentCount": 32, "history": [
+      { "quarter": "2023-Q1", "indexValue": 240.1, "componentCount": 30 },
+      { "quarter": "2023-Q2", "indexValue": 244.6, "componentCount": 30 },
+      { "quarter": "2023-Q3", "indexValue": 247.2, "componentCount": 31 },
+      { "quarter": "2023-Q4", "indexValue": 251.0, "componentCount": 31 },
+      { "quarter": "2024-Q1", "indexValue": 254.8, "componentCount": 32 },
+      { "quarter": "2024-Q2", "indexValue": 258.7, "componentCount": 32 },
+      { "quarter": "2024-Q3", "indexValue": 262.0, "componentCount": 32 },
+      { "quarter": "2024-Q4", "indexValue": 263.7, "componentCount": 32 },
+      { "quarter": "2025-Q1", "indexValue": 268.4, "componentCount": 32 }
+    ]},
+    { "segment": "american-muscle", "current": 198.2, "quarterlyChangePct": 0.024, "componentCount": 48, "history": [
+      { "quarter": "2023-Q1", "indexValue": 168.4, "componentCount": 44 },
+      { "quarter": "2023-Q2", "indexValue": 172.1, "componentCount": 45 },
+      { "quarter": "2023-Q3", "indexValue": 176.0, "componentCount": 45 },
+      { "quarter": "2023-Q4", "indexValue": 180.4, "componentCount": 46 },
+      { "quarter": "2024-Q1", "indexValue": 184.9, "componentCount": 47 },
+      { "quarter": "2024-Q2", "indexValue": 188.0, "componentCount": 47 },
+      { "quarter": "2024-Q3", "indexValue": 191.2, "componentCount": 48 },
+      { "quarter": "2024-Q4", "indexValue": 193.5, "componentCount": 48 },
+      { "quarter": "2025-Q1", "indexValue": 198.2, "componentCount": 48 }
+    ]},
+    { "segment": "affordable-classics", "current": 142.6, "quarterlyChangePct": 0.011, "componentCount": 60, "history": [
+      { "quarter": "2023-Q1", "indexValue": 128.0, "componentCount": 56 },
+      { "quarter": "2023-Q2", "indexValue": 130.2, "componentCount": 57 },
+      { "quarter": "2023-Q3", "indexValue": 132.4, "componentCount": 58 },
+      { "quarter": "2023-Q4", "indexValue": 134.9, "componentCount": 58 },
+      { "quarter": "2024-Q1", "indexValue": 136.7, "componentCount": 59 },
+      { "quarter": "2024-Q2", "indexValue": 138.4, "componentCount": 59 },
+      { "quarter": "2024-Q3", "indexValue": 140.1, "componentCount": 60 },
+      { "quarter": "2024-Q4", "indexValue": 141.0, "componentCount": 60 },
+      { "quarter": "2025-Q1", "indexValue": 142.6, "componentCount": 60 }
+    ]},
+    { "segment": "ferrari-italian", "current": 312.8, "quarterlyChangePct": -0.008, "componentCount": 22, "history": [
+      { "quarter": "2023-Q1", "indexValue": 305.0, "componentCount": 21 },
+      { "quarter": "2023-Q2", "indexValue": 309.2, "componentCount": 21 },
+      { "quarter": "2023-Q3", "indexValue": 312.4, "componentCount": 22 },
+      { "quarter": "2023-Q4", "indexValue": 316.0, "componentCount": 22 },
+      { "quarter": "2024-Q1", "indexValue": 318.4, "componentCount": 22 },
+      { "quarter": "2024-Q2", "indexValue": 320.2, "componentCount": 22 },
+      { "quarter": "2024-Q3", "indexValue": 318.8, "componentCount": 22 },
+      { "quarter": "2024-Q4", "indexValue": 315.4, "componentCount": 22 },
+      { "quarter": "2025-Q1", "indexValue": 312.8, "componentCount": 22 }
+    ]},
+    { "segment": "german-sport", "current": 224.6, "quarterlyChangePct": 0.014, "componentCount": 38, "history": [
+      { "quarter": "2023-Q1", "indexValue": 198.2, "componentCount": 36 },
+      { "quarter": "2023-Q2", "indexValue": 202.6, "componentCount": 36 },
+      { "quarter": "2023-Q3", "indexValue": 206.9, "componentCount": 37 },
+      { "quarter": "2023-Q4", "indexValue": 211.0, "componentCount": 37 },
+      { "quarter": "2024-Q1", "indexValue": 214.5, "componentCount": 38 },
+      { "quarter": "2024-Q2", "indexValue": 217.6, "componentCount": 38 },
+      { "quarter": "2024-Q3", "indexValue": 220.4, "componentCount": 38 },
+      { "quarter": "2024-Q4", "indexValue": 221.5, "componentCount": 38 },
+      { "quarter": "2025-Q1", "indexValue": 224.6, "componentCount": 38 }
+    ]},
+    { "segment": "japanese-icons", "current": 286.4, "quarterlyChangePct": 0.041, "componentCount": 28, "history": [
+      { "quarter": "2023-Q1", "indexValue": 210.4, "componentCount": 25 },
+      { "quarter": "2023-Q2", "indexValue": 220.6, "componentCount": 26 },
+      { "quarter": "2023-Q3", "indexValue": 232.4, "componentCount": 26 },
+      { "quarter": "2023-Q4", "indexValue": 244.0, "componentCount": 27 },
+      { "quarter": "2024-Q1", "indexValue": 254.8, "componentCount": 27 },
+      { "quarter": "2024-Q2", "indexValue": 264.2, "componentCount": 28 },
+      { "quarter": "2024-Q3", "indexValue": 270.6, "componentCount": 28 },
+      { "quarter": "2024-Q4", "indexValue": 275.0, "componentCount": 28 },
+      { "quarter": "2025-Q1", "indexValue": 286.4, "componentCount": 28 }
+    ]},
+    { "segment": "british-classic", "current": 156.8, "quarterlyChangePct": 0.005, "componentCount": 24, "history": [
+      { "quarter": "2023-Q1", "indexValue": 148.0, "componentCount": 22 },
+      { "quarter": "2023-Q2", "indexValue": 149.6, "componentCount": 22 },
+      { "quarter": "2023-Q3", "indexValue": 151.0, "componentCount": 23 },
+      { "quarter": "2023-Q4", "indexValue": 152.8, "componentCount": 23 },
+      { "quarter": "2024-Q1", "indexValue": 153.7, "componentCount": 24 },
+      { "quarter": "2024-Q2", "indexValue": 154.6, "componentCount": 24 },
+      { "quarter": "2024-Q3", "indexValue": 155.4, "componentCount": 24 },
+      { "quarter": "2024-Q4", "indexValue": 156.0, "componentCount": 24 },
+      { "quarter": "2025-Q1", "indexValue": 156.8, "componentCount": 24 }
+    ]}
+  ]
+}

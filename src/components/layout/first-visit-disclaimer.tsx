@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import Link from "next/link";
 
 const KEY = "ccf.disclaimer.v1";
 
@@ -34,9 +35,9 @@ export function FirstVisitDisclaimer() {
         CarClubFuture forecasts are statistical estimates based on auction data and are
         provided for informational purposes only. Markets fluctuate and past performance
         does not guarantee future results.{" "}
-        <a href="/car-forecast/methodology" className="text-accent hover:underline">
+        <Link href="/car-forecast/methodology" className="text-accent hover:underline">
           Read the methodology →
-        </a>
+        </Link>
       </p>
       <div className="mt-3 flex justify-end">
         <button
