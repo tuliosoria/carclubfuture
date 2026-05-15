@@ -25,8 +25,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.658.0",
-    "@aws-sdk/lib-dynamodb": "^3.658.0",
     "@aws-sdk/client-s3": "^3.658.0",
+    "@aws-sdk/lib-dynamodb": "^3.658.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "google-trends-api": "^4.9.2",
@@ -38,6 +38,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.0",
     "recharts": "^2.13.3",
+    "server-only": "^0.0.1",
     "tailwind-merge": "^2.5.5",
     "zod": "^3.23.8"
   },
