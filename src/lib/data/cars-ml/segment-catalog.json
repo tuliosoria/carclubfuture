@@ -1,0 +1,68 @@
+[
+  {
+    "segment": "american-muscle",
+    "count": 4,
+    "members": [
+      {
+        "slug": "1969-chevrolet-camaro-z-28",
+        "displayName": "1969 Chevrolet Camaro Z/28"
+      },
+      {
+        "slug": "1970-plymouth-hemi-cuda",
+        "displayName": "1970 Plymouth Hemi Cuda"
+      },
+      {
+        "slug": "1969-ford-mustang-boss-429",
+        "displayName": "1969 Ford Mustang Boss 429"
+      },
+      {
+        "slug": "1970-chevrolet-chevelle-ss-454",
+        "displayName": "1970 Chevrolet Chevelle SS 454 LS6"
+      }
+    ]
+  },
+  {
+    "segment": "blue-chip",
+    "count": 4,
+    "members": [
+      {
+        "slug": "1973-porsche-911-carrera-rs",
+        "displayName": "1973 Porsche 911 Carrera RS 2.7"
+      },
+      {
+        "slug": "1965-shelby-cobra-427",
+        "displayName": "1965 Shelby Cobra 427"
+      },
+      {
+        "slug": "1967-chevrolet-corvette-l88",
+        "displayName": "1967 Chevrolet Corvette L88"
+      },
+      {
+        "slug": "1962-ferrari-250-gt-lusso",
+        "displayName": "1962 Ferrari 250 GT Lusso"
+      }
+    ]
+  },
+  {
+    "segment": "japanese-icons",
+    "count": 4,
+    "members": [
+      {
+        "slug": "1990-acura-nsx",
+        "displayName": "1990 Acura NSX"
+      },
+      {
+        "slug": "1994-toyota-supra-turbo",
+        "displayName": "1994 Toyota Supra Turbo (Mk IV)"
+      },
+      {
+        "slug": "1993-mazda-rx-7-r1",
+        "displayName": "1993 Mazda RX-7 R1 (FD)"
+      },
+      {
+        "slug": "1999-nissan-skyline-gt-r-r34",
+        "displayName": "1999 Nissan Skyline GT-R V-Spec (R34)"
+      }
+    ]
+  }
+]
