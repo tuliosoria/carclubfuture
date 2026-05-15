@@ -70,8 +70,9 @@ export async function getCached({
   ddbClient,
   tableName = process.env.DYNAMODB_TABLE || "carclubfuture-cache",
   region = process.env.AWS_REGION || "us-east-1",
+  now = () => Date.now(),
 }) {
-  const nowMs = Date.now();
+  const nowMs = now();
   const memKey = `${pk}\x00${sk}`;
 
   // L0
@@ -220,6 +221,9 @@ export async function withCache({
   }
 
   // ── L2: bundled fallback (only when DynamoDB itself threw) ────────────────
+  // Note: L2 results intentionally do NOT warm L0 either. If DynamoDB is down
+  // we don't want stale bundled data masquerading as a fresh cache hit for
+  // the rest of the process run — every retry should re-attempt L1.
   if (ddbError && bundledFallback) {
     const fallbackValue = await bundledFallback();
     if (fallbackValue != null) {
