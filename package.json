@@ -21,7 +21,8 @@
     "sync:trends": "node scripts/sync-trends.mjs",
     "train:cars-ml": "python3 scripts/train_cars_ml.py",
     "retrain:cars-ml": "python3 scripts/retrain_cars_ml.py",
-    "backfill:cars:catalog": "node scripts/backfill-cars-catalog.mjs"
+    "backfill:cars:catalog": "node scripts/backfill-cars-catalog.mjs",
+    "ingest:cars:catalog": "node scripts/ingest-cars-catalog-bulk.mjs --start-year=1950 --end-year=2024 --output=src/lib/data/cars-ml/cars-catalog-bulk.json --checkpoint=scripts/output/ingest-checkpoint.json"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.658.0",

@@ -1,10 +1,14 @@
 /**
- * Bulk CarQuery catalog ingest — A1-A4.
+ * Bulk CarQuery catalog ingest — A1-A8.
  *
  * A1: resumeState / saveCheckpoint
  * A2: fetchMakes
  * A3: fetchTrimsForMake
  * A4: ingest() main loop (resumable, deduped, atomic write)
+ * A5: enrichWithNhtsa — vPIC cross-reference grouped by (make, year)
+ * A6: Optional CarAPI enrichment gated by CARAPI_KEY env var
+ * A7: scoreConfidence — high/medium/low based on source confirmations
+ * A8: npm wiring (see package.json) + verify-scripts coverage
  *
  * CLI:
  *   node scripts/ingest-cars-catalog-bulk.mjs \
@@ -154,6 +158,96 @@ export async function fetchTrimsForMake(
   return trims;
 }
 
+// ─── A5: NHTSA vPIC cross-reference ──────────────────────────────────────────
+
+/**
+ * Enrich rows with NHTSA vPIC data. Groups by (make, year) to issue one
+ * API call per unique pair rather than one per row. Sets `nhtsaId` and
+ * optionally `nhtsaModelName` on each row in place.
+ *
+ * @param {object[]} rows
+ * @param {{ fetch?: Function, rateLimiter?: object }} opts
+ * @returns {Promise<object[]>}
+ */
+export async function enrichWithNhtsa(
+  rows,
+  { fetch: fetchFn = defaultFetch, rateLimiter: rl = sharedRl } = {}
+) {
+  if (!rows.length) return rows;
+
+  // Group rows by "make|year" to minimise API calls.
+  const groups = new Map();
+  for (const row of rows) {
+    const key = `${row.make}|${row.year}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  }
+
+  for (const [key, groupRows] of groups) {
+    const pipeIdx = key.indexOf("|");
+    const make = key.slice(0, pipeIdx);
+    const year = Number(key.slice(pipeIdx + 1));
+
+    await rl.take();
+    try {
+      const url =
+        `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear` +
+        `/make/${encodeURIComponent(make)}/modelyear/${year}?format=json`;
+      const resp = await fetchFn(url);
+      const data = await resp.json();
+      const results = data.Results ?? [];
+
+      for (const row of groupRows) {
+        const match = results.find(
+          (r) => r.Model_Name.toLowerCase() === row.model.toLowerCase()
+        );
+        if (match) {
+          row.nhtsaId = `${match.Make_ID}:${match.Model_ID}`;
+          row.nhtsaModelName = match.Model_Name;
+        } else {
+          row.nhtsaId = null;
+        }
+      }
+    } catch (err) {
+      jsonLog({
+        operation: "nhtsa.enrich",
+        make,
+        year,
+        error: err instanceof Error ? err.message : String(err),
+      });
+      for (const row of groupRows) {
+        row.nhtsaId = null;
+      }
+    }
+  }
+
+  return rows;
+}
+
+// ─── A7: Confidence scoring ───────────────────────────────────────────────────
+
+/**
+ * Score a row's data confidence based on how many independent sources
+ * confirmed it.
+ *
+ *   CarQuery present (always) = 1 pt
+ *   nhtsaId truthy             = 1 pt
+ *   carapiId truthy            = 1 pt
+ *
+ *   3 pts → "high" | 2 pts → "medium" | ≤1 pt → "low"
+ *
+ * @param {object} row
+ * @returns {"high" | "medium" | "low"}
+ */
+export function scoreConfidence(row) {
+  let points = 1; // CarQuery is always present for rows in this pipeline
+  if (row.nhtsaId) points++;
+  if (row.carapiId) points++;
+  if (points >= 3) return "high";
+  if (points === 2) return "medium";
+  return "low";
+}
+
 // ─── A4: Main ingest loop ─────────────────────────────────────────────────────
 
 /**
@@ -237,6 +331,25 @@ export async function ingest({
     jsonLog({ operation: "fetch-year-done", year });
   }
 
+  // A5: NHTSA cross-reference enrichment.
+  await enrichWithNhtsa(allTrims, { fetch: fetchFn, rateLimiter: rl });
+
+  // A6: Optional CarAPI enrichment (gated by CARAPI_KEY).
+  if (process.env.CARAPI_KEY) {
+    try {
+      const { getCarApiToken, enrichWithCarApi } = await import("./_lib/carapi.mjs");
+      const token = await getCarApiToken({ fetch: fetchFn, jwt: process.env.CARAPI_KEY });
+      await enrichWithCarApi(allTrims, { fetch: fetchFn, rateLimiter: rl, token });
+    } catch (err) {
+      jsonLog({
+        operation: "carapi.enrich",
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  } else {
+    jsonLog({ operation: "carapi.skip", reason: "no_key" });
+  }
+
   // Dedupe by slug (last write wins), sort alphabetically.
   const bySlug = new Map();
   for (const t of allTrims) {
@@ -245,6 +358,11 @@ export async function ingest({
   const sorted = [...bySlug.values()].sort((a, b) =>
     a.slug.localeCompare(b.slug)
   );
+
+  // A7: Confidence scoring — applied after all enrichment, before write.
+  for (const row of sorted) {
+    row.catalogConfidence = scoreConfidence(row);
+  }
 
   await writeJsonAtomic(outputPath, sorted);
   jsonLog({ operation: "ingest-complete", recordsProcessed: sorted.length });

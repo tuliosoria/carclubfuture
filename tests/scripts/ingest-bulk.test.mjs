@@ -1,5 +1,5 @@
 /**
- * Unit tests for ingest-cars-catalog-bulk.mjs (tasks A1-A4).
+ * Unit tests for ingest-cars-catalog-bulk.mjs (tasks A1-A8).
  *
  * Run: node --test tests/scripts/ingest-bulk.test.mjs
  */
@@ -24,6 +24,8 @@ const {
   fetchTrimsForMake,
   slugify,
   ingest,
+  enrichWithNhtsa,
+  scoreConfidence,
 } = await import(scriptPath);
 
 /** No-op rate limiter so tests don't wait 1 second per call. */
@@ -244,4 +246,67 @@ test("A4: ingest writes deduped sorted JSON for 1yr × 1make × 1model × 1trim"
   // Clean up
   await unlink(outputPath).catch(() => {});
   await unlink(checkpointPath).catch(() => {});
+});
+
+// ─── A5: enrichWithNhtsa ──────────────────────────────────────────────────────
+
+test("A5: enrichWithNhtsa sets nhtsaId on match, null on miss", async () => {
+  const noOpRl2 = { take: () => Promise.resolve() };
+
+  // NHTSA returns one model for ford/2020 — Mustang matches, Explorer does not.
+  const fakeFetch = async (_url) => ({
+    json: async () => ({
+      Results: [
+        { Make_ID: 460, Make_Name: "FORD", Model_ID: 1861, Model_Name: "Mustang" },
+      ],
+    }),
+  });
+
+  const rows = [
+    { year: 2020, make: "ford", model: "Mustang", trim: "GT" },
+    { year: 2020, make: "ford", model: "Explorer", trim: "Base" },
+  ];
+
+  await enrichWithNhtsa(rows, { fetch: fakeFetch, rateLimiter: noOpRl2 });
+
+  // Match
+  assert.equal(rows[0].nhtsaId, "460:1861");
+  assert.equal(rows[0].nhtsaModelName, "Mustang");
+
+  // Miss
+  assert.equal(rows[1].nhtsaId, null);
+  assert.equal(rows[1].nhtsaModelName, undefined);
+});
+
+test("A5: enrichWithNhtsa issues one API call per unique make+year (not per row)", async () => {
+  const noOpRl2 = { take: () => Promise.resolve() };
+  let callCount = 0;
+
+  const fakeFetch = async (_url) => {
+    callCount++;
+    return { json: async () => ({ Results: [] }) };
+  };
+
+  // 3 rows — 2 with same make+year, 1 different make — should yield 2 calls.
+  const rows = [
+    { year: 2020, make: "ford", model: "Mustang" },
+    { year: 2020, make: "ford", model: "F-150" },
+    { year: 2020, make: "chevrolet", model: "Camaro" },
+  ];
+
+  await enrichWithNhtsa(rows, { fetch: fakeFetch, rateLimiter: noOpRl2 });
+
+  assert.equal(callCount, 2, "must call NHTSA once per unique (make, year)");
+});
+
+// ─── A7: scoreConfidence ─────────────────────────────────────────────────────
+
+test("A7: scoreConfidence returns 'high' when all three sources are present", () => {
+  const row = { nhtsaId: "460:1861", carapiId: 99 };
+  assert.equal(scoreConfidence(row), "high");
+});
+
+test("A7: scoreConfidence returns 'low' when only CarQuery is present", () => {
+  const row = { nhtsaId: null };
+  assert.equal(scoreConfidence(row), "low");
 });

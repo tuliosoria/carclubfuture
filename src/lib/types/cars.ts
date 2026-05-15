@@ -134,3 +134,38 @@ export interface MarketRating {
     privateSaleProxy: number;
   };
 }
+
+/**
+ * Row shape produced by the bulk CarQuery/NHTSA/CarAPI ingest pipeline.
+ * Distinct from CollectorCar — this is the raw enriched catalog row written
+ * to cars-catalog-bulk.json. Optional enrichment fields are present only
+ * when the relevant API call succeeded.
+ */
+export interface BulkCatalogRow {
+  carqueryId: string;
+  slug: string;
+  year: number;
+  make: string;
+  makeDisplay: string;
+  model: string;
+  trim: string | null;
+  bodyStyle: string | null;
+  engineDisplacementCc: number | null;
+  cylinders: number | null;
+  fuel: string | null;
+  transmission: string | null;
+  driveType: string | null;
+  source: "carquery";
+  // A5: NHTSA vPIC cross-reference
+  nhtsaId?: string | null;
+  nhtsaModelName?: string;
+  // A6: CarAPI enrichment
+  carapiId?: number | string | null;
+  engineHp?: number | null;
+  engineTorque?: number | null;
+  mpgCity?: number | null;
+  mpgHwy?: number | null;
+  bodySubStyle?: string | null;
+  // A7: confidence scoring
+  catalogConfidence?: "high" | "medium" | "low";
+}
