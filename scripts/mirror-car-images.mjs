@@ -30,10 +30,12 @@ const IMAGES_JSON = resolve(ROOT, "src/lib/data/cars-ml/oldcarsdata-auction-imag
 const OUT_DIR = resolve(ROOT, "public/cars");
 
 const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
-const UA = "CarClubFuture/1.0 (+https://carclubfuture.com)";
-const THUMB_WIDTH = 1200;
+const UA = "CarClubFuture/1.0 (https://carclubfuture.com; hello@carclubfuture.com) Node/22";
+const THUMB_WIDTH = 800;
 
-const limiter = new RateLimiter(1);
+const limiter = new RateLimiter(0.5);
+
+const SLOW_RETRY = { delaysMs: [1500, 4000, 9000] };
 
 async function exists(p) {
   try { await access(p, constants.F_OK); return true; } catch { return false; }
@@ -52,23 +54,25 @@ async function searchCommons(query) {
   u.searchParams.set("generator", "search");
   u.searchParams.set("gsrsearch", `${query} filetype:bitmap`);
   u.searchParams.set("gsrnamespace", "6"); // File: namespace
-  u.searchParams.set("gsrlimit", "5");
+  u.searchParams.set("gsrlimit", "8");
   u.searchParams.set("prop", "imageinfo");
-  u.searchParams.set("iiprop", "url|extmetadata|mime");
+  u.searchParams.set("iiprop", "url|extmetadata|mime|size");
   u.searchParams.set("iiurlwidth", String(THUMB_WIDTH));
   const r = await fetchWithRetry(u.toString(), { headers: { "User-Agent": UA } });
   if (!r.ok) throw new Error(`commons search ${r.status}`);
   const j = await r.json();
   const pages = j?.query?.pages ? Object.values(j.query.pages) : [];
-  // Pick first page with imageinfo + a non-SVG, photo-like mime
+  const candidates = [];
   for (const p of pages) {
     const info = p?.imageinfo?.[0];
     if (!info?.url) continue;
     const mime = info.mime || "";
     if (!/^image\/(jpeg|png|webp)$/i.test(mime)) continue;
-    return { page: p, info };
+    candidates.push({ page: p, info });
   }
-  return null;
+  // Sort by search index order (preserve relevance)
+  candidates.sort((a, b) => (a.page.index ?? 0) - (b.page.index ?? 0));
+  return candidates;
 }
 
 function extractAttribution(info) {
@@ -83,7 +87,7 @@ function extractAttribution(info) {
 
 async function mirrorBytes(url, dest) {
   await limiter.take();
-  const r = await fetchWithRetry(url, { headers: { "User-Agent": UA } });
+  const r = await fetchWithRetry(url, { headers: { "User-Agent": UA } }, SLOW_RETRY);
   if (!r.ok) throw new Error(`mirror ${r.status}`);
   const buf = Buffer.from(await r.arrayBuffer());
   await writeFile(dest, buf);
@@ -113,24 +117,43 @@ async function main() {
 
       const query = `${c.year} ${c.make} ${c.model}`.trim();
       try {
-        const hit = await searchCommons(query);
-        if (!hit) { failed++; jsonLog({ operation:"commons.miss", slug, query }); continue; }
-        const { info } = hit;
-        const sourceUrl = info.thumburl || info.url;
-        const ext = (extname(new URL(info.url).pathname) || ".jpg").toLowerCase();
-        const dest = resolve(OUT_DIR, `${slug}${ext}`);
-        const bytes = await mirrorBytes(sourceUrl, dest);
-        const attr = extractAttribution(info);
-        images[slug] = {
-          url: `/cars/${slug}${ext}`,
-          source: "wikimedia",
-          sourcePageUrl: info.descriptionurl || `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(info.url.split("/").pop())}`,
-          license: attr.license,
-          author: attr.author,
-          mirroredAt: new Date().toISOString(),
-        };
-        ok++;
-        jsonLog({ operation:"commons.mirrored", slug, bytes, license: attr.license });
+        const candidates = await searchCommons(query);
+        if (!candidates.length) { failed++; jsonLog({ operation:"commons.miss", slug, query }); continue; }
+
+        let mirrored = null;
+        let lastErr = null;
+        for (const hit of candidates) {
+          const { info } = hit;
+          // Prefer original URL when reasonable size (<6MB) — skips overloaded thumbnailer
+          const useOriginal = info.size && info.size < 6_000_000;
+          const sourceUrl = useOriginal ? info.url : (info.thumburl || info.url);
+          const ext = (extname(new URL(info.url).pathname) || ".jpg").toLowerCase();
+          const dest = resolve(OUT_DIR, `${slug}${ext}`);
+          try {
+            const bytes = await mirrorBytes(sourceUrl, dest);
+            const attr = extractAttribution(info);
+            images[slug] = {
+              url: `/cars/${slug}${ext}`,
+              source: "wikimedia",
+              sourcePageUrl: info.descriptionurl || `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(info.url.split("/").pop())}`,
+              license: attr.license,
+              author: attr.author,
+              mirroredAt: new Date().toISOString(),
+            };
+            mirrored = { bytes, license: attr.license };
+            break;
+          } catch (e) {
+            lastErr = e;
+            jsonLog({ operation:"commons.candidate.fail", slug, error: e });
+          }
+        }
+        if (mirrored) {
+          ok++;
+          jsonLog({ operation:"commons.mirrored", slug, bytes: mirrored.bytes, license: mirrored.license });
+        } else {
+          failed++;
+          jsonLog({ operation:"commons.exhausted", slug, error: lastErr });
+        }
       } catch (err) {
         failed++;
         jsonLog({ operation:"commons.error", slug, error: err });
