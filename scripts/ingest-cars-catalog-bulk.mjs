@@ -324,7 +324,18 @@ export async function ingest({
       await saveCheckpoint(checkpointPath, state);
     }
 
-    // Year complete: reset per-year state and record.
+    // Year complete: flush output incrementally so checkpoint and file move
+    // forward together. Crash after this point loses nothing for this year.
+    {
+      const bySlugFlush = new Map();
+      for (const t of allTrims) bySlugFlush.set(t.slug, t);
+      const flushedTrims = [...bySlugFlush.values()].sort((a, b) =>
+        a.slug.localeCompare(b.slug)
+      );
+      await writeJsonAtomic(outputPath, flushedTrims);
+    }
+
+    // Reset per-year state and record.
     state.completedMakes = [];
     state.lastYear = year;
     await saveCheckpoint(checkpointPath, state);

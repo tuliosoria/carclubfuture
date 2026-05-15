@@ -82,6 +82,11 @@ function getDdbClient(): DynamoDBDocumentClient {
   return _ddbClient;
 }
 
+/** Test-only: inject a mock DynamoDB Document client. Pass null to clear. */
+export function __setTestClient(client: DynamoDBDocumentClient | null): void {
+  _ddbClient = client;
+}
+
 // ---------------------------------------------------------------------------
 // L0: in-process memory cache
 // Key: "${pk}\x00${sk}" — null-byte separator avoids collisions.
@@ -102,6 +107,15 @@ function l0Set(pk: string, sk: string, value: unknown, expiresAtMs: number): voi
 /** Clear in-process cache. Intended for tests only. */
 export function clearMemoryCache(): void {
   _l0Cache.clear();
+}
+
+/** Test-only: override bundled JSON data. Pass null fields to clear. */
+export function __setBundledOverrides(overrides: {
+  prices?: Record<string, PriceSnapshot> | null;
+  images?: Record<string, unknown> | null;
+}): void {
+  if ("prices" in overrides) _bundledPrices = overrides.prices ?? null;
+  if ("images" in overrides) _bundledImages = overrides.images as Record<string, BundledImageRecord> | null;
 }
 
 // ---------------------------------------------------------------------------

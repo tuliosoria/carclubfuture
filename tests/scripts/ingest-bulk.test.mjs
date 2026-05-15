@@ -310,3 +310,155 @@ test("A7: scoreConfidence returns 'low' when only CarQuery is present", () => {
   const row = { nhtsaId: null };
   assert.equal(scoreConfidence(row), "low");
 });
+
+// ─── A4: incremental flush durability ────────────────────────────────────────
+
+test("A4: ingest flushes output after each year — partial data survives crash mid-run", async () => {
+  const outputPath = join(
+    __dirname,
+    "../../scripts/output/test-ingest-crash-output.json"
+  );
+  const checkpointPath = join(
+    __dirname,
+    "../../scripts/output/test-ingest-crash-checkpoint.json"
+  );
+
+  await unlink(outputPath).catch(() => {});
+  await unlink(checkpointPath).catch(() => {});
+
+  // fakeFetch for the FIRST (crashing) run.
+  // getMakes is called once per year; throw on the 3rd call (year 2020).
+  let makeCallCount = 0;
+  const fakeFetchCrash = async (url) => {
+    if (url.includes("cmd=getMakes")) {
+      makeCallCount++;
+      if (makeCallCount === 3) throw new Error("simulated crash on year 2020");
+      const yearMatch = url.match(/year=(\d+)/);
+      const year = yearMatch ? yearMatch[1] : "2022";
+      return {
+        json: async () => ({
+          Makes: [
+            {
+              make_id: "ford",
+              make_display: "Ford",
+              make_country: "USA",
+              make_is_common: "1",
+            },
+          ],
+        }),
+      };
+    }
+    if (url.includes("cmd=getModels")) {
+      return {
+        json: async () => ({
+          Models: [{ model_name: "Mustang", model_make_id: "ford" }],
+        }),
+      };
+    }
+    // getTrims — extract year from URL, return one trim per year
+    const yearMatch = url.match(/year=(\d+)/);
+    const year = yearMatch ? Number(yearMatch[1]) : 2022;
+    return {
+      json: async () => ({
+        Trims: [
+          {
+            model_id: String(year),
+            model_name: "Mustang",
+            model_trim: "GT",
+            model_year: String(year),
+            model_body: "Coupe",
+            model_engine_cc: "5000",
+            model_engine_cyl: "8",
+            model_engine_fuel: "Gasoline",
+            model_transmission_type: "Automatic",
+            model_drive: "RWD",
+            sold_in_us: "1",
+          },
+        ],
+      }),
+    };
+  };
+
+  // First run: 2022 → 2021 → crash on 2020.
+  await assert.rejects(
+    () =>
+      ingest({
+        startYear: 2020,
+        endYear: 2022,
+        checkpointPath,
+        outputPath,
+        fetch: fakeFetchCrash,
+        rateLimiter: noOpRl,
+      }),
+    /simulated crash/
+  );
+
+  // The incremental flushes must have persisted years 2022 and 2021.
+  const rawPartial = await readFile(outputPath, "utf8");
+  const partial = JSON.parse(rawPartial);
+  assert.ok(Array.isArray(partial), "partial output should be an array");
+  assert.equal(partial.length, 2, "should have 2 trims from the two completed years");
+  const partialYears = partial.map((t) => t.year).sort((a, b) => a - b);
+  assert.deepEqual(partialYears, [2021, 2022]);
+
+  // Resume run: processes only year 2020 and merges with existing output.
+  const fakeFetchResume = async (url) => {
+    if (url.includes("cmd=getMakes")) {
+      return {
+        json: async () => ({
+          Makes: [
+            {
+              make_id: "ford",
+              make_display: "Ford",
+              make_country: "USA",
+              make_is_common: "1",
+            },
+          ],
+        }),
+      };
+    }
+    if (url.includes("cmd=getModels")) {
+      return {
+        json: async () => ({
+          Models: [{ model_name: "Mustang", model_make_id: "ford" }],
+        }),
+      };
+    }
+    return {
+      json: async () => ({
+        Trims: [
+          {
+            model_id: "2020",
+            model_name: "Mustang",
+            model_trim: "GT",
+            model_year: "2020",
+            model_body: "Coupe",
+            model_engine_cc: "5000",
+            model_engine_cyl: "8",
+            model_engine_fuel: "Gasoline",
+            model_transmission_type: "Automatic",
+            model_drive: "RWD",
+            sold_in_us: "1",
+          },
+        ],
+      }),
+    };
+  };
+
+  const result = await ingest({
+    startYear: 2020,
+    endYear: 2022,
+    checkpointPath,
+    outputPath,
+    fetch: fakeFetchResume,
+    rateLimiter: noOpRl,
+  });
+
+  assert.equal(result.length, 3, "resumed run should produce union of all 3 years");
+  const resultYears = result.map((t) => t.year).sort((a, b) => a - b);
+  assert.deepEqual(resultYears, [2020, 2021, 2022]);
+
+  // Clean up
+  await unlink(outputPath).catch(() => {});
+  await unlink(checkpointPath).catch(() => {});
+});
