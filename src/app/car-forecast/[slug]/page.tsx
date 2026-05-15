@@ -65,8 +65,29 @@ export default async function CarDetailPage({ params }: { params: Promise<{ slug
           </div>
         </div>
         <div className="overflow-hidden rounded-lg border border-border bg-card">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={resolveCarImage(car)} alt={car.displayName} className="aspect-[16/10] w-full object-cover" />
+          {(() => {
+            const img = resolveCarImage(car);
+            return (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={img.src} alt={car.displayName} className="aspect-[16/10] w-full object-cover" />
+                {img.attribution ? (
+                  <p className="px-3 py-1 text-[11px] leading-tight text-muted-foreground">
+                    Photo:{" "}
+                    <a
+                      href={img.attribution.sourcePageUrl}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="underline decoration-dotted hover:text-foreground"
+                    >
+                      {img.attribution.author} / {img.attribution.license}
+                    </a>{" "}
+                    (Wikimedia Commons)
+                  </p>
+                ) : null}
+              </>
+            );
+          })()}
         </div>
       </header>
 

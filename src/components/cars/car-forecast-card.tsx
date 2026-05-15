@@ -18,18 +18,33 @@ export function CarForecastCard({ car, scenario = "moderate" as Scenario }: { ca
       : final.moderateUsd
     : null;
   const upsidePct = projected && car.price ? projected / car.price.valueUsd - 1 : null;
+  const img = resolveCarImage(car);
 
   return (
     <Card className="overflow-hidden transition hover:border-accent/40">
       <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={resolveCarImage(car)}
+          src={img.src}
           alt={car.displayName}
           className="h-full w-full object-cover opacity-90"
           loading="lazy"
         />
       </div>
+      {img.attribution ? (
+        <p className="px-3 pt-1 text-[10px] leading-tight text-muted-foreground">
+          Photo:{" "}
+          <a
+            href={img.attribution.sourcePageUrl}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="underline decoration-dotted hover:text-foreground"
+          >
+            {img.attribution.author} / {img.attribution.license}
+          </a>{" "}
+          (Wikimedia Commons)
+        </p>
+      ) : null}
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <CardTitle className="text-base">{car.displayName}</CardTitle>

@@ -2,17 +2,22 @@
 """
 sync_cars_catalog.py
 
-Build the canonical car catalog from CarQuery + NHTSA + manual overrides.
-Emits:
-  - src/lib/data/cars-ml/cars-catalog.json
-  - src/lib/data/cars-ml/cars-catalog-review.json
-  - src/lib/data/cars-ml/cars-search-catalog.json
+Build / refresh the canonical car catalog from CarQuery + manual overrides.
 
-Designed to be idempotent: existing entries are upserted; overrides win.
-Falls back gracefully when network is unavailable (no-op + exit 0).
+For every existing entry in cars-catalog.json that is missing engine/spec
+fields, query CarQuery's getTrims (year, make), pick the trim whose
+model_name matches, and fold the spec fields back onto the catalog row.
 
-Usage:
-  python3 scripts/sync_cars_catalog.py [--dry-run]
+Outputs (atomic, all under src/lib/data/cars-ml/):
+  - cars-catalog.json          — full catalog
+  - cars-search-catalog.json   — minimal slug/name/segment for search
+  - cars-catalog-review.json   — entries needing human review
+
+Idempotent. Falls back gracefully when CarQuery is unreachable: the
+existing catalog is preserved and only review entries are emitted.
+
+Throttled to 1 req/s. 3-retry exponential backoff. Atomic writes.
+Structured JSON logs to stdout.
 """
 from __future__ import annotations
 
@@ -20,11 +25,14 @@ import argparse
 import json
 import os
 import sys
-import time
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from _lib.http import RateLimiter, fetch_with_retry, json_log, timed, write_json_atomic  # noqa: E402
+
 DATA_DIR = ROOT / "src" / "lib" / "data" / "cars-ml"
 CATALOG_PATH = DATA_DIR / "cars-catalog.json"
 SEARCH_PATH = DATA_DIR / "cars-search-catalog.json"
@@ -32,13 +40,7 @@ REVIEW_PATH = DATA_DIR / "cars-catalog-review.json"
 OVERRIDES_PATH = DATA_DIR / "cars-catalog-overrides.json"
 DENYLIST_PATH = DATA_DIR / "cars-catalog-title-denylist.json"
 
-CARQUERY_BASE = os.environ.get(
-    "CARQUERY_BASE_URL", "https://www.carqueryapi.com/api/0.3/"
-)
-
-
-def log(msg: str) -> None:
-    print(f"[sync:cars:catalog] {msg}", file=sys.stderr)
+CARQUERY_BASE = os.environ.get("CARQUERY_BASE_URL", "https://www.carqueryapi.com/api/0.3/")
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -48,99 +50,147 @@ def load_json(path: Path, default: Any) -> Any:
         return json.load(fh)
 
 
-def save_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w") as fh:
-        json.dump(data, fh, indent=2)
-        fh.write("\n")
-
-
-def slugify(text: str) -> str:
-    keep = []
-    prev_dash = False
-    for ch in text.lower():
-        if ch.isalnum():
-            keep.append(ch)
-            prev_dash = False
-        elif not prev_dash:
-            keep.append("-")
-            prev_dash = True
-    return "".join(keep).strip("-")
-
-
-def fetch_carquery(make: str, year: int) -> list[dict[str, Any]]:
-    try:
-        import urllib.request
-    except ImportError:
-        return []
+def fetch_carquery_trims(make: str, year: int, limiter: RateLimiter) -> list[dict[str, Any]]:
+    limiter.take()
     url = f"{CARQUERY_BASE}?cmd=getTrims&make={make}&year={year}"
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "CarClubFuture/1.0"})
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            text = resp.read().decode("utf-8", errors="replace")
-        # CarQuery wraps JSON in `?(...);` JSONP. Strip if present.
-        if text.startswith("?("):
-            text = text[2:-2]
-        return json.loads(text).get("Trims", [])
-    except Exception as exc:  # noqa: BLE001
-        log(f"carquery fetch failed for {make} {year}: {exc}")
+    body = fetch_with_retry(
+        url,
+        headers={"User-Agent": "CarClubFuture/1.0 (+https://carclubfuture.com)"},
+    )
+    if body is None:
         return []
+    # CarQuery wraps JSON in `?(...);` JSONP. Strip if present.
+    text = body.strip()
+    if text.startswith("?("):
+        text = text[2:-2]
+    elif text.startswith("(") and text.endswith(");"):
+        text = text[1:-2]
+    try:
+        return json.loads(text).get("Trims", [])
+    except json.JSONDecodeError:
+        return []
+
+
+def enrich_from_trim(car: dict[str, Any], trim: dict[str, Any]) -> dict[str, Any]:
+    """Fold CarQuery trim fields onto a catalog row, only filling blanks."""
+    out = dict(car)
+
+    def _set_if_blank(key: str, value: Any) -> None:
+        if value in (None, "", "null") or out.get(key) is not None:
+            return
+        out[key] = value
+
+    cc = trim.get("model_engine_cc")
+    cyl = trim.get("model_engine_cyl")
+    body = (trim.get("model_body") or "").strip().lower() or None
+    _set_if_blank("engineDisplacementCc", int(cc) if cc and str(cc).isdigit() else None)
+    _set_if_blank("cylinders", int(cyl) if cyl and str(cyl).isdigit() else None)
+    if body and out.get("bodyStyle") is None:
+        # Normalize CarQuery body strings → our BodyStyle enum
+        normalized = {
+            "convertible": "convertible",
+            "cabriolet": "convertible",
+            "roadster": "convertible",
+            "coupe": "coupe",
+            "sedan": "sedan",
+            "wagon": "wagon",
+            "estate": "wagon",
+            "suv": "suv",
+            "truck": "truck",
+            "pickup": "truck",
+        }.get(body)
+        if normalized:
+            out["bodyStyle"] = normalized
+    return out
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--rps", type=float, default=1.0, help="CarQuery requests/sec (default 1)")
     args = parser.parse_args()
 
-    raw: Any = load_json(CATALOG_PATH, [])
-    if isinstance(raw, dict):
-        catalog = raw.get("vehicles", [])
-    else:
-        catalog = raw
+    raw = load_json(CATALOG_PATH, {"vehicles": []})
+    catalog = raw.get("vehicles", []) if isinstance(raw, dict) else raw
     overrides: dict[str, Any] = load_json(OVERRIDES_PATH, {})
     denylist: list[str] = load_json(DENYLIST_PATH, [])
 
-    log(f"loaded {len(catalog)} existing entries; {len(overrides)} overrides; {len(denylist)} denied titles")
-
     by_slug = {c["slug"]: c for c in catalog}
     review: list[dict[str, Any]] = []
-    fetched = 0
+    limiter = RateLimiter(args.rps)
 
-    for slug, car in list(by_slug.items()):
-        if any(d in (car.get("title", "") or "").lower() for d in denylist):
-            log(f"removing denied-title vehicle: {slug}")
-            del by_slug[slug]
-            continue
-        if slug in overrides:
-            by_slug[slug] = {**car, **overrides[slug]}
-        if not car.get("trim") and (year := car.get("year")) and (make := car.get("make")):
-            trims = fetch_carquery(make, year)
-            fetched += 1
-            for t in trims:
-                if t.get("model_name", "").lower() == car.get("model", "").lower():
-                    review.append({"slug": slug, "candidate_trim": t.get("model_trim")})
-                    break
-            time.sleep(0.4)  # be nice
+    with timed("sync:cars:catalog") as counters:
+        counters["recordsProcessed"] = len(by_slug)
 
-    catalog_out = sorted(by_slug.values(), key=lambda c: (c.get("year", 0), c.get("make", ""), c.get("model", "")))
-    search_out = [
-        {
-            "slug": c["slug"],
-            "displayName": c["displayName"],
-            "searchAliases": c.get("searchAliases", []),
-            "segment": c.get("segment"),
-        }
-        for c in catalog_out
-    ]
+        # 1) Apply denylist + overrides
+        for slug in list(by_slug.keys()):
+            car = by_slug[slug]
+            if any(d in (car.get("title", "") or "").lower() for d in denylist):
+                json_log(operation="catalog.denied", slug=slug)
+                del by_slug[slug]
+                continue
+            if slug in overrides:
+                by_slug[slug] = {**car, **overrides[slug]}
 
-    if args.dry_run:
-        log(f"dry-run: would write {len(catalog_out)} catalog entries, {len(review)} review items, {fetched} carquery hits")
-        return 0
+        # 2) CarQuery enrichment for any row missing spec fields
+        for slug, car in list(by_slug.items()):
+            needs_specs = car.get("engineDisplacementCc") is None or car.get("cylinders") is None
+            if not (needs_specs and car.get("year") and car.get("make")):
+                continue
+            trims = fetch_carquery_trims(car["make"], int(car["year"]), limiter)
+            if not trims:
+                review.append({"slug": slug, "reason": "carquery_no_results"})
+                counters["failed"] += 1
+                continue
+            target_model = (car.get("model") or "").lower()
+            target_trim = (car.get("trim") or "").lower()
+            best = next(
+                (
+                    t for t in trims
+                    if (t.get("model_name") or "").lower() == target_model
+                    and (not target_trim or target_trim in (t.get("model_trim") or "").lower())
+                ),
+                None,
+            ) or next(
+                (t for t in trims if (t.get("model_name") or "").lower() == target_model),
+                None,
+            )
+            if not best:
+                review.append({"slug": slug, "reason": "carquery_no_model_match", "year": car["year"], "make": car["make"], "model": car.get("model")})
+                counters["failed"] += 1
+                continue
+            by_slug[slug] = enrich_from_trim(car, best)
+            counters["ok"] += 1
 
-    save_json(CATALOG_PATH, catalog_out)
-    save_json(SEARCH_PATH, search_out)
-    save_json(REVIEW_PATH, review)
-    log(f"wrote {len(catalog_out)} catalog entries, {len(review)} review items")
+        catalog_out = sorted(
+            by_slug.values(),
+            key=lambda c: (c.get("year", 0), c.get("make", ""), c.get("model", "")),
+        )
+        search_out = [
+            {
+                "slug": c["slug"],
+                "displayName": c["displayName"],
+                "searchAliases": c.get("searchAliases", []),
+                "segment": c.get("segment"),
+            }
+            for c in catalog_out
+        ]
+
+        if args.dry_run:
+            json_log(operation="catalog.dry_run", entries=len(catalog_out), review=len(review))
+            return 0
+
+        write_json_atomic(
+            CATALOG_PATH,
+            {
+                "version": raw.get("version", "1.0.0") if isinstance(raw, dict) else "1.0.0",
+                "generatedAt": __import__("datetime").datetime.utcnow().isoformat() + "Z",
+                "vehicles": catalog_out,
+            },
+        )
+        write_json_atomic(SEARCH_PATH, search_out)
+        write_json_atomic(REVIEW_PATH, review)
+
     return 0
 
 
