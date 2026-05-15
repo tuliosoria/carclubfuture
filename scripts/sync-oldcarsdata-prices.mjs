@@ -24,44 +24,57 @@ import { fetchWithRetry, RateLimiter, writeJsonAtomic, jsonLog, timed } from "./
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CATALOG = resolve(ROOT, "src/lib/data/cars-ml/cars-catalog.json");
 const OUT = resolve(ROOT, "src/lib/data/cars-ml/oldcarsdata-current-prices.json");
-const ENDPOINT = process.env.OLDCARSDATA_BASE_URL ?? "https://api.oldcarsdata.com/v1";
+const ENDPOINT = process.env.OLDCARSDATA_BASE_URL ?? "https://api.oldcarsdata.com";
 const UA = "CarClubFuture/1.0 (+https://carclubfuture.com)";
 
-const limiter = new RateLimiter(2);
+const limiter = new RateLimiter(0.5);
+const SLOW_RETRY = { delaysMs: [2000, 6000, 15000] };
 
 async function fetchSnapshot(apiKey, year, make, model) {
   await limiter.take();
-  const url =
-    `${ENDPOINT}/vehicles/snapshot?year=${year}` +
-    `&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+  const params = new URLSearchParams({
+    make,
+    model,
+    year_min: String(year),
+    year_max: String(year),
+    status: "sold",
+    limit: "100",
+  });
+  const url = `${ENDPOINT}/auctions?${params.toString()}`;
   const r = await fetchWithRetry(url, {
     headers: { Authorization: `Bearer ${apiKey}`, "User-Agent": UA },
-  });
-  if (!r.ok) return { ok: false, status: r.status };
-  return { ok: true, body: await r.json() };
+  }, SLOW_RETRY);
+  const remaining = Number(r.headers.get("x-ratelimit-remaining"));
+  const reset = r.headers.get("x-ratelimit-reset");
+  if (!r.ok) return { ok: false, status: r.status, remaining, reset };
+  return { ok: true, body: await r.json(), remaining, reset };
+}
+
+function median(values) {
+  if (!values.length) return null;
+  const s = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 }
 
 function snapshotToPriceRow(snap) {
-  // OldCarsData free tier returns shape like:
-  //   { sales: [{soldPrice, mileage, reserveMet, soldAt}, ...], stats:{ median, count, reserveMetPct } }
-  // We defensively pluck both shapes.
-  const stats = snap?.stats ?? {};
-  const median =
-    Number(stats.median ?? stats.medianSoldPrice ?? snap?.medianSoldPrice ?? snap?.value) || null;
-  const count = Number(stats.count ?? snap?.count ?? snap?.sales?.length ?? 0);
-  const reserveMet =
-    typeof stats.reserveMetPct === "number"
-      ? stats.reserveMetPct
-      : typeof stats.reserveMetRate === "number"
-      ? stats.reserveMetRate
-      : null;
-  if (!median) return null;
+  const sales = Array.isArray(snap?.data) ? snap.data : Array.isArray(snap?.sales) ? snap.sales : [];
+  const prices = sales
+    .map((s) => Number(s.price ?? s.soldPrice))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const med = median(prices);
+  if (med == null) return null;
+  const reservedSales = sales.filter((s) => s.has_reserve === true || s.reserve === true);
+  const reserveMet = reservedSales.length
+    ? reservedSales.filter((s) => (s.auction_status ?? s.status) === "sold").length /
+      reservedSales.length
+    : null;
   return {
     asOf: new Date().toISOString(),
     conditionAnchor: 3,
-    valueUsd: median,
-    auctionMedian12moUsd: median,
-    auctionCount12mo: count,
+    valueUsd: Math.round(med),
+    auctionMedian12moUsd: Math.round(med),
+    auctionCount12mo: prices.length,
     reserveMetRate12mo: reserveMet,
   };
 }
@@ -103,7 +116,11 @@ async function main() {
   const cars = Array.isArray(catalogFile) ? catalogFile : catalogFile.vehicles ?? [];
 
   /** @type {Record<string, ReturnType<typeof snapshotToPriceRow>>} */
-  const prices = {};
+  let prices = {};
+  try {
+    const existing = JSON.parse(await readFile(OUT, "utf8"));
+    if (existing?.prices) prices = existing.prices;
+  } catch { /* fresh run */ }
   let dynamoWrites = 0;
 
   await timed("sync:oldcarsdata", async () => {
@@ -113,7 +130,13 @@ async function main() {
         const result = await fetchSnapshot(apiKey, c.year, c.make, c.model);
         if (!result.ok) {
           failed++;
-          jsonLog({ operation: "oldcarsdata.miss", slug: c.slug, status: result.status });
+          jsonLog({ operation: "oldcarsdata.miss", slug: c.slug, status: result.status, remaining: result.remaining });
+          // Free tier = 10 req/month. Once quota is gone, stop early to avoid
+          // burning successive 429s for hours.
+          if (result.status === 429 && result.remaining === 0) {
+            jsonLog({ operation: "oldcarsdata.quota_exhausted", reset: result.reset });
+            break;
+          }
           continue;
         }
         const row = snapshotToPriceRow(result.body);
