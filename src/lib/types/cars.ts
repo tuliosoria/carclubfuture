@@ -259,3 +259,39 @@ export interface MacroFeatures {
   data_status: "ok" | "insufficient";
   computed_at: string;
 }
+
+/**
+ * Phase G: per-horizon training result stored inside TrainingSummary.
+ */
+export interface HorizonResult {
+  trained: boolean;
+  /** Present when trained=false; human-readable reason. */
+  reason?: string;
+  /** Target variable used (may be a proxy — documented honestly). */
+  target?: string;
+  feature_columns?: string[];
+  cv_folds?: { mape: number; r2: number }[];
+  mean_mape?: number;
+  mean_r2?: number;
+}
+
+/**
+ * Phase G: training-summary.json schema — written by scripts/train_cars_ml.py.
+ * status='insufficient_data' is the expected current state until auction data
+ * accumulates (auction_count_36mo >= 5 for at least MIN_TRAIN_ROWS vehicles).
+ */
+export interface TrainingSummary {
+  status: "trained" | "insufficient_data" | "error";
+  trained: boolean;
+  total_catalog_rows: number;
+  eligible_count: number;
+  min_required: number;
+  horizons: {
+    "1yr": HorizonResult;
+    "3yr": HorizonResult;
+    "5yr": HorizonResult;
+  };
+  feature_set_version: string;
+  computed_at: string;
+  duration_ms: number;
+}

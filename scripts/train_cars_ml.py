@@ -1,152 +1,174 @@
 #!/usr/bin/env python3
-"""
-train_cars_ml.py
+"""Train per-horizon XGBoost models for collectible-car price forecasting.
 
-Trains the XGBoost forecasting stack:
-  - model-1yr.json  (1-year horizon)
-  - model-3yr.json  (3-year horizon)
-  - model-5yr.json  (5-year horizon, stacked on 1y/3y OOF preds)
+Honest insufficient-data behavior: when fewer than MIN_TRAIN_ROWS eligible
+vehicles exist, exit cleanly with a structured training-summary.json marking
+status='insufficient_data' instead of producing meaningless models.
 
-Inputs (assembled offline):
-  - oldcarsdata-current-prices.json   (auction medians, reserve rate)
-  - dual-channel-monthly-snapshots.json (BaT + C&B monthly history)
-  - community-score.json              (Reddit + Trends blend)
-  - segment-index.json                (segment momentum)
-  - cars-catalog.json                 (specs, segment, era)
-
-Outputs to src/lib/data/cars-ml/.
-
-When dependencies (xgboost, pandas, sklearn) or input data are missing,
-the script writes structurally-valid baseline model files and exits 0.
-This keeps `npm run train:cars-ml` safe to invoke in CI without failure.
+Baseline model files (kind="baseline") written by the old scaffold are
+preserved by retrain_cars_ml.py's DynamoDB publish logic — we do NOT delete
+them here so the runtime loader keeps a valid fallback.
 """
 from __future__ import annotations
 
 import json
-import os
 import sys
+import time
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
-ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = Path(os.environ.get("CARS_ML_OUTPUT_DIR", ROOT / "src" / "lib" / "data" / "cars-ml"))
-DATA_DIR.mkdir(parents=True, exist_ok=True)
+sys.path.insert(0, str(Path(__file__).parent / "_lib"))
+from feature_loader import encode_categoricals, load_features
 
-CATALOG_PATH = DATA_DIR / "cars-catalog.json"
-PRICES_PATH = DATA_DIR / "oldcarsdata-current-prices.json"
-SNAPSHOTS_PATH = DATA_DIR / "dual-channel-monthly-snapshots.json"
-COMMUNITY_PATH = DATA_DIR / "community-score.json"
-SEGMENT_INDEX_PATH = DATA_DIR / "segment-index.json"
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "src" / "lib" / "data" / "cars-ml"
+DATA.mkdir(parents=True, exist_ok=True)
 
-FEATURES = [
-    "current_price_c3", "auction_median_12mo", "auction_count_12mo",
-    "auction_high_12mo", "auction_low_12mo", "reserve_met_rate_12mo",
-    "mileage_median_sold", "production_total", "production_total_encoded",
-    "era_encoded", "segment_encoded", "body_style_encoded",
-    "engine_displacement", "cylinders", "is_convertible",
-    "is_matching_numbers", "has_factory_options", "age_years",
-    "community_score", "reddit_score", "forum_score",
-    "price_trajectory_6mo", "price_trajectory_24mo",
-    "collector_demand_ratio", "market_cycle_score", "popularity_score",
-    "price_momentum_1mo", "price_momentum_12mo",
-    "price_volatility_6mo", "price_volatility_12mo",
-    "drawdown_12mo", "history_density_12mo",
-    "auction_channel_mix_bat", "auction_channel_mix_cb",
-    "listing_ask_spread_pct", "log_current_price",
-    "segment_index_momentum", "correlated_sp500_12mo",
-    "correlated_gold_12mo", "snapshot_freshness_days",
-    "liquidity_proxy_score", "history_window_missing_flag",
-]
-
-HORIZONS = (1, 3, 5)
+MIN_TRAIN_ROWS = 30  # below this we refuse to train per the plan
 
 
-def log(msg: str) -> None:
-    print(f"[train:cars-ml] {msg}", file=sys.stderr)
+def jlog(**kw) -> None:
+    sys.stderr.write(json.dumps(kw) + "\n")
+    sys.stderr.flush()
 
 
-def load_json(path: Path, default: Any) -> Any:
-    if not path.exists():
-        return default
-    return json.loads(path.read_text())
-
-
-def save_json(path: Path, data: Any) -> None:
-    path.write_text(json.dumps(data, indent=2) + "\n")
-
-
-def write_baseline_model(horizon: int, segment_baselines: dict[str, float]) -> None:
-    """Write a structurally-valid placeholder model file.
-
-    The runtime loader (`car-forecast-models.ts`) will detect the
-    `kind == "baseline"` flag and fall back to the deterministic forecast
-    in `car-forecast.ts` (segment baseline CAGR + community tilt).
-    """
-    out = {
-        "kind": "baseline",
-        "horizon": horizon,
-        "trainedAt": None,
-        "features": FEATURES,
-        "segmentBaselines": segment_baselines,
-        "notes": "Baseline placeholder. Re-run with real auction history to materialize an XGBoost model.",
-    }
-    save_json(DATA_DIR / f"model-{horizon}yr.json", out)
-    save_json(DATA_DIR / f"model-{horizon}yr.baseline.json", out)
-
-
-def attempt_xgboost_training() -> bool:
-    try:
-        import pandas as pd  # type: ignore  # noqa: F401
-        import xgboost  # type: ignore  # noqa: F401
-        from sklearn.model_selection import TimeSeriesSplit  # type: ignore  # noqa: F401
-    except ImportError as exc:
-        log(f"xgboost/pandas/sklearn unavailable ({exc}); writing baseline models only")
-        return False
-
-    snapshots = load_json(SNAPSHOTS_PATH, {})
-    if not snapshots:
-        log("no dual-channel-monthly-snapshots.json yet; baseline models only")
-        return False
-
-    log(f"would train XGBoost on {sum(len(v) for v in snapshots.values())} snapshot rows")
-    # Real training would go here. Implementation intentionally deferred
-    # until a real auction snapshot dataset is committed.
-    return False
+def atomic_write_json(path: Path, obj) -> None:
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(obj, indent=2, default=str))
+    tmp.replace(path)
 
 
 def main() -> int:
-    raw_catalog = load_json(CATALOG_PATH, {"vehicles": []})
-    catalog = raw_catalog.get("vehicles", []) if isinstance(raw_catalog, dict) else raw_catalog
+    started = time.time()
 
-    segment_baselines: dict[str, float] = {}
-    for c in catalog:
-        seg = c.get("segment")
-        if not seg or seg in segment_baselines:
-            continue
-        # Mirror SEGMENT_BASELINE in src/lib/domain/car-forecast.ts so
-        # baseline models stay aligned with the runtime fallback.
-        defaults = {
-            "blue-chip": 0.04, "american-muscle": 0.05, "affordable-classics": 0.06,
-            "german-sport": 0.06, "japanese-icons": 0.09, "british-classic": 0.03,
-            "modern-collectible": 0.07, "ferrari-italian": 0.05,
-        }
-        segment_baselines[seg] = defaults.get(seg, 0.05)
+    rows = load_features(
+        DATA / "cars-catalog.json",
+        DATA / "price-aggregates.json",
+        DATA / "community-score.json",
+        DATA / "brand-features.json",
+        DATA / "macro-features.json",
+    )
+    rows = encode_categoricals(rows)
 
-    trained = attempt_xgboost_training()
-    if not trained:
-        for h in HORIZONS:
-            write_baseline_model(h, segment_baselines)
+    eligible = [r for r in rows if r["forecast_eligible"]]
+    total = len(rows)
+    eligible_count = len(eligible)
 
     summary = {
-        "kind": "baseline" if not trained else "xgboost",
-        "horizons": list(HORIZONS),
-        "vehicleCount": len(catalog),
-        "segmentCount": len(segment_baselines),
+        "status": "insufficient_data",
+        "trained": False,
+        "total_catalog_rows": total,
+        "eligible_count": eligible_count,
+        "min_required": MIN_TRAIN_ROWS,
+        "horizons": {
+            "1yr": {"trained": False, "reason": "insufficient_eligible_rows"},
+            "3yr": {"trained": False, "reason": "no_historical_snapshots"},
+            "5yr": {"trained": False, "reason": "no_historical_snapshots"},
+        },
+        "feature_set_version": "phase-g-2025-q4",
+        "computed_at": datetime.now(timezone.utc).isoformat(),
+        "duration_ms": int((time.time() - started) * 1000),
     }
-    save_json(DATA_DIR / "training-summary.json", summary)
-    log(f"summary written: {summary}")
+
+    if eligible_count < MIN_TRAIN_ROWS:
+        jlog(
+            operation="train.skip",
+            reason="insufficient_data",
+            eligible=eligible_count,
+            required=MIN_TRAIN_ROWS,
+        )
+        atomic_write_json(DATA / "training-summary.json", summary)
+        return 0
+
+    # -------------------------------------------------------------------------
+    # We have enough eligible rows — train the 1yr model only.
+    # 3yr / 5yr models require historical price snapshots that don't yet exist;
+    # they are intentionally skipped and marked not_trained in the summary.
+    # -------------------------------------------------------------------------
+    try:
+        import numpy as np
+        import pandas as pd
+        from sklearn.metrics import mean_absolute_percentage_error, r2_score
+        from sklearn.model_selection import TimeSeriesSplit
+        from xgboost import XGBRegressor
+    except ImportError as exc:
+        jlog(operation="train.skip", reason=f"import_error: {exc}")
+        atomic_write_json(DATA / "training-summary.json", summary)
+        return 0
+
+    df = pd.DataFrame(eligible)
+
+    feature_cols = [
+        "year",
+        "auction_median_12mo",
+        "auction_count_12mo",
+        "auction_count_36mo",
+        "reserve_met_rate_12mo",
+        "price_momentum_1mo",
+        "mileage_median_sold",
+        "community_score",
+        "brand_avg_cagr_5yr",
+        "brand_auction_volume_rank",
+        "brand_appreciation_tier_encoded",
+        "correlated_sp500_12mo",
+        "correlated_gold_12mo",
+    ]
+
+    X = df[feature_cols].apply(pd.to_numeric, errors="coerce").fillna(0)
+
+    # Target proxy for 1yr: price_momentum_12mo.
+    # Documented limitation: this is a trailing 12-month return, not a true
+    # forward 1yr price change. Forward targets require historical snapshots
+    # (planned for Phase H).
+    y = pd.to_numeric(df["price_momentum_12mo"], errors="coerce").fillna(0)
+
+    n_splits = min(5, max(2, len(df) // 6))
+    tscv = TimeSeriesSplit(n_splits=n_splits)
+    fold_scores = []
+    for tr_idx, te_idx in tscv.split(X):
+        m = XGBRegressor(
+            n_estimators=200, max_depth=4, learning_rate=0.05, random_state=42
+        )
+        m.fit(X.iloc[tr_idx], y.iloc[tr_idx])
+        preds = m.predict(X.iloc[te_idx])
+        y_te = y.iloc[te_idx]
+        fold_scores.append({
+            "mape": float(
+                mean_absolute_percentage_error(
+                    y_te.clip(lower=1e-3), np.clip(preds, 1e-3, None)
+                )
+            ),
+            "r2": float(r2_score(y_te, preds)),
+        })
+
+    final = XGBRegressor(
+        n_estimators=200, max_depth=4, learning_rate=0.05, random_state=42
+    )
+    final.fit(X, y)
+    final.save_model(str(DATA / "model-1yr.json"))
+
+    summary["status"] = "trained"
+    summary["trained"] = True
+    summary["horizons"]["1yr"] = {
+        "trained": True,
+        "target": (
+            "price_momentum_12mo "
+            "(12-month trailing return used as 1yr proxy — "
+            "forward targets require historical snapshots, planned Phase H)"
+        ),
+        "feature_columns": feature_cols,
+        "cv_folds": fold_scores,
+        "mean_mape": float(np.mean([f["mape"] for f in fold_scores])),
+        "mean_r2": float(np.mean([f["r2"] for f in fold_scores])),
+    }
+    summary["duration_ms"] = int((time.time() - started) * 1000)
+    atomic_write_json(DATA / "training-summary.json", summary)
+    jlog(
+        operation="train.done",
+        **{k: summary[k] for k in ("status", "eligible_count", "duration_ms")},
+    )
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())
