@@ -4,11 +4,16 @@
  *
  * Pulls live OldCarsData auction snapshots for every catalog vehicle and
  * writes them in PriceRow shape (see src/lib/db/car-search.ts) to
- * src/lib/data/cars-ml/oldcarsdata-current-prices.json. Optionally
- * mirrors each row into DynamoDB under pk=oldcarsdata#<slug>, sk=v1.
+ * src/lib/data/cars-ml/oldcarsdata-current-prices.json.
  *
- * Free tier returns last 14 days only — sparse data is expected; the
- * baseline forecast model continues to work as a fallback.
+ * Each slug is routed through the tiered cache helper (L0→L1→L2→L3):
+ *   L0  In-process memory  — never burns API quota
+ *   L1  DynamoDB (48h TTL) — survives restarts, never burns API quota
+ *   L2  Bundled JSON file  — served when DynamoDB is unreachable
+ *   L3  OldCarsData API    — only called on a full miss; writes back to L0+L1
+ *
+ * Free tier = 10 req/month. Once quota is gone, the loop exits early to
+ * avoid burning successive 429s. Cache hits (L0/L1/L2) never touch the API.
  *
  * Hardening: 3-retry exponential backoff, 2 req/s rate limit, atomic
  * write of the output JSON, structured stdout logs.
@@ -20,6 +25,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 import { fetchWithRetry, RateLimiter, writeJsonAtomic, jsonLog, timed } from "./_lib/http.mjs";
+import { withCache } from "./_lib/cache.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CATALOG = resolve(ROOT, "src/lib/data/cars-ml/cars-catalog.json");
@@ -79,30 +85,86 @@ function snapshotToPriceRow(snap) {
   };
 }
 
-async function maybePutDynamo(slug, row) {
-  // Optional DynamoDB mirror — only if AWS region + table are configured.
-  const tableName = process.env.DYNAMODB_TABLE;
-  if (!tableName || !process.env.AWS_REGION) return false;
-  try {
-    const { DynamoDBClient } = await import("@aws-sdk/client-dynamodb");
-    const { DynamoDBDocumentClient, PutCommand } = await import("@aws-sdk/lib-dynamodb");
-    const client = DynamoDBDocumentClient.from(new DynamoDBClient({ region: process.env.AWS_REGION }));
-    await client.send(
-      new PutCommand({
-        TableName: tableName,
-        Item: {
-          pk: `oldcarsdata#${slug}`,
-          sk: "v1",
-          body: JSON.stringify(row),
-          updatedAt: row.asOf,
+/**
+ * Inner sync loop — exported for testability.
+ *
+ * @param {object}   opts
+ * @param {Array}    opts.cars             Catalog vehicles array
+ * @param {string}   opts.apiKey           OldCarsData API key
+ * @param {object}   [opts.existingPrices] Loaded from the output JSON (L2 source)
+ * @param {object}   [opts.ddbClient]      Injected DynamoDB client (tests only)
+ * @param {Function} [opts.fetchSlug]      Override raw API call: (year, make, model) =>
+ *                                         Promise<{ok, body?, status?, remaining, reset}>
+ * @returns {Promise<{prices, ok, failed, recordsProcessed}>}
+ */
+export async function syncCars({ cars, apiKey, existingPrices = {}, ddbClient, fetchSlug } = {}) {
+  // Start from existing prices so unprocessed slugs retain their previous values.
+  const prices = { ...existingPrices };
+  let ok = 0;
+  let failed = 0;
+
+  for (const c of cars) {
+    // Track whether this iteration hit the monthly quota cap inside fetchOrigin so
+    // we can break after the withCache call (which may still serve L2 for this slug).
+    let quotaHit = false;
+    let quotaReset = null;
+
+    try {
+      const result = await withCache({
+        pk: `oldcarsdata#${c.slug}`,
+        sk: "v1",
+        ttlSeconds: 48 * 3600, // 48h freshness for auction snapshots (per plan)
+        source: "oldcarsdata",
+        // L2: serve the previously-synced value when DynamoDB is unreachable.
+        bundledFallback: async () => existingPrices[c.slug] ?? null,
+        // L3: only called on a full cache miss — burns one of the 10 monthly requests.
+        fetchOrigin: async () => {
+          const raw = fetchSlug
+            ? await fetchSlug(c.year, c.make, c.model)
+            : await fetchSnapshot(apiKey, c.year, c.make, c.model);
+
+          if (!raw.ok) {
+            // Free tier = 10 req/month. Signal quota exhaustion so the loop exits.
+            if (raw.status === 429 && raw.remaining === 0) {
+              quotaHit = true;
+              quotaReset = raw.reset;
+              const err = new Error("quota_exhausted");
+              err.reset = raw.reset;
+              throw err;
+            }
+            jsonLog({ operation: "oldcarsdata.miss", slug: c.slug, status: raw.status, remaining: raw.remaining });
+            return null;
+          }
+          return snapshotToPriceRow(raw.body);
         },
-      })
-    );
-    return true;
-  } catch (err) {
-    jsonLog({ operation: "dynamo.put.error", slug, error: err });
-    return false;
+        ddbClient,
+      });
+
+      jsonLog({
+        operation: "sync.oldcarsdata",
+        slug: c.slug,
+        cache_layer: result.layer,
+        durationMs: result.durationMs,
+      });
+
+      if (result.value != null) {
+        prices[c.slug] = result.value;
+        ok++;
+      } else {
+        failed++;
+      }
+    } catch (err) {
+      failed++;
+      jsonLog({ operation: "oldcarsdata.error", slug: c.slug, error: err });
+    }
+
+    if (quotaHit) {
+      jsonLog({ operation: "oldcarsdata.quota_exhausted", reset: quotaReset });
+      break;
+    }
   }
+
+  return { prices, ok, failed, recordsProcessed: cars.length };
 }
 
 async function main() {
@@ -115,48 +177,26 @@ async function main() {
   const catalogFile = JSON.parse(await readFile(CATALOG, "utf8"));
   const cars = Array.isArray(catalogFile) ? catalogFile : catalogFile.vehicles ?? [];
 
-  /** @type {Record<string, ReturnType<typeof snapshotToPriceRow>>} */
-  let prices = {};
+  let existingPrices = {};
   try {
     const existing = JSON.parse(await readFile(OUT, "utf8"));
-    if (existing?.prices) prices = existing.prices;
+    if (existing?.prices) existingPrices = existing.prices;
   } catch { /* fresh run */ }
-  let dynamoWrites = 0;
 
+  let syncResult;
   await timed("sync:oldcarsdata", async () => {
-    let ok = 0, failed = 0;
-    for (const c of cars) {
-      try {
-        const result = await fetchSnapshot(apiKey, c.year, c.make, c.model);
-        if (!result.ok) {
-          failed++;
-          jsonLog({ operation: "oldcarsdata.miss", slug: c.slug, status: result.status, remaining: result.remaining });
-          // Free tier = 10 req/month. Once quota is gone, stop early to avoid
-          // burning successive 429s for hours.
-          if (result.status === 429 && result.remaining === 0) {
-            jsonLog({ operation: "oldcarsdata.quota_exhausted", reset: result.reset });
-            break;
-          }
-          continue;
-        }
-        const row = snapshotToPriceRow(result.body);
-        if (!row) { failed++; continue; }
-        prices[c.slug] = row;
-        ok++;
-        if (await maybePutDynamo(c.slug, row)) dynamoWrites++;
-      } catch (err) {
-        failed++;
-        jsonLog({ operation: "oldcarsdata.error", slug: c.slug, error: err });
-      }
-    }
-    return { recordsProcessed: cars.length, ok, failed };
+    syncResult = await syncCars({ cars, apiKey, existingPrices });
+    return { recordsProcessed: syncResult.recordsProcessed, ok: syncResult.ok, failed: syncResult.failed };
   });
 
-  await writeJsonAtomic(OUT, { generatedAt: new Date().toISOString(), prices });
-  jsonLog({ operation: "oldcarsdata.persisted", count: Object.keys(prices).length, dynamoWrites });
+  await writeJsonAtomic(OUT, { generatedAt: new Date().toISOString(), prices: syncResult.prices });
+  jsonLog({ operation: "oldcarsdata.persisted", count: Object.keys(syncResult.prices).length });
 }
 
-main().catch((err) => {
-  jsonLog({ operation: "oldcarsdata.fatal", error: err });
-  process.exit(1);
-});
+// Only execute when run directly — not when imported by tests.
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    jsonLog({ operation: "oldcarsdata.fatal", error: err });
+    process.exit(1);
+  });
+}
