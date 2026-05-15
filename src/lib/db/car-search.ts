@@ -48,9 +48,10 @@ interface PriceRow {
 
 const catalog = catalogJson as { vehicles: CatalogVehicleRow[] };
 const prices = pricesJson as { prices: Record<string, PriceRow> };
-const communityScores = communityJson as {
-  scores: Record<string, { score: number }>;
-};
+const communityScores = communityJson as Record<
+  string,
+  { community_score: number; data_status?: string }
+>;
 const denylist = new Set(
   (denylistJson as { denylist: string[] }).denylist.map((s) => s.toLowerCase())
 );
@@ -106,7 +107,7 @@ export function getCarBySlug(slug: string): CollectorCar | null {
 }
 
 export function getCommunityScore(id: string): number | null {
-  return communityScores.scores[id]?.score ?? null;
+  return communityScores[id]?.community_score ?? null;
 }
 
 /** Lightweight inverted-index search over name + aliases. */

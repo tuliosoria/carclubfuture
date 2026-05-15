@@ -1,18 +1,302 @@
 {
-  "version": "1.0.0",
-  "notes": "Composite score (0..100) combining Reddit mention velocity (60%) and Google Trends momentum (40%).",
-  "scores": {
-    "1969-chevrolet-camaro-z-28": { "score": 78, "reddit": 82, "trends": 71, "forum": 80 },
-    "1970-plymouth-hemi-cuda": { "score": 88, "reddit": 90, "trends": 84, "forum": 92 },
-    "1969-ford-mustang-boss-429": { "score": 81, "reddit": 84, "trends": 77, "forum": 86 },
-    "1970-chevrolet-chevelle-ss-454": { "score": 73, "reddit": 76, "trends": 68, "forum": 75 },
-    "1990-acura-nsx": { "score": 85, "reddit": 88, "trends": 81, "forum": 84 },
-    "1994-toyota-supra-turbo": { "score": 92, "reddit": 95, "trends": 87, "forum": 90 },
-    "1993-mazda-rx-7-r1": { "score": 79, "reddit": 82, "trends": 74, "forum": 78 },
-    "1999-nissan-skyline-gt-r-r34": { "score": 94, "reddit": 96, "trends": 91, "forum": 95 },
-    "1973-porsche-911-carrera-rs": { "score": 86, "reddit": 80, "trends": 88, "forum": 92 },
-    "1965-shelby-cobra-427": { "score": 80, "reddit": 78, "trends": 76, "forum": 88 },
-    "1967-chevrolet-corvette-l88": { "score": 76, "reddit": 72, "trends": 71, "forum": 88 },
-    "1962-ferrari-250-gt-lusso": { "score": 82, "reddit": 70, "trends": 80, "forum": 96 }
+  "1969-chevrolet-camaro-z-28": {
+    "community_score": 25,
+    "data_status": "ok",
+    "data_points": 3,
+    "sentiment_source": "fallback",
+    "components": {
+      "reddit": {
+        "totalMentions": 10,
+        "postCount": 1
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "score30d": 30,
+        "momentum90d": 0
+      },
+      "hemmings": {
+        "count": 5,
+        "status": "ok"
+      }
+    },
+    "computed_at": "2026-05-15T20:20:52.770Z"
+  },
+  "1970-plymouth-hemi-cuda": {
+    "sentiment_source": "fallback",
+    "data_points": 2,
+    "components": {
+      "reddit": {
+        "postCount": 260,
+        "totalMentions": 260
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": 0.05523172479694218,
+        "score30d": 7.066666666666666
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "blocked"
+      }
+    },
+    "data_status": "ok",
+    "computed_at": "2026-05-15T20:19:27.439Z",
+    "community_score": 49.3
+  },
+  "1969-ford-mustang-boss-429": {
+    "sentiment_source": "fallback",
+    "data_points": 2,
+    "components": {
+      "reddit": {
+        "postCount": 353,
+        "totalMentions": 353
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": 0.10183150183150189,
+        "score30d": 66.16666666666667
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "blocked"
+      }
+    },
+    "data_status": "ok",
+    "computed_at": "2026-05-15T20:19:33.843Z",
+    "community_score": 64
+  },
+  "1970-chevrolet-chevelle-ss-454": {
+    "sentiment_source": "fallback",
+    "data_points": 2,
+    "components": {
+      "reddit": {
+        "postCount": 262,
+        "totalMentions": 262
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": -0.003806338588947341,
+        "score30d": 25.166666666666668
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "error"
+      }
+    },
+    "data_status": "ok",
+    "computed_at": "2026-05-15T20:19:40.623Z",
+    "community_score": 53.8
+  },
+  "1990-acura-nsx": {
+    "sentiment_source": "fallback",
+    "data_points": 2,
+    "components": {
+      "reddit": {
+        "postCount": 217,
+        "totalMentions": 217
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": 0.10582895365504061,
+        "score30d": 8.7
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "blocked"
+      }
+    },
+    "data_status": "ok",
+    "computed_at": "2026-05-15T20:19:45.830Z",
+    "community_score": 49.7
+  },
+  "1994-toyota-supra-turbo": {
+    "sentiment_source": "fallback",
+    "data_points": 2,
+    "components": {
+      "reddit": {
+        "postCount": 246,
+        "totalMentions": 246
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": 0.037171524128045905,
+        "score30d": 18.4
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "error"
+      }
+    },
+    "data_status": "ok",
+    "computed_at": "2026-05-15T20:19:50.658Z",
+    "community_score": 52.1
+  },
+  "1993-mazda-rx-7-r1": {
+    "sentiment_source": "fallback",
+    "data_points": 2,
+    "components": {
+      "reddit": {
+        "postCount": 216,
+        "totalMentions": 216
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": 0.036614110527154006,
+        "score30d": 3.4
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "blocked"
+      }
+    },
+    "data_status": "ok",
+    "computed_at": "2026-05-15T20:19:56.446Z",
+    "community_score": 48.4
+  },
+  "1999-nissan-skyline-gt-r-r34": {
+    "sentiment_source": "fallback",
+    "data_points": 2,
+    "components": {
+      "reddit": {
+        "postCount": 291,
+        "totalMentions": 291
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": 0.007501194457716193,
+        "score30d": 5.466666666666667
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "error"
+      }
+    },
+    "data_status": "ok",
+    "computed_at": "2026-05-15T20:20:01.545Z",
+    "community_score": 48.9
+  },
+  "1973-porsche-911-carrera-rs": {
+    "sentiment_source": "fallback",
+    "data_points": 2,
+    "components": {
+      "reddit": {
+        "postCount": 400,
+        "totalMentions": 400
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": 0.05469023729893296,
+        "score30d": 24
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "blocked"
+      }
+    },
+    "data_status": "ok",
+    "computed_at": "2026-05-15T20:20:09.261Z",
+    "community_score": 53.5
+  },
+  "1965-shelby-cobra-427": {
+    "sentiment_source": "fallback",
+    "data_points": 2,
+    "components": {
+      "reddit": {
+        "postCount": 355,
+        "totalMentions": 355
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": 0.30804268195572543,
+        "score30d": 21.233333333333334
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "error"
+      }
+    },
+    "data_status": "ok",
+    "computed_at": "2026-05-15T20:20:14.621Z",
+    "community_score": 52.8
+  },
+  "1967-chevrolet-corvette-l88": {
+    "sentiment_source": "fallback",
+    "data_points": 2,
+    "components": {
+      "reddit": {
+        "postCount": 305,
+        "totalMentions": 305
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": 0.08768912247173115,
+        "score30d": 8.133333333333333
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "error"
+      }
+    },
+    "data_status": "ok",
+    "computed_at": "2026-05-15T20:20:21.078Z",
+    "community_score": 49.5
+  },
+  "1962-ferrari-250-gt-lusso": {
+    "sentiment_source": "fallback",
+    "data_points": 1,
+    "components": {
+      "reddit": {
+        "postCount": 359,
+        "totalMentions": 359
+      },
+      "sentiment": {
+        "avgCompound": 0,
+        "source": "fallback"
+      },
+      "trends": {
+        "momentum90d": null,
+        "score30d": null
+      },
+      "hemmings": {
+        "count": 0,
+        "status": "blocked"
+      }
+    },
+    "data_status": "insufficient",
+    "computed_at": "2026-05-15T20:20:27.928Z",
+    "community_score": 47.5
   }
 }
