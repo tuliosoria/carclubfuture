@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "notes": "Composite score (0..100) combining Reddit mention velocity (60%) and Google Trends momentum (40%).",
+  "scores": {
+    "1969-chevrolet-camaro-z-28": { "score": 78, "reddit": 82, "trends": 71, "forum": 80 },
+    "1970-plymouth-hemi-cuda": { "score": 88, "reddit": 90, "trends": 84, "forum": 92 },
+    "1969-ford-mustang-boss-429": { "score": 81, "reddit": 84, "trends": 77, "forum": 86 },
+    "1970-chevrolet-chevelle-ss-454": { "score": 73, "reddit": 76, "trends": 68, "forum": 75 },
+    "1990-acura-nsx": { "score": 85, "reddit": 88, "trends": 81, "forum": 84 },
+    "1994-toyota-supra-turbo": { "score": 92, "reddit": 95, "trends": 87, "forum": 90 },
+    "1993-mazda-rx-7-r1": { "score": 79, "reddit": 82, "trends": 74, "forum": 78 },
+    "1999-nissan-skyline-gt-r-r34": { "score": 94, "reddit": 96, "trends": 91, "forum": 95 },
+    "1973-porsche-911-carrera-rs": { "score": 86, "reddit": 80, "trends": 88, "forum": 92 },
+    "1965-shelby-cobra-427": { "score": 80, "reddit": 78, "trends": 76, "forum": 88 },
+    "1967-chevrolet-corvette-l88": { "score": 76, "reddit": 72, "trends": 71, "forum": 88 },
+    "1962-ferrari-250-gt-lusso": { "score": 82, "reddit": 70, "trends": 80, "forum": 96 }
+  }
+}

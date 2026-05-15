@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "notes": "Hand-curated search aliases per vehicle. Augmented at runtime by buildCarSearchAliases().",
+  "aliases": {
+    "1969-chevrolet-camaro-z-28": ["camaro z28", "first gen camaro", "dz302", "muscle car"],
+    "1970-plymouth-hemi-cuda": ["barracuda", "hemi cuda", "mopar", "muscle"],
+    "1969-ford-mustang-boss-429": ["boss 429", "kar kraft", "shotgun motor", "muscle"],
+    "1970-chevrolet-chevelle-ss-454": ["ls6 chevelle", "ss454", "big block", "muscle"],
+    "1990-acura-nsx": ["honda nsx", "na1", "jdm icons"],
+    "1994-toyota-supra-turbo": ["mk4 supra", "2jz", "jdm icons", "fast and furious"],
+    "1993-mazda-rx-7-r1": ["fd rx7", "rotary", "13b", "jdm icons"],
+    "1999-nissan-skyline-gt-r-r34": ["r34 gtr", "rb26", "godzilla", "jdm icons"],
+    "1973-porsche-911-carrera-rs": ["carrera rs 2.7", "ducktail", "blue chip", "porsche 911 rs"],
+    "1965-shelby-cobra-427": ["427 cobra", "side oiler", "blue chip", "ac cobra"],
+    "1967-chevrolet-corvette-l88": ["c2 corvette", "l88", "blue chip", "race corvette"],
+    "1962-ferrari-250-gt-lusso": ["lusso", "ferrari 250", "blue chip", "ferrari classic"]
+  }
+}

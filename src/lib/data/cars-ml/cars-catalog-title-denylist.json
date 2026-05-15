@@ -1,0 +1,5 @@
+{
+  "version": "1.0.0",
+  "notes": "Salvage / flood / rebuilt-title vehicles excluded from default catalog.",
+  "denylist": []
+}

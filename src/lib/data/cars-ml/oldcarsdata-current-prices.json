@@ -1,0 +1,103 @@
+{
+  "version": "1.0.0",
+  "asOf": "2026-05-01T00:00:00Z",
+  "source": "bundled-seed",
+  "prices": {
+    "1969-chevrolet-camaro-z-28": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 96500,
+      "auctionMedian12moUsd": 95000,
+      "auctionCount12mo": 28,
+      "reserveMetRate12mo": 0.71
+    },
+    "1970-plymouth-hemi-cuda": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 1450000,
+      "auctionMedian12moUsd": 1500000,
+      "auctionCount12mo": 6,
+      "reserveMetRate12mo": 0.50
+    },
+    "1969-ford-mustang-boss-429": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 425000,
+      "auctionMedian12moUsd": 410000,
+      "auctionCount12mo": 11,
+      "reserveMetRate12mo": 0.64
+    },
+    "1970-chevrolet-chevelle-ss-454": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 130000,
+      "auctionMedian12moUsd": 128500,
+      "auctionCount12mo": 19,
+      "reserveMetRate12mo": 0.68
+    },
+    "1990-acura-nsx": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 95000,
+      "auctionMedian12moUsd": 92000,
+      "auctionCount12mo": 34,
+      "reserveMetRate12mo": 0.79
+    },
+    "1994-toyota-supra-turbo": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 165000,
+      "auctionMedian12moUsd": 160000,
+      "auctionCount12mo": 23,
+      "reserveMetRate12mo": 0.74
+    },
+    "1993-mazda-rx-7-r1": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 78000,
+      "auctionMedian12moUsd": 75500,
+      "auctionCount12mo": 12,
+      "reserveMetRate12mo": 0.66
+    },
+    "1999-nissan-skyline-gt-r-r34": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 280000,
+      "auctionMedian12moUsd": 275000,
+      "auctionCount12mo": 8,
+      "reserveMetRate12mo": 0.62
+    },
+    "1973-porsche-911-carrera-rs": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 950000,
+      "auctionMedian12moUsd": 935000,
+      "auctionCount12mo": 9,
+      "reserveMetRate12mo": 0.55
+    },
+    "1965-shelby-cobra-427": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 1650000,
+      "auctionMedian12moUsd": 1600000,
+      "auctionCount12mo": 5,
+      "reserveMetRate12mo": 0.40
+    },
+    "1967-chevrolet-corvette-l88": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 2400000,
+      "auctionMedian12moUsd": null,
+      "auctionCount12mo": 1,
+      "reserveMetRate12mo": null
+    },
+    "1962-ferrari-250-gt-lusso": {
+      "asOf": "2026-04-30",
+      "conditionAnchor": 3,
+      "valueUsd": 1850000,
+      "auctionMedian12moUsd": 1800000,
+      "auctionCount12mo": 7,
+      "reserveMetRate12mo": 0.57
+    }
+  }
+}

@@ -1,0 +1,43 @@
+# deps
+node_modules/
+.pnp
+.pnp.js
+
+# testing
+coverage/
+
+# next.js
+.next/
+out/
+build/
+dist/
+
+# production env
+.env
+.env.local
+.env.*.local
+.env.production
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# misc
+.DS_Store
+*.pem
+.vscode/
+.idea/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# script caches
+scripts/.cache/
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
