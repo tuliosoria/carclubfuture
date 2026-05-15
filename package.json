@@ -26,7 +26,9 @@
     "ingest:cars:catalog": "node scripts/ingest-cars-catalog-bulk.mjs --start-year=1950 --end-year=2024 --output=src/lib/data/cars-ml/cars-catalog-bulk.json --checkpoint=scripts/output/ingest-checkpoint.json",
     "build:community": "node scripts/build-community-score.mjs",
     "sync:bat:history": "node scripts/sync-bat-history.mjs",
-    "build:price:aggregates": "node scripts/build-price-aggregates.mjs --output=src/lib/data/cars-ml/price-aggregates.json"
+    "build:price:aggregates": "node scripts/build-price-aggregates.mjs --output=src/lib/data/cars-ml/price-aggregates.json",
+    "build:brand": "node scripts/build-brand-features.mjs --output=src/lib/data/cars-ml/brand-features.json",
+    "sync:macro": "node scripts/sync-macro-features.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.658.0",

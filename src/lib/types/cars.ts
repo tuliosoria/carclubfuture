@@ -220,3 +220,42 @@ export interface PriceAggregates {
   data_sources: string[];
   computed_at: string;
 }
+
+/**
+ * Phase F: per-make brand appreciation features derived from Phase C price
+ * aggregates. brand_avg_cagr_5yr is currently proxied from 12-month momentum
+ * (no historical depth); see brand_data_caveat.
+ */
+export interface BrandFeatures {
+  make: string;
+  /** 12-month momentum proxy for 5yr CAGR (see brand_data_caveat). */
+  brand_avg_cagr_5yr: number | null;
+  brand_appreciation_tier: "high" | "medium" | "low" | "declining" | null;
+  /** 1 = highest auction volume; ties broken alphabetically by make. */
+  brand_auction_volume_rank: number | null;
+  brand_total_auction_count_12mo: number;
+  brand_eligible_models_count: number;
+  brand_data_status: "ok" | "insufficient";
+  /** Present when brand_data_status is "ok"; documents proxy limitations. */
+  brand_data_caveat?: string;
+  computed_at: string;
+}
+
+/**
+ * Phase F: global macro market features — single object (not per-slug).
+ * collector_market_index_12mo is null until historical price-aggregate
+ * snapshots are available (Phase H).
+ */
+export interface MacroFeatures {
+  /** S&P 500 12-month return (latest_close / close_365d_ago - 1). */
+  correlated_sp500_12mo: number | null;
+  /** Gold (XAU/USD) 12-month return. */
+  correlated_gold_12mo: number | null;
+  /**
+   * CarClubFuture segment index 12-month return.
+   * Currently null — requires prior-year price-aggregate snapshots (Phase H).
+   */
+  collector_market_index_12mo: number | null;
+  data_status: "ok" | "insufficient";
+  computed_at: string;
+}
