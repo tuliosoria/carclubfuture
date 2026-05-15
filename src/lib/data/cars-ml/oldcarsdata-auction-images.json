@@ -3,17 +3,27 @@
     "url": "/cars/1969-ford-mustang-boss-429.jpg",
     "source": "wikimedia",
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:1969%E2%80%931970_Ford_Mustang_differences.jpg",
-    "license": "Public domain",
-    "author": "'69_Ford_Mustang_Mach_1_Coupe_(Orange_Julep).jpg: Bull-Doser '70_Ford_Mustang_(Cruisin'_At_The_Boardwalk_'10).jpg: Bull-Doser '70_Ford_Mustang_Mach_I_Coupe_(Centropolis_Laval_'10).jpg: Bull-Doser derivative work: Peter.shaman (talk)",
-    "mirroredAt": "2026-05-15T07:06:20.499Z"
+    "license": "CC BY 2.0",
+    "author": "Sicnag",
+    "mirroredAt": "2026-05-15T07:06:20.499Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "width": 5184,
+    "height": 3456,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:03.321Z"
   },
   "1990-acura-nsx": {
     "url": "/cars/1990-acura-nsx.jpg",
     "source": "wikimedia",
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:Honda_NSX_red.jpg",
-    "license": "CC BY-SA 3.0",
-    "author": "ed g2s • talk",
-    "mirroredAt": "2026-05-15T07:06:25.010Z"
+    "license": "CC BY-SA 2.0",
+    "author": "stillwellmike",
+    "mirroredAt": "2026-05-15T07:06:25.010Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "width": 4291,
+    "height": 2862,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:05.311Z"
   },
   "1970-chevrolet-chevelle-ss-454": {
     "url": "/cars/1970-chevrolet-chevelle-ss-454.jpg",
@@ -21,23 +31,38 @@
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:1970_Chevrolet_Chevelle_SS_(26149509557).jpg",
     "license": "CC BY 2.0",
     "author": "Bob P. B.",
-    "mirroredAt": "2026-05-15T07:08:18.940Z"
+    "mirroredAt": "2026-05-15T07:08:18.940Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "width": 6000,
+    "height": 4000,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:04.584Z"
   },
   "1994-toyota-supra-turbo": {
     "url": "/cars/1994-toyota-supra-turbo.jpg",
     "source": "wikimedia",
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:Toyota_Supra_1994_(14559830476).jpg",
-    "license": "CC BY-SA 2.0",
-    "author": "order_242 from Chile",
-    "mirroredAt": "2026-05-15T07:08:21.109Z"
+    "license": "CC0",
+    "author": "crash71100",
+    "mirroredAt": "2026-05-15T07:08:21.109Z",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "width": 6332,
+    "height": 3828,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:06.403Z"
   },
   "1993-mazda-rx-7-r1": {
     "url": "/cars/1993-mazda-rx-7-r1.jpg",
     "source": "wikimedia",
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:1993_Mazda_RX-7.jpg",
-    "license": "CC BY-SA 4.0",
-    "author": "DestinationFearFan",
-    "mirroredAt": "2026-05-15T07:08:25.025Z"
+    "license": "CC BY 2.0",
+    "author": "Charles from Port Chester, New York",
+    "mirroredAt": "2026-05-15T07:08:25.025Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "width": 6000,
+    "height": 4000,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:07.341Z"
   },
   "1999-nissan-skyline-gt-r-r34": {
     "url": "/cars/1999-nissan-skyline-gt-r-r34.jpg",
@@ -45,54 +70,89 @@
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:1999_Nissan_Skyline_GT-R_V-Spec_I.jpg",
     "license": "CC BY-SA 4.0",
     "author": "Calreyn88",
-    "mirroredAt": "2026-05-15T07:08:29.026Z"
+    "mirroredAt": "2026-05-15T07:08:29.026Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "width": 16320,
+    "height": 10018,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:08.173Z"
   },
   "1967-chevrolet-corvette-l88": {
     "url": "/cars/1967-chevrolet-corvette-l88.jpg",
     "source": "wikimedia",
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:1963_Chevrolet_C2_Corvette_Convertible_(16337138697).jpg",
     "license": "CC BY 2.0",
-    "author": "Sicnag",
-    "mirroredAt": "2026-05-15T07:12:09.873Z"
+    "author": "Bob P. B.",
+    "mirroredAt": "2026-05-15T07:12:09.873Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "width": 5821,
+    "height": 3706,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:11.191Z"
   },
   "1973-porsche-911-carrera-rs": {
     "url": "/cars/1973-porsche-911-carrera-rs.jpg",
     "source": "wikimedia",
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:Porsche_911_Carrera_RSR,_Bj._1974_(2011-08-13_Sp).JPG",
-    "license": "CC BY-SA 2.0 de",
-    "author": "Lothar Spurzem",
-    "mirroredAt": "2026-05-15T07:15:06.159Z"
+    "license": "CC BY-SA 4.0",
+    "author": "Ermell",
+    "mirroredAt": "2026-05-15T07:15:06.159Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "width": 5184,
+    "height": 3888,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:09.208Z"
   },
   "1970-plymouth-hemi-cuda": {
     "url": "/cars/1970-plymouth-hemi-cuda.jpg",
     "source": "wikimedia",
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:1970_Plymouth_Barracuda_%27Cuda_AAR_340_(16982569546).jpg",
     "license": "CC BY 2.0",
-    "author": "Jeremy from Sydney, Australia",
-    "mirroredAt": "2026-05-15T07:20:20.797Z"
+    "author": "Sicnag",
+    "mirroredAt": "2026-05-15T07:20:20.797Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "width": 5184,
+    "height": 3456,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:02.574Z"
   },
   "1965-shelby-cobra-427": {
     "url": "/cars/1965-shelby-cobra-427.jpg",
     "source": "wikimedia",
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:1965-05-23_21_Hatzenbach_-_Shelby_Cobra,_J._Sears-F._Gardner.jpg",
-    "license": "CC BY-SA 2.0 de",
-    "author": "Lothar Spurzem",
-    "mirroredAt": "2026-05-15T07:20:38.819Z"
+    "license": "CC BY-SA 4.0",
+    "author": "Calreyn88",
+    "mirroredAt": "2026-05-15T07:20:38.819Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "width": 13236,
+    "height": 6668,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:10.209Z"
   },
   "1962-ferrari-250-gt-lusso": {
     "url": "/cars/1962-ferrari-250-gt-lusso.jpg",
     "source": "wikimedia",
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:1962_Ferrari_250_GT_Lusso_prototype.jpg",
-    "license": "Public domain",
-    "author": "Unknown photographer",
-    "mirroredAt": "2026-05-15T07:20:40.887Z"
+    "license": "CC BY-SA 2.0",
+    "author": "thievingjoker",
+    "mirroredAt": "2026-05-15T07:20:40.887Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "width": 4608,
+    "height": 3456,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:12.676Z"
   },
   "1969-chevrolet-camaro-z-28": {
     "url": "/cars/1969-chevrolet-camaro-z-28.jpg",
     "source": "wikimedia",
     "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:1969_Chevrolet_Camaro,_Tuning_World_Bodensee_2018,_Friedrichshafen_(OW1A0661).jpg",
     "license": "CC BY-SA 4.0",
-    "author": "Matti Blume",
-    "mirroredAt": "2026-05-15T07:23:50.840Z"
+    "author": "Calreyn88",
+    "mirroredAt": "2026-05-15T07:23:50.840Z",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "width": 12962,
+    "height": 7942,
+    "imageStatus": "ok",
+    "cachedAt": "2026-05-15T20:19:01.709Z"
   }
 }

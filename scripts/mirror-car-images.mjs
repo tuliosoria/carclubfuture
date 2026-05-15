@@ -1,172 +1,365 @@
 #!/usr/bin/env node
 /**
- * mirror-car-images.mjs
+ * mirror-car-images.mjs  (Phase E — tiered cache + attribution + fallback + image_status)
  *
- * Wikimedia Commons image sync for the catalog.
+ * For every catalog vehicle:
+ *   1. Route through DynamoDB tiered cache (pk=image#<slug>, 30d TTL).
+ *   2. On cache miss: query Wikimedia Commons for a full-vehicle image.
+ *   3. Attribution (author + license + licenseUrl) is ALWAYS persisted — legally required.
+ *   4. Fallback chain: Wikimedia → OldCarsData auction imageUrl → "missing"
+ *   5. Emit imageStatus:"missing" for vehicles with no image (feeds Phase H report).
  *
- * For every catalog vehicle without a local mirrored image:
- *   1. Search Commons for "<year> <make> <model>"
- *   2. Resolve a reasonable thumbnail URL + extmetadata
- *   3. Mirror the bytes to public/cars/<slug>.<ext>
- *   4. Record { url, source: "wikimedia", sourcePageUrl, license, author }
- *      in src/lib/data/cars-ml/oldcarsdata-auction-images.json
- *
- * Attribution: license + author are extracted from extmetadata
- * (LicenseShortName + Artist). They MUST be rendered next to every image
- * to comply with CC-BY / CC-BY-SA licensing.
- *
- * Throttled to 1 req/s (search + image bytes share the bucket).
+ * CLI: node scripts/mirror-car-images.mjs
  */
 import { readFile, writeFile, mkdir, access, stat } from "node:fs/promises";
 import { constants } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, resolve, extname } from "node:path";
 
 import { fetchWithRetry, RateLimiter, writeJsonAtomic, jsonLog, timed } from "./_lib/http.mjs";
+import { withCache } from "./_lib/cache.mjs";
+import {
+  searchVehicleImages,
+  pickBestImage,
+  extractAttribution,
+} from "./_lib/wikimedia.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CATALOG = resolve(ROOT, "src/lib/data/cars-ml/cars-catalog.json");
 const IMAGES_JSON = resolve(ROOT, "src/lib/data/cars-ml/oldcarsdata-auction-images.json");
+const PRICES_JSON = resolve(ROOT, "src/lib/data/cars-ml/oldcarsdata-current-prices.json");
+const MISSING_JSON = resolve(ROOT, "src/lib/data/cars-ml/missing-images.json");
 const OUT_DIR = resolve(ROOT, "public/cars");
 
-const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
 const UA = "CarClubFuture/1.0 (https://carclubfuture.com; hello@carclubfuture.com) Node/22";
-const THUMB_WIDTH = 800;
-
-const limiter = new RateLimiter(0.5);
-
 const SLOW_RETRY = { delaysMs: [1500, 4000, 9000] };
+
+// 1 req/s for Wikimedia (polite rate; search + bytes share the bucket)
+const limiter = new RateLimiter(1);
+
+// ---------------------------------------------------------------------------
+// Pure image-selection logic — exported for unit tests (Task E4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Determine which VehicleImage to use for a vehicle, given:
+ *   - wikimediaCandidates: raw results from searchVehicleImages (may be [])
+ *   - oldcarsdataRecord: the OldCarsData price record for this slug (may be null)
+ *   - slug: vehicle slug
+ *   - cachedAt: ISO timestamp for the cachedAt field (defaults to now)
+ *
+ * Returns a VehicleImage-shaped object (matches src/lib/types/cars.ts).
+ * Attribution fields are NEVER null/undefined.
+ *
+ * @param {object} opts
+ * @param {Array}  opts.wikimediaCandidates
+ * @param {object|null} opts.oldcarsdataRecord
+ * @param {string} opts.slug
+ * @param {string} [opts.cachedAt]
+ * @returns {object}  VehicleImage
+ */
+export function selectImageForVehicle({ wikimediaCandidates = [], oldcarsdataRecord = null, slug, cachedAt }) {
+  const now = cachedAt || new Date().toISOString();
+
+  // ── Wikimedia (preferred) ─────────────────────────────────────────────────
+  const best = pickBestImage(wikimediaCandidates);
+  if (best) {
+    return {
+      slug,
+      url: best.url,
+      width: best.width ?? null,
+      height: best.height ?? null,
+      source: "wikimedia",
+      attribution: {
+        author: best.author || "Unknown",
+        license: best.license || "Unknown",
+        licenseUrl: best.licenseUrl || "",
+      },
+      imageStatus: "ok",
+      cachedAt: now,
+    };
+  }
+
+  // ── OldCarsData auction fallback ──────────────────────────────────────────
+  if (oldcarsdataRecord?.imageUrl) {
+    return {
+      slug,
+      url: oldcarsdataRecord.imageUrl,
+      width: null,
+      height: null,
+      source: "oldcarsdata",
+      attribution: {
+        author: "OldCarsData / BringATrailer auction listing",
+        license: "Editorial use",
+        licenseUrl: "",
+      },
+      imageStatus: "ok",
+      cachedAt: now,
+    };
+  }
+
+  // ── Missing ───────────────────────────────────────────────────────────────
+  return {
+    slug,
+    url: "",
+    width: null,
+    height: null,
+    source: "missing",
+    attribution: {
+      author: "Unknown",
+      license: "Unknown",
+      licenseUrl: "",
+    },
+    imageStatus: "missing",
+    cachedAt: now,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// File helpers
+// ---------------------------------------------------------------------------
 
 async function exists(p) {
   try { await access(p, constants.F_OK); return true; } catch { return false; }
 }
 
-function stripHtml(s) {
-  return s ? s.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim() : null;
-}
-
-async function searchCommons(query) {
-  await limiter.take();
-  const u = new URL(COMMONS_API);
-  u.searchParams.set("action", "query");
-  u.searchParams.set("format", "json");
-  u.searchParams.set("origin", "*");
-  u.searchParams.set("generator", "search");
-  u.searchParams.set("gsrsearch", `${query} filetype:bitmap`);
-  u.searchParams.set("gsrnamespace", "6"); // File: namespace
-  u.searchParams.set("gsrlimit", "8");
-  u.searchParams.set("prop", "imageinfo");
-  u.searchParams.set("iiprop", "url|extmetadata|mime|size");
-  u.searchParams.set("iiurlwidth", String(THUMB_WIDTH));
-  const r = await fetchWithRetry(u.toString(), { headers: { "User-Agent": UA } });
-  if (!r.ok) throw new Error(`commons search ${r.status}`);
-  const j = await r.json();
-  const pages = j?.query?.pages ? Object.values(j.query.pages) : [];
-  const candidates = [];
-  for (const p of pages) {
-    const info = p?.imageinfo?.[0];
-    if (!info?.url) continue;
-    const mime = info.mime || "";
-    if (!/^image\/(jpeg|png|webp)$/i.test(mime)) continue;
-    candidates.push({ page: p, info });
-  }
-  // Sort by search index order (preserve relevance)
-  candidates.sort((a, b) => (a.page.index ?? 0) - (b.page.index ?? 0));
-  return candidates;
-}
-
-function extractAttribution(info) {
-  const meta = info.extmetadata || {};
-  const license = meta.LicenseShortName?.value || meta.License?.value || "Unknown";
-  const author = stripHtml(meta.Artist?.value) || "Unknown";
-  const credit = stripHtml(meta.Credit?.value) || null;
-  const requiresAttribution = String(meta.AttributionRequired?.value || "").toLowerCase() === "true"
-    || /^cc[- ]by/i.test(license);
-  return { license, author, credit, requiresAttribution };
-}
-
 async function mirrorBytes(url, dest) {
+  // Rate-limit: 1 req/s shared with search calls
   await limiter.take();
   const r = await fetchWithRetry(url, { headers: { "User-Agent": UA } }, SLOW_RETRY);
-  if (!r.ok) throw new Error(`mirror ${r.status}`);
+  if (!r.ok) throw new Error(`mirror bytes HTTP ${r.status}: ${url}`);
   const buf = Buffer.from(await r.arrayBuffer());
   await writeFile(dest, buf);
   const st = await stat(dest);
   return st.size;
 }
 
+// ---------------------------------------------------------------------------
+// Per-vehicle origin fetch (called by withCache on L3 miss)
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch Wikimedia image, mirror bytes, build a VehicleImage record.
+ * Falls back through OldCarsData → "missing" before returning.
+ *
+ * @param {string} slug
+ * @param {object} car           Catalog entry { year, make, model, ... }
+ * @param {object} pricesIndex   Map of slug → OldCarsData price record
+ * @param {object} existingImages  Existing auction-images.json map (for local file check)
+ * @returns {Promise<object>}    VehicleImage
+ */
+async function fetchAndPickImage(slug, car, pricesIndex, existingImages) {
+  const cachedAt = new Date().toISOString();
+
+  // --- Wikimedia search ---
+  let wikimediaCandidates = [];
+  try {
+    wikimediaCandidates = await searchVehicleImages({
+      year: car.year,
+      make: car.make,
+      model: car.model,
+      fetch: (url, init) => fetchWithRetry(url, init),
+      rateLimiter: limiter,
+    });
+  } catch (err) {
+    jsonLog({ operation: "wikimedia.search.error", slug, error: err });
+  }
+
+  const vehicleImage = selectImageForVehicle({
+    wikimediaCandidates,
+    oldcarsdataRecord: pricesIndex[slug] ?? null,
+    slug,
+    cachedAt,
+  });
+
+  // --- Mirror bytes for Wikimedia images (side effect, best-effort) ---
+  if (vehicleImage.source === "wikimedia" && vehicleImage.url) {
+    try {
+      await mkdir(OUT_DIR, { recursive: true });
+      const imgUrl = vehicleImage.url;
+      const ext = (extname(new URL(imgUrl).pathname) || ".jpg").toLowerCase();
+      const dest = resolve(OUT_DIR, `${slug}${ext}`);
+      if (!(await exists(dest))) {
+        const bytes = await mirrorBytes(imgUrl, dest);
+        jsonLog({ operation: "wikimedia.bytes.mirrored", slug, bytes, dest });
+        // Update url to local path (same convention as legacy script)
+        vehicleImage.url = `/cars/${slug}${ext}`;
+      } else {
+        // Reuse existing local path from existing record if available
+        const existing = existingImages[slug];
+        if (existing?.url && existing.url.startsWith("/cars/")) {
+          vehicleImage.url = existing.url;
+        } else {
+          vehicleImage.url = `/cars/${slug}${ext}`;
+        }
+      }
+    } catch (mirrorErr) {
+      // Byte mirroring failure is non-fatal — use original Wikimedia URL
+      jsonLog({ operation: "wikimedia.bytes.error", slug, error: mirrorErr });
+    }
+  }
+
+  return vehicleImage;
+}
+
+// ---------------------------------------------------------------------------
+// Build the per-slug JSON record (extend legacy format, add new fields)
+// ---------------------------------------------------------------------------
+
+/**
+ * Merge a VehicleImage into the legacy auction-images.json entry format.
+ * Preserves all keys the UI already reads (url, source, sourcePageUrl,
+ * license, author, mirroredAt) while adding imageStatus, cachedAt,
+ * licenseUrl, width, height.
+ */
+function buildJsonRecord(vehicleImage, existingEntry) {
+  const { attribution } = vehicleImage;
+  return {
+    // Legacy fields (UI reads these)
+    url: vehicleImage.url,
+    source: vehicleImage.source,
+    sourcePageUrl: existingEntry?.sourcePageUrl ?? "",
+    license: attribution.license,
+    author: attribution.author,
+    mirroredAt: existingEntry?.mirroredAt ?? vehicleImage.cachedAt,
+    // New fields (Phase E)
+    licenseUrl: attribution.licenseUrl,
+    width: vehicleImage.width,
+    height: vehicleImage.height,
+    imageStatus: vehicleImage.imageStatus,
+    cachedAt: vehicleImage.cachedAt,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Load bundled fallback from existing JSON (used by withCache L2)
+// ---------------------------------------------------------------------------
+
+/** @type {Record<string, object>|null} */
+let _bundledImages = null;
+
+async function loadBundledImages() {
+  if (_bundledImages) return _bundledImages;
+  if (await exists(IMAGES_JSON)) {
+    try {
+      _bundledImages = JSON.parse(await readFile(IMAGES_JSON, "utf8"));
+    } catch {
+      _bundledImages = {};
+    }
+  } else {
+    _bundledImages = {};
+  }
+  return _bundledImages;
+}
+
+/**
+ * Return the bundled VehicleImage for a slug (from existing JSON), or null.
+ * Converts the legacy flat record to a VehicleImage-shaped object.
+ */
+async function loadBundledImage(slug) {
+  const bundled = await loadBundledImages();
+  const r = bundled[slug];
+  if (!r) return null;
+  return {
+    slug,
+    url: r.url ?? "",
+    width: r.width ?? null,
+    height: r.height ?? null,
+    source: r.source ?? "wikimedia",
+    attribution: {
+      author: r.author ?? "Unknown",
+      license: r.license ?? "Unknown",
+      licenseUrl: r.licenseUrl ?? r.sourcePageUrl ?? "",
+    },
+    imageStatus: r.imageStatus ?? "ok",
+    cachedAt: r.cachedAt ?? r.mirroredAt ?? new Date().toISOString(),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Main orchestrator
+// ---------------------------------------------------------------------------
+
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
+
   const catalogFile = JSON.parse(await readFile(CATALOG, "utf8"));
   const cars = Array.isArray(catalogFile) ? catalogFile : (catalogFile.vehicles ?? []);
 
-  /** @type {Record<string, {url:string, source:"wikimedia", sourcePageUrl:string, license:string, author:string, mirroredAt:string}>} */
-  let images = {};
-  if (await exists(IMAGES_JSON)) {
-    try { images = JSON.parse(await readFile(IMAGES_JSON, "utf8")); } catch { images = {}; }
-  }
+  const pricesFile = JSON.parse(await readFile(PRICES_JSON, "utf8"));
+  /** @type {Record<string, object>} */
+  const pricesIndex = pricesFile.prices ?? pricesFile ?? {};
+
+  // Load existing images JSON (will be updated in place)
+  const existingImages = (await loadBundledImages()) ?? {};
 
   const result = await timed("mirror:images", async () => {
-    let ok = 0, failed = 0, skipped = 0;
-    for (const c of cars) {
-      const slug = c.slug;
-      // Skip if we already have a local mirror AND a recorded attribution.
-      const existing = images[slug];
-      const localGuess = existing?.url ? resolve(ROOT, "public" + existing.url) : null;
-      if (existing && localGuess && (await exists(localGuess))) { skipped++; continue; }
+    let ok = 0, missing = 0, cached = 0;
 
-      const query = `${c.year} ${c.make} ${c.model}`.trim();
-      try {
-        const candidates = await searchCommons(query);
-        if (!candidates.length) { failed++; jsonLog({ operation:"commons.miss", slug, query }); continue; }
+    /** @type {Record<string, object>} Accumulated image records */
+    const updatedImages = { ...existingImages };
 
-        let mirrored = null;
-        let lastErr = null;
-        for (const hit of candidates) {
-          const { info } = hit;
-          // Prefer original URL when reasonable size (<6MB) — skips overloaded thumbnailer
-          const useOriginal = info.size && info.size < 6_000_000;
-          const sourceUrl = useOriginal ? info.url : (info.thumburl || info.url);
-          const ext = (extname(new URL(info.url).pathname) || ".jpg").toLowerCase();
-          const dest = resolve(OUT_DIR, `${slug}${ext}`);
-          try {
-            const bytes = await mirrorBytes(sourceUrl, dest);
-            const attr = extractAttribution(info);
-            images[slug] = {
-              url: `/cars/${slug}${ext}`,
-              source: "wikimedia",
-              sourcePageUrl: info.descriptionurl || `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(info.url.split("/").pop())}`,
-              license: attr.license,
-              author: attr.author,
-              mirroredAt: new Date().toISOString(),
-            };
-            mirrored = { bytes, license: attr.license };
-            break;
-          } catch (e) {
-            lastErr = e;
-            jsonLog({ operation:"commons.candidate.fail", slug, error: e });
-          }
-        }
-        if (mirrored) {
-          ok++;
-          jsonLog({ operation:"commons.mirrored", slug, bytes: mirrored.bytes, license: mirrored.license });
+    for (const car of cars) {
+      const slug = car.slug;
+
+      const cacheResult = await withCache({
+        pk: `image#${slug}`,
+        sk: "v1",
+        ttlSeconds: 30 * 24 * 3600, // 30-day TTL per plan
+        source: "wikimedia",
+        bundledFallback: () => loadBundledImage(slug),
+        fetchOrigin: () => fetchAndPickImage(slug, car, pricesIndex, existingImages),
+      });
+
+      const vehicleImage = cacheResult.value;
+
+      jsonLog({
+        operation: "image.mirror",
+        slug,
+        cache_layer: cacheResult.layer,
+        image_status: vehicleImage?.imageStatus,
+        source: vehicleImage?.source,
+        durationMs: cacheResult.durationMs,
+      });
+
+      if (vehicleImage) {
+        updatedImages[slug] = buildJsonRecord(vehicleImage, existingImages[slug]);
+        if (vehicleImage.imageStatus === "missing") {
+          missing++;
         } else {
-          failed++;
-          jsonLog({ operation:"commons.exhausted", slug, error: lastErr });
+          ok++;
         }
-      } catch (err) {
-        failed++;
-        jsonLog({ operation:"commons.error", slug, error: err });
+        if (cacheResult.layer === "L0" || cacheResult.layer === "L1" || cacheResult.layer === "L2") {
+          cached++;
+        }
       }
     }
-    await writeJsonAtomic(IMAGES_JSON, images);
-    return { recordsProcessed: cars.length, ok, failed, skipped };
+
+    // Atomic write: updated images JSON (L2 bundled fallback)
+    await writeJsonAtomic(IMAGES_JSON, updatedImages);
+
+    // Write missing-images.json (Phase H limitations report)
+    const missingSlugs = Object.entries(updatedImages)
+      .filter(([, v]) => v.imageStatus === "missing")
+      .map(([slug]) => slug);
+    await writeJsonAtomic(MISSING_JSON, {
+      generatedAt: new Date().toISOString(),
+      slugs: missingSlugs,
+    });
+
+    jsonLog({ operation: "mirror:images.missing", count: missingSlugs.length, slugs: missingSlugs });
+
+    return { recordsProcessed: cars.length, ok, missing, cached };
   });
 
-  jsonLog({ operation:"mirror:images.summary", ...result });
+  jsonLog({ operation: "mirror:images.summary", ...result });
 }
 
-main().catch((err) => {
-  jsonLog({ operation:"mirror:images.fatal", error: err });
-  process.exit(1);
-});
+// Only run main() when executed directly (not when imported by tests)
+const isMain = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMain) {
+  main().catch((err) => {
+    jsonLog({ operation: "mirror:images.fatal", error: err });
+    process.exit(1);
+  });
+}
