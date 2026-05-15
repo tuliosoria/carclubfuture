@@ -28,7 +28,9 @@
     "sync:bat:history": "node scripts/sync-bat-history.mjs",
     "build:price:aggregates": "node scripts/build-price-aggregates.mjs --output=src/lib/data/cars-ml/price-aggregates.json",
     "build:brand": "node scripts/build-brand-features.mjs --output=src/lib/data/cars-ml/brand-features.json",
-    "sync:macro": "node scripts/sync-macro-features.mjs"
+    "sync:macro": "node scripts/sync-macro-features.mjs",
+    "build:limitations": "node scripts/build-limitations-report.mjs",
+    "sync:full": "node scripts/sync-full.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.658.0",
