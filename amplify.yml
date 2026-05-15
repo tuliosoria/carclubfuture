@@ -1,0 +1,40 @@
+version: 1
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm use 22
+            - npm ci
+            # Whitelist the env vars Next reads at build / runtime.
+            # Add new keys here AND in the Amplify console.
+            - |
+              for key in \
+                AWS_REGION \
+                DYNAMODB_TABLE \
+                OLDCARSDATA_API_KEY \
+                CARS_ML_MODEL_SOURCE \
+                LEGAL_OPERATOR_NAME \
+                LEGAL_CONTACT_EMAIL \
+                LEGAL_BUSINESS_ADDRESS \
+                LEGAL_CONTACT_URL \
+                PRIVACY_REQUEST_EMAIL \
+                OWNED_DATA_ASSET_BUCKET \
+                OWNED_DATA_ASSET_PREFIX \
+                ; do
+                if [ -n "${!key}" ]; then
+                  echo "$key=${!key}" >> .env.production
+                fi
+              done
+        build:
+          commands:
+            - npm run verify:app
+      artifacts:
+        baseDirectory: .next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - .next/cache/**/*
+          - node_modules/**/*
+    appRoot: .

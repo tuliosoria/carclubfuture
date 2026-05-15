@@ -1,0 +1,42 @@
+# CarClubFuture × OldCarsData integration plan
+
+OldCarsData is the **single source of truth for collector car prices**.
+This document captures the integration contract.
+
+## Endpoints used
+
+- `GET /v1/vehicles/snapshot?year={year}&make={make}&model={model}` — current
+  spot snapshot: trailing 12-month auction median, count, reserve-met rate,
+  median sold mileage, source channel mix.
+- `GET /v1/vehicles/history?year={year}&make={make}&model={model}` — monthly
+  median sold prices for the trailing 24 months (BaT + Cars & Bids).
+
+Auth: `Authorization: Bearer ${OLDCARSDATA_API_KEY}`.
+
+## Cache strategy
+
+Tiered, applied to every price request:
+
+```
+L0 in-process memory (per-Lambda, ~5 min TTL)
+L1 DynamoDB single-table key `oldcarsdata#<slug>`
+L2 Bundled JSON in src/lib/data/cars-ml/oldcarsdata-current-prices.json
+L3 Live OldCarsData API (writes back to L1 + L0)
+```
+
+L3 is only invoked when L0/L1/L2 miss. The site degrades to L2 if
+DynamoDB is unavailable.
+
+## Sync cadence
+
+- `npm run sync:oldcarsdata` — daily cron / manual trigger
+- `npm run sync:oldcarsdata:bulk path/to/export.csv` — historical backfill
+
+Both write `oldcarsdata-current-prices.json` and (when AWS is configured)
+DynamoDB cache entries.
+
+## Out of scope
+
+- We do **not** scrape BaT or Cars & Bids directly.
+- We do **not** use dealer asking prices as primary inputs.
+- We do **not** mix in valuations from competing APIs.

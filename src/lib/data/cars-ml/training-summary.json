@@ -1,0 +1,10 @@
+{
+  "kind": "baseline",
+  "horizons": [
+    1,
+    3,
+    5
+  ],
+  "vehicleCount": 12,
+  "segmentCount": 3
+}

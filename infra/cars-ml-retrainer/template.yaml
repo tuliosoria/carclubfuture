@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: CarClubFuture quarterly retrainer Lambda + EventBridge schedule.
+
+Parameters:
+  TableName:
+    Type: String
+    Default: carclubfuture-cache
+  ImageUri:
+    Type: String
+    Description: ECR image URI for the retrainer container.
+
+Resources:
+  RetrainerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: carclubfuture-retrainer
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      MemorySize: 4096
+      Timeout: 900
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          AWS_REGION: !Ref AWS::Region
+          DYNAMODB_TABLE: !Ref TableName
+          CARS_ML_PUBLISH_ENABLED: "true"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableName
+      Events:
+        Quarterly:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 9 1 1,4,7,10 ? *)
+            Description: Quarterly cars-ml retrain
+            Enabled: true
+
+Outputs:
+  RetrainerFunctionArn:
+    Value: !GetAtt RetrainerFunction.Arn
