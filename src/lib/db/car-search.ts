@@ -33,7 +33,7 @@ interface CatalogVehicleRow {
   engineDisplacementCc: number | null;
   cylinders: number | null;
   isConvertible: boolean;
-  imageUrl: string | null;
+  imageUrl?: string | null;
   description: string | null;
 }
 
@@ -90,6 +90,7 @@ export function loadStoredCatalog(): CollectorCar[] {
     if (denylist.has(row.id.toLowerCase())) continue;
     cars.push({
       ...row,
+      imageUrl: row.imageUrl ?? null,
       searchAliases: buildAliases(row),
       price: priceFor(row.id),
       forecast: null, // computed on demand by domain layer
