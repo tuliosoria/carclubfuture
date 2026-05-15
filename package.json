@@ -22,12 +22,15 @@
     "train:cars-ml": "python3 scripts/train_cars_ml.py",
     "retrain:cars-ml": "python3 scripts/retrain_cars_ml.py",
     "backfill:cars:catalog": "node scripts/backfill-cars-catalog.mjs",
-    "ingest:cars:catalog": "node scripts/ingest-cars-catalog-bulk.mjs --start-year=1950 --end-year=2024 --output=src/lib/data/cars-ml/cars-catalog-bulk.json --checkpoint=scripts/output/ingest-checkpoint.json"
+    "ingest:cars:catalog": "node scripts/ingest-cars-catalog-bulk.mjs --start-year=1950 --end-year=2024 --output=src/lib/data/cars-ml/cars-catalog-bulk.json --checkpoint=scripts/output/ingest-checkpoint.json",
+    "sync:bat:history": "node scripts/sync-bat-history.mjs",
+    "build:price:aggregates": "node scripts/build-price-aggregates.mjs --output=src/lib/data/cars-ml/price-aggregates.json"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.658.0",
     "@aws-sdk/client-s3": "^3.658.0",
     "@aws-sdk/lib-dynamodb": "^3.658.0",
+    "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "google-trends-api": "^4.9.2",

@@ -106,6 +106,31 @@ export interface CollectorCar {
   recentComps: AuctionComp[];
 }
 
+/**
+ * Normalised image record written by the mirror-car-images sync job and
+ * read back at request time via getCachedImage(slug).
+ *
+ * `imageStatus` is "missing" when no Wikimedia or OldCarsData image was found;
+ * the limitations report (Phase H) picks these up from missing-images.json.
+ *
+ * Attribution fields are ALWAYS populated (never null/undefined) to satisfy
+ * the legal requirement to display author + license next to every image.
+ */
+export interface VehicleImage {
+  slug: string;
+  url: string;
+  width: number | null;
+  height: number | null;
+  source: "wikimedia" | "oldcarsdata" | "missing";
+  attribution: {
+    author: string;
+    license: string; // e.g. "CC-BY-SA-4.0"
+    licenseUrl: string;
+  };
+  imageStatus: "ok" | "missing";
+  cachedAt: string; // ISO
+}
+
 export interface ConditionMultiplierRow {
   segment: Segment | "default";
   multipliers: Record<ConditionGrade, number>;
@@ -168,4 +193,30 @@ export interface BulkCatalogRow {
   bodySubStyle?: string | null;
   // A7: confidence scoring
   catalogConfidence?: "high" | "medium" | "low";
+}
+
+/**
+ * Phase C: merged OldCarsData + BaT price aggregates for the ML model.
+ * data_status "insufficient" gates forecast_eligible: false downstream.
+ */
+export interface PriceAggregates {
+  /** Most-recent sold price in trailing 90 days. */
+  current_price_c3: number | null;
+  auction_median_12mo: number | null;
+  auction_high_12mo: number | null;
+  auction_low_12mo: number | null;
+  auction_count_12mo: number;
+  auction_median_36mo: number | null;
+  auction_count_36mo: number;
+  /** Fraction of 12-month auctions where reserve was met (0..1). */
+  reserve_met_rate_12mo: number | null;
+  mileage_median_sold: number | null;
+  /** (median_last_30d - median_30_60d_ago) / median_30_60d_ago */
+  price_momentum_1mo: number | null;
+  /** (median_last_30d - median_330_360d_ago) / median_330_360d_ago */
+  price_momentum_12mo: number | null;
+  /** "insufficient" when auction_count_36mo < 5 — gates ML forecast eligibility. */
+  data_status: "ok" | "insufficient";
+  data_sources: string[];
+  computed_at: string;
 }
