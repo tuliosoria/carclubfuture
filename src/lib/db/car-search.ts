@@ -55,19 +55,14 @@ const communityScores = communityJson as Record<
 const denylist = new Set(
   (denylistJson as { denylist: string[] }).denylist.map((s) => s.toLowerCase())
 );
-interface SearchAliasRow {
-  slug: string;
-  displayName: string;
-  searchAliases: string[];
-  segment: string;
+interface SearchAliasFile {
+  version?: string;
+  notes?: string;
+  aliases?: Record<string, string[]>;
 }
 
-const aliasMap: Record<string, string[]> = Object.fromEntries(
-  (searchAliasesJson as unknown as SearchAliasRow[]).map((r) => [
-    r.slug,
-    r.searchAliases ?? [],
-  ]),
-);
+const aliasMap: Record<string, string[]> =
+  (searchAliasesJson as SearchAliasFile).aliases ?? {};
 
 function buildAliases(row: CatalogVehicleRow): string[] {
   const tokens = new Set<string>();
@@ -76,7 +71,7 @@ function buildAliases(row: CatalogVehicleRow): string[] {
   tokens.add(`${row.make} ${row.model}`.toLowerCase());
   tokens.add(`${row.year} ${row.make} ${row.model}`.toLowerCase());
   if (row.trim) tokens.add(`${row.model} ${row.trim}`.toLowerCase());
-  for (const alias of aliasMap[row.id] ?? []) tokens.add(alias.toLowerCase());
+  for (const alias of aliasMap[row.slug] ?? []) tokens.add(alias.toLowerCase());
   return Array.from(tokens);
 }
 
