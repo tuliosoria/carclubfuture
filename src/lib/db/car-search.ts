@@ -8,6 +8,7 @@ import pricesJson from "@/lib/data/cars-ml/oldcarsdata-current-prices.json";
 import communityJson from "@/lib/data/cars-ml/community-score.json";
 import denylistJson from "@/lib/data/cars-ml/cars-catalog-title-denylist.json";
 import searchAliasesJson from "@/lib/data/cars-ml/cars-search-catalog.json";
+import imagesJson from "@/lib/data/cars-ml/oldcarsdata-auction-images.json";
 import type {
   CollectorCar,
   PriceSnapshot,
@@ -64,6 +65,19 @@ interface SearchAliasFile {
 const aliasMap: Record<string, string[]> =
   (searchAliasesJson as SearchAliasFile).aliases ?? {};
 
+// Slugs that have a real (non-missing) image — used to sort the catalog so
+// cars with pictures appear first in search results.
+const imagesIndex = imagesJson as Record<
+  string,
+  { url?: string; imageStatus?: string } | undefined
+>;
+const slugsWithImage = new Set<string>();
+for (const [slug, entry] of Object.entries(imagesIndex)) {
+  if (entry && entry.url && entry.imageStatus !== "missing") {
+    slugsWithImage.add(slug);
+  }
+}
+
 function buildAliases(row: CatalogVehicleRow): string[] {
   const tokens = new Set<string>();
   tokens.add(row.make.toLowerCase());
@@ -106,7 +120,18 @@ export function loadStoredCatalog(): CollectorCar[] {
     });
   }
   cached = cars;
-  return cars;
+  // Stable sort: cars with real images first, original order preserved within
+  // each group. Tags each car with its original index to keep sort stable.
+  cached = cars
+    .map((c, i) => ({ c, i }))
+    .sort((a, b) => {
+      const ai = slugsWithImage.has(a.c.slug) ? 0 : 1;
+      const bi = slugsWithImage.has(b.c.slug) ? 0 : 1;
+      if (ai !== bi) return ai - bi;
+      return a.i - b.i;
+    })
+    .map(({ c }) => c);
+  return cached;
 }
 
 export function getCarBySlug(slug: string): CollectorCar | null {
