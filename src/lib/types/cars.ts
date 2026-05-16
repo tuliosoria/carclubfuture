@@ -121,7 +121,7 @@ export interface VehicleImage {
   url: string;
   width: number | null;
   height: number | null;
-  source: "wikimedia" | "oldcarsdata" | "missing";
+  source: "wikimedia" | "wikipedia" | "oldcarsdata" | "missing";
   attribution: {
     author: string;
     license: string; // e.g. "CC-BY-SA-4.0"

@@ -25,7 +25,7 @@ const SEGMENT_FALLBACK: Record<Segment, string> = {
 };
 
 export type ImageAttribution = {
-  source: "wikimedia";
+  source: "wikimedia" | "wikipedia";
   author: string;
   license: string;
   sourcePageUrl: string;
@@ -38,7 +38,7 @@ export type ResolvedImage = {
 
 type MirrorEntry = {
   url: string;
-  source: "wikimedia";
+  source: "wikimedia" | "wikipedia";
   sourcePageUrl: string;
   license: string;
   author: string;
@@ -52,10 +52,11 @@ export function resolveCarImage(
   const slug = car.slug;
   if (slug && INDEX[slug]?.url) {
     const m = INDEX[slug];
+    const src = m.source === "wikipedia" ? "wikipedia" : "wikimedia";
     return {
       src: m.url,
       attribution: {
-        source: "wikimedia",
+        source: src,
         author: m.author,
         license: m.license,
         sourcePageUrl: m.sourcePageUrl,

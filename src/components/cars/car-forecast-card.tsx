@@ -45,7 +45,7 @@ export function CarForecastCard({ car, scenario = "moderate" as Scenario }: { ca
           >
             {img.attribution.author} / {img.attribution.license}
           </a>{" "}
-          (Wikimedia Commons)
+          ({img.attribution.source === "wikipedia" ? "Wikipedia" : "Wikimedia Commons"})
         </p>
       ) : null}
       <CardHeader>

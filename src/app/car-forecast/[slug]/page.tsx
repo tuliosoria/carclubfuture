@@ -98,7 +98,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ slug
                     >
                       {img.attribution.author} / {img.attribution.license}
                     </a>{" "}
-                    (Wikimedia Commons)
+                    ({img.attribution.source === "wikipedia" ? "Wikipedia" : "Wikimedia Commons"})
                   </p>
                 ) : null}
               </>
