@@ -183,6 +183,17 @@ function titleToCommonsUrl(title) {
   return `https://commons.wikimedia.org/wiki/${encodeURIComponent(title)}`;
 }
 
+// Derive a stable hotlinkable image URL from a Commons File page URL.
+// Uses Special:FilePath which permanently redirects to the current upload
+// (immune to file renames / hash changes) and supports width=N for resizing.
+function commonsFilePath(sourcePageUrl, width = 1200) {
+  if (!sourcePageUrl) return "";
+  const m = sourcePageUrl.match(/\/wiki\/(?:File:|Image:)(.+)$/);
+  if (!m) return "";
+  const filename = m[1];
+  return `https://commons.wikimedia.org/wiki/Special:FilePath/${filename}?width=${width}`;
+}
+
 // ---------------------------------------------------------------------------
 // File helpers
 // ---------------------------------------------------------------------------
@@ -256,26 +267,12 @@ async function fetchAndPickImage(slug, car, pricesIndex, existingImages) {
     cachedAt,
   });
 
-  // 3) Mirror Wikimedia bytes locally (Wikipedia images are linked, not mirrored)
-  if (vehicleImage.source === "wikimedia" && vehicleImage.url) {
-    try {
-      await mkdir(OUT_DIR, { recursive: true });
-      const imgUrl = vehicleImage.url;
-      const ext = (extname(new URL(imgUrl).pathname) || ".jpg").toLowerCase();
-      const dest = resolve(OUT_DIR, `${slug}${ext}`);
-      if (!(await exists(dest))) {
-        const bytes = await mirrorBytes(imgUrl, dest);
-        jsonLog({ operation: "wikimedia.bytes.mirrored", slug, bytes });
-        vehicleImage.url = `/cars/${slug}${ext}`;
-      } else {
-        const existing = existingImages[slug];
-        vehicleImage.url = existing?.url?.startsWith("/cars/")
-          ? existing.url
-          : `/cars/${slug}${ext}`;
-      }
-    } catch (mirrorErr) {
-      jsonLog({ operation: "wikimedia.bytes.error", slug, error: mirrorErr });
-    }
+  // 3) Rewrite Wikimedia URLs to Special:FilePath hotlinks (stable, no local
+  //    bytes mirrored). Wikimedia explicitly permits hotlinking with
+  //    attribution, which is rendered alongside every image in the UI.
+  if (vehicleImage.source === "wikimedia" && vehicleImage.sourcePageUrl) {
+    const filePathUrl = commonsFilePath(vehicleImage.sourcePageUrl);
+    if (filePathUrl) vehicleImage.url = filePathUrl;
   }
 
   return vehicleImage;
