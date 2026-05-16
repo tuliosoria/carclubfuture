@@ -11,6 +11,7 @@ const eslintConfig = [
       "scripts/.cache/**",
       "src/lib/data/cars-ml/*.json",
       "public/**",
+      ".agent-skills/**",
     ],
   },
 ];
