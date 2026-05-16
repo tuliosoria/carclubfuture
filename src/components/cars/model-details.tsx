@@ -8,7 +8,7 @@ export function ModelDetails({ car }: { car: CollectorCar }) {
     { label: "Make", value: car.make },
     { label: "Model", value: car.model },
     { label: "Trim", value: car.trim ?? "—" },
-    { label: "Body style", value: car.bodyStyle },
+    { label: "Body style", value: car.bodyStyle ?? "—" },
     {
       label: "Engine",
       value: car.engineDisplacementCc
@@ -19,7 +19,7 @@ export function ModelDetails({ car }: { car: CollectorCar }) {
       label: "Production",
       value: car.productionTotal ? car.productionTotal.toLocaleString() : "—",
     },
-    { label: "Rarity", value: car.rarity },
+    { label: "Rarity", value: car.rarity ?? "—" },
   ];
   return (
     <Card>

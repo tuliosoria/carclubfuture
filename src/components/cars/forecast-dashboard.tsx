@@ -53,13 +53,15 @@ export function ForecastDashboard({ initialCars }: { initialCars: CollectorCar[]
     let list = initialCars;
     if (tokens.length) {
       list = list.filter((c) => {
-        const hay = [c.displayName, ...c.searchAliases, c.segment].join(" ").toLowerCase();
+        const hay = [c.displayName, ...c.searchAliases, c.segment ?? ""]
+          .join(" ")
+          .toLowerCase();
         return tokens.every((t) => hay.includes(t));
       });
     }
-    if (segments.size) list = list.filter((c) => segments.has(c.segment));
+    if (segments.size) list = list.filter((c) => c.segment != null && segments.has(c.segment));
     if (eras.size) list = list.filter((c) => eras.has(c.era));
-    if (bodies.size) list = list.filter((c) => bodies.has(c.bodyStyle));
+    if (bodies.size) list = list.filter((c) => c.bodyStyle != null && bodies.has(c.bodyStyle));
     if (recommendation !== "all") {
       list = list.filter((c) => c.forecast?.recommendation === recommendation);
     }
@@ -87,9 +89,26 @@ export function ForecastDashboard({ initialCars }: { initialCars: CollectorCar[]
 
   const segmentCounts = React.useMemo(() => {
     const counts = new Map<Segment, number>();
-    for (const c of initialCars) counts.set(c.segment, (counts.get(c.segment) ?? 0) + 1);
+    for (const c of initialCars) {
+      if (c.segment == null) continue;
+      counts.set(c.segment, (counts.get(c.segment) ?? 0) + 1);
+    }
     return counts;
   }, [initialCars]);
+
+  // ─── Pagination: cap the rendered window to keep the DOM sane.
+  // Filters/sort apply to the full dataset, but only `visibleCount` cards
+  // are mounted. "Show more" appends another PAGE_SIZE to the window.
+  const PAGE_SIZE = 60;
+  const [visibleCount, setVisibleCount] = React.useState(PAGE_SIZE);
+  React.useEffect(() => {
+    // Reset window whenever the filtered list changes (new search, etc.)
+    setVisibleCount(PAGE_SIZE);
+  }, [query, segments, eras, bodies, recommendation, sortBy]);
+  const visible = React.useMemo(
+    () => filtered.slice(0, visibleCount),
+    [filtered, visibleCount],
+  );
 
   const filtersActive =
     query.length > 0 ||
@@ -199,7 +218,8 @@ export function ForecastDashboard({ initialCars }: { initialCars: CollectorCar[]
             />
           </div>
           <p className="text-sm text-muted-foreground">
-            {filtered.length} of {initialCars.length} vehicles
+            Showing {Math.min(visibleCount, filtered.length)} of {filtered.length}
+            {filtered.length !== initialCars.length ? ` (filtered from ${initialCars.length})` : ""}
           </p>
         </div>
 
@@ -217,12 +237,23 @@ export function ForecastDashboard({ initialCars }: { initialCars: CollectorCar[]
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((car) => (
+          {visible.map((car) => (
             <Link key={car.id} href={`/car-forecast/${car.slug}`}>
               <CarForecastCard car={car} scenario={scenario} />
             </Link>
           ))}
         </div>
+
+        {visibleCount < filtered.length ? (
+          <div className="mt-8 flex justify-center">
+            <Button
+              variant="secondary"
+              onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+            >
+              Show more ({filtered.length - visibleCount} remaining)
+            </Button>
+          </div>
+        ) : null}
 
         {filtered.length === 0 ? (
           <div className="mt-12 rounded-lg border border-dashed border-border bg-card p-10 text-center">

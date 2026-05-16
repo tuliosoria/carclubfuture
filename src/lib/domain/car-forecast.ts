@@ -9,6 +9,7 @@ import type {
   CarForecast,
   CollectorCar,
   ProjectionPoint,
+  Segment,
 } from "@/lib/types/cars";
 import { classifyConfidence } from "./confidence-display";
 import { recommendationFromCagr } from "./recommendation";
@@ -21,7 +22,7 @@ interface SegmentBaseline {
   volatility: number; // sigma applied for pessimist/optimist bands
 }
 
-const SEGMENT_BASELINE: Record<CollectorCar["segment"], SegmentBaseline> = {
+const SEGMENT_BASELINE: Record<Segment, SegmentBaseline> = {
   "blue-chip": { baseCagr: 0.04, volatility: 0.05 },
   "american-muscle": { baseCagr: 0.05, volatility: 0.07 },
   "affordable-classics": { baseCagr: 0.06, volatility: 0.08 },
@@ -68,6 +69,9 @@ export function computeForecast(car: CollectorCar): CarForecast {
   }
   if (price.auctionCount12mo < MIN_AUCTIONS_36MO) {
     return insufficient(car, `Only ${price.auctionCount12mo} auction results in trailing 12 months.`);
+  }
+  if (!car.segment) {
+    return insufficient(car, "No segment classification on bulk catalog entry.");
   }
   const baseline = SEGMENT_BASELINE[car.segment];
 
