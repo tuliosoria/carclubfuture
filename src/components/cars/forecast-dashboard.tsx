@@ -27,6 +27,7 @@ const ERAS: Era[] = [
   "modern-collectible",
 ];
 const BODIES: BodyStyle[] = ["coupe", "convertible", "sedan", "wagon", "truck", "suv"];
+const DECADES: number[] = [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020];
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "current-value", label: "Current value" },
@@ -38,6 +39,15 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
 
 const CONFIDENCE_RANK = { high: 3, medium: 2, low: 1 } as const;
 
+interface Facets {
+  segments: Partial<Record<Segment, number>>;
+  unclassifiedSegment: number;
+  eras: Partial<Record<Era, number>>;
+  bodies: Partial<Record<BodyStyle, number>>;
+  decades: Record<string, number>;
+  totalAfterQuery: number;
+}
+
 interface SearchResponse {
   success: boolean;
   data?: {
@@ -46,6 +56,7 @@ interface SearchResponse {
     total: number;
     offset: number;
     limit: number;
+    facets?: Facets;
   };
 }
 
@@ -62,9 +73,10 @@ export function ForecastDashboard({
 }: DashboardProps) {
   const [query, setQuery] = React.useState("");
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
-  const [segments, setSegments] = React.useState<Set<Segment>>(new Set());
+  const [segments, setSegments] = React.useState<Set<Segment | "unclassified">>(new Set());
   const [eras, setEras] = React.useState<Set<Era>>(new Set());
   const [bodies, setBodies] = React.useState<Set<BodyStyle>>(new Set());
+  const [decades, setDecades] = React.useState<Set<number>>(new Set());
   const [recommendation, setRecommendation] = React.useState<Recommendation | "all">("all");
   const [scenario, setScenario] = React.useState<Scenario>("moderate");
   const [sortBy, setSortBy] = React.useState<SortKey>("projected-upside");
@@ -72,6 +84,7 @@ export function ForecastDashboard({
   // ─── Server-paginated state.
   const [cars, setCars] = React.useState<CollectorCar[]>(initialCars);
   const [serverTotal, setServerTotal] = React.useState<number>(totalCount);
+  const [facets, setFacets] = React.useState<Facets | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const reqIdRef = React.useRef(0);
@@ -81,19 +94,24 @@ export function ForecastDashboard({
     return () => window.clearTimeout(t);
   }, [query]);
 
-  // The API supports q + (single) segment + recommendation. Multi-segment,
-  // era, body, and sort are post-filters applied client-side over what
-  // we've loaded.
-  const apiSegment: Segment | null = segments.size === 1 ? [...segments][0] : null;
-  const apiRecommendation = recommendation;
+  // All structured filters are now server-side. Multi-select uses
+  // comma-separated values per dimension.
   const apiQuery = debouncedQuery;
-  const apiKey = `${apiQuery}|${apiSegment ?? ""}|${apiRecommendation}`;
+  const segmentCsv = [...segments].join(",");
+  const eraCsv = [...eras].join(",");
+  const bodyCsv = [...bodies].join(",");
+  const decadeCsv = [...decades].join(",");
+  const apiRecommendation = recommendation;
+  const apiKey = `${apiQuery}|${segmentCsv}|${eraCsv}|${bodyCsv}|${decadeCsv}|${apiRecommendation}`;
 
   const buildUrl = React.useCallback(
     (offset: number, limit: number) => {
       const sp = new URLSearchParams();
       if (apiQuery) sp.set("q", apiQuery);
-      if (apiSegment) sp.set("segment", apiSegment);
+      if (segmentCsv) sp.set("segment", segmentCsv);
+      if (eraCsv) sp.set("era", eraCsv);
+      if (bodyCsv) sp.set("body", bodyCsv);
+      if (decadeCsv) sp.set("decade", decadeCsv);
       if (apiRecommendation && apiRecommendation !== "all") {
         sp.set("recommendation", apiRecommendation);
       }
@@ -101,16 +119,22 @@ export function ForecastDashboard({
       sp.set("limit", String(limit));
       return `/api/cars/search?${sp.toString()}`;
     },
-    [apiQuery, apiSegment, apiRecommendation],
+    [apiQuery, segmentCsv, eraCsv, bodyCsv, decadeCsv, apiRecommendation],
   );
 
   const isInitialState =
-    apiQuery === "" && apiSegment == null && apiRecommendation === "all";
+    apiQuery === "" &&
+    segments.size === 0 &&
+    eras.size === 0 &&
+    bodies.size === 0 &&
+    decades.size === 0 &&
+    apiRecommendation === "all";
+
+  // Always fetch on mount once to populate facets, even in initial state.
+  const facetsLoadedRef = React.useRef(false);
 
   React.useEffect(() => {
-    if (isInitialState) {
-      // Restore the server-rendered initial slice when all API filters clear.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (isInitialState && facetsLoadedRef.current) {
       setCars(initialCars);
       setServerTotal(totalCount);
       setError(null);
@@ -126,6 +150,8 @@ export function ForecastDashboard({
         if (!json.success || !json.data) throw new Error("search failed");
         setCars(json.data.results);
         setServerTotal(json.data.total);
+        if (json.data.facets) setFacets(json.data.facets);
+        facetsLoadedRef.current = true;
       })
       .catch((e: unknown) => {
         if (myReq !== reqIdRef.current) return;
@@ -148,6 +174,7 @@ export function ForecastDashboard({
       if (!json.success || !json.data) throw new Error("search failed");
       setCars((prev) => [...prev, ...json.data!.results]);
       setServerTotal(json.data.total);
+      if (json.data.facets) setFacets(json.data.facets);
     } catch (e) {
       if (myReq !== reqIdRef.current) return;
       setError(e instanceof Error ? e.message : "search failed");
@@ -156,14 +183,9 @@ export function ForecastDashboard({
     }
   }
 
-  const postFiltered = React.useMemo(() => {
-    let list = cars;
-    if (segments.size > 1) {
-      list = list.filter((c) => c.segment != null && segments.has(c.segment));
-    }
-    if (eras.size) list = list.filter((c) => eras.has(c.era));
-    if (bodies.size) list = list.filter((c) => c.bodyStyle != null && bodies.has(c.bodyStyle));
-    return [...list].sort((a, b) => {
+  // All structured filters are server-side now. Only sort is local.
+  const sortedCars = React.useMemo(() => {
+    return [...cars].sort((a, b) => {
       const af = a.forecast;
       const bf = b.forecast;
       switch (sortBy) {
@@ -183,32 +205,24 @@ export function ForecastDashboard({
           return (bf?.cagr5yr ?? 0) - (af?.cagr5yr ?? 0);
       }
     });
-  }, [cars, segments, eras, bodies, sortBy]);
-
-  const segmentCounts = React.useMemo(() => {
-    const counts = new Map<Segment, number>();
-    for (const c of cars) {
-      if (c.segment == null) continue;
-      counts.set(c.segment, (counts.get(c.segment) ?? 0) + 1);
-    }
-    return counts;
-  }, [cars]);
+  }, [cars, sortBy]);
 
   const filtersActive =
     query.length > 0 ||
     segments.size > 0 ||
     eras.size > 0 ||
     bodies.size > 0 ||
+    decades.size > 0 ||
     recommendation !== "all";
 
   const hasMore = cars.length < serverTotal;
-  const clientFiltered = postFiltered.length !== cars.length;
 
   function reset() {
     setQuery("");
     setSegments(new Set());
     setEras(new Set());
     setBodies(new Set());
+    setDecades(new Set());
     setRecommendation("all");
     setScenario("moderate");
     setSortBy("projected-upside");
@@ -232,16 +246,35 @@ export function ForecastDashboard({
             ) : null}
           </div>
 
+          <FilterGroup label="Decade">
+            {DECADES.map((d) => (
+              <CheckboxRow
+                key={d}
+                label={`${d}s`}
+                count={facets?.decades[`${d}s`] ?? 0}
+                checked={decades.has(d)}
+                onChange={() => toggle(setDecades, d)}
+              />
+            ))}
+          </FilterGroup>
+
           <FilterGroup label="Segment">
             {SEGMENTS.map((s) => (
               <CheckboxRow
                 key={s.id}
                 label={s.shortName}
-                count={segmentCounts.get(s.id) ?? 0}
+                count={facets?.segments[s.id] ?? 0}
                 checked={segments.has(s.id)}
-                onChange={() => toggle(setSegments, s.id)}
+                onChange={() => toggle<Segment | "unclassified">(setSegments, s.id)}
               />
             ))}
+            <CheckboxRow
+              label="Unclassified"
+              hint="no segment match"
+              count={facets?.unclassifiedSegment ?? 0}
+              checked={segments.has("unclassified")}
+              onChange={() => toggle<Segment | "unclassified">(setSegments, "unclassified")}
+            />
           </FilterGroup>
 
           <FilterGroup label="Era">
@@ -250,6 +283,7 @@ export function ForecastDashboard({
                 key={e}
                 label={ERA_DESCRIPTORS[e].label}
                 hint={ERA_DESCRIPTORS[e].range}
+                count={facets?.eras[e] ?? 0}
                 checked={eras.has(e)}
                 onChange={() => toggle(setEras, e)}
               />
@@ -261,6 +295,7 @@ export function ForecastDashboard({
               <CheckboxRow
                 key={b}
                 label={cap(b)}
+                count={facets?.bodies[b] ?? 0}
                 checked={bodies.has(b)}
                 onChange={() => toggle(setBodies, b)}
               />
@@ -305,8 +340,7 @@ export function ForecastDashboard({
             />
           </div>
           <p className="text-sm text-foreground-muted">
-            Showing <span className="font-mono text-foreground tabular-nums">{postFiltered.length.toLocaleString()}</span> of <span className="font-mono text-foreground tabular-nums">{serverTotal.toLocaleString()}</span>
-            {clientFiltered ? ` (filtered from ${cars.length.toLocaleString()} loaded)` : ""}
+            Showing <span className="font-mono text-foreground tabular-nums">{sortedCars.length.toLocaleString()}</span> of <span className="font-mono text-foreground tabular-nums">{serverTotal.toLocaleString()}</span>
             {loading ? (
               <Loader2 className="ml-2 inline h-3 w-3 animate-spin text-papaya" />
             ) : null}
@@ -333,7 +367,7 @@ export function ForecastDashboard({
         ) : null}
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {postFiltered.map((car) => (
+          {sortedCars.map((car) => (
             <Link key={car.id} href={`/car-forecast/${car.slug}`} className="block h-full">
               <CarForecastCard car={car} scenario={scenario} />
             </Link>
@@ -358,7 +392,7 @@ export function ForecastDashboard({
           </div>
         ) : null}
 
-        {!loading && postFiltered.length === 0 ? (
+        {!loading && sortedCars.length === 0 ? (
           <div className="mt-12 border border-dashed border-border bg-surface-elevated p-10 text-center">
             <p className="text-foreground">No vehicles match these filters.</p>
             <Button onClick={reset} variant="ghost" className="mt-4">
