@@ -41,30 +41,41 @@ test("resumeState returns empty default for nonexistent path", async () => {
 
 // ─── fetchMakes ──────────────────────────────────────────────────────────────
 
-test("fetchMakes maps NHTSA Results to {id, display}", async () => {
-  const fakeFetch = async (_url) =>
-    okResp({
-      Results: [
-        { MakeId: 460, MakeName: "FORD", VehicleTypeName: "Passenger Car" },
-        {
-          MakeId: 467,
-          MakeName: "CHEVROLET",
-          VehicleTypeName: "Passenger Car",
-        },
-      ],
-    });
+test("fetchMakes maps NHTSA Results to {id, display} (unions car + passenger car, excludes moto-only)", async () => {
+  const responses = {
+    car: [
+      { MakeId: 460, MakeName: "FORD", VehicleTypeName: "Passenger Car" },
+      { MakeId: 467, MakeName: "CHEVROLET", VehicleTypeName: "Passenger Car" },
+    ],
+    "passenger%20car": [
+      { MakeId: 460, MakeName: "FORD" },
+      { MakeId: 999, MakeName: "TESLA" }, // only in passenger car
+    ],
+    motorcycle: [
+      { MakeId: 460, MakeName: "FORD" }, // dual-use, kept
+      { MakeId: 7777, MakeName: "DUCATI" }, // moto-only — never appears in car
+    ],
+  };
+  const fakeFetch = async (url) => {
+    for (const [key, results] of Object.entries(responses)) {
+      if (url.includes(`/GetMakesForVehicleType/${key}`)) {
+        return okResp({ Results: results });
+      }
+    }
+    return okResp({ Results: [] });
+  };
 
   const makes = await fetchMakes({ fetch: fakeFetch, rateLimiter: noOpRl });
-  assert.equal(makes.length, 2);
-  assert.deepEqual(makes[0], { id: 460, display: "FORD" });
-  assert.deepEqual(makes[1], { id: 467, display: "CHEVROLET" });
+  const ids = makes.map((m) => m.id).sort((a, b) => a - b);
+  // FORD (460) + CHEVROLET (467) + TESLA (999). DUCATI is motorcycle-only.
+  assert.deepEqual(ids, [460, 467, 999]);
 });
 
 // ─── fetchModelsForMakeYear ──────────────────────────────────────────────────
 
-test("fetchModelsForMakeYear normalizes NHTSA Results", async () => {
+test("fetchModelsForMakeYear hits the cars-only vehicletype endpoint", async () => {
   const fakeFetch = async (url) => {
-    assert.match(url, /makeId\/460\/modelyear\/2020/);
+    assert.match(url, /\/make\/FORD\/modelyear\/2020\/vehicletype\/car/);
     return okResp({
       Results: [
         {
@@ -76,10 +87,11 @@ test("fetchModelsForMakeYear normalizes NHTSA Results", async () => {
       ],
     });
   };
-  const models = await fetchModelsForMakeYear(460, 2020, {
-    fetch: fakeFetch,
-    rateLimiter: noOpRl,
-  });
+  const models = await fetchModelsForMakeYear(
+    { id: 460, display: "FORD" },
+    2020,
+    { fetch: fakeFetch, rateLimiter: noOpRl }
+  );
   assert.equal(models.length, 1);
   assert.deepEqual(models[0], {
     modelId: 1781,
@@ -99,7 +111,8 @@ test("buildRow produces a BulkCatalogRow with NHTSA id + null unknowns", () => {
   });
   assert.equal(row.slug, "1969-ford-mustang-boss-429");
   assert.equal(row.year, 1969);
-  assert.equal(row.make, "FORD");
+  assert.equal(row.make, "FORD"); // raw NHTSA value preserved
+  assert.equal(row.makeDisplay, "Ford"); // properly cased for UI
   assert.equal(row.model, "Mustang Boss 429");
   assert.equal(row.nhtsaId, "1781");
   assert.equal(row.carqueryId, null);
@@ -111,6 +124,23 @@ test("buildRow produces a BulkCatalogRow with NHTSA id + null unknowns", () => {
   assert.equal(row.era, "muscle-era");
   assert.equal(row.source, "nhtsa");
   assert.equal(row.catalogConfidence, "low");
+});
+
+test("buildRow preserves known acronyms (BMW, GMC) in makeDisplay", () => {
+  const bmw = buildRow({
+    year: 1995,
+    make: { id: 452, display: "BMW" },
+    model: { modelId: 1, modelName: "M3" },
+  });
+  assert.equal(bmw.makeDisplay, "BMW");
+  assert.equal(bmw.slug, "1995-bmw-m3");
+
+  const gmc = buildRow({
+    year: 2000,
+    make: { id: 1, display: "GMC" },
+    model: { modelId: 2, modelName: "Sierra" },
+  });
+  assert.equal(gmc.makeDisplay, "GMC");
 });
 
 test("slugify is ascii-only kebab", () => {
@@ -234,12 +264,13 @@ test("ingest flushes after each year — partial data survives crash mid-run", a
     if (yr === "2020") {
       throw new Error("simulated crash on year 2020");
     }
-    const makeId = url.match(/makeId\/(\d+)/)?.[1] ?? "0";
+    const makeName = url.match(/\/make\/([^/]+)/)?.[1] ?? "M0";
+    const makeId = makeName.replace(/^M/, "") || "0";
     return okResp({
       Results: [
         {
           Make_ID: Number(makeId),
-          Make_Name: `M${makeId}`,
+          Make_Name: makeName,
           Model_ID: Number(`${yr}${makeId}`),
           Model_Name: `Model${yr}-${makeId}`,
         },
@@ -276,12 +307,13 @@ test("ingest flushes after each year — partial data survives crash mid-run", a
       return okResp({ Results: sixMakes });
     }
     const yr = url.match(/modelyear\/(\d+)/)?.[1] ?? "0";
-    const makeId = url.match(/makeId\/(\d+)/)?.[1] ?? "0";
+    const makeName = url.match(/\/make\/([^/]+)/)?.[1] ?? "M0";
+    const makeId = makeName.replace(/^M/, "") || "0";
     return okResp({
       Results: [
         {
           Make_ID: Number(makeId),
-          Make_Name: `M${makeId}`,
+          Make_Name: makeName,
           Model_ID: Number(`${yr}${makeId}`),
           Model_Name: `Model${yr}-${makeId}`,
         },

@@ -1,27 +1,31 @@
 /**
  * Bulk catalog ingest — NHTSA-primary.
  *
- * Pivoted from CarQuery (host dead — TLS cert serves legacyarcade.com,
- * ELB returns 400) to NHTSA vPIC as the authoritative source for the
- * (year, make, model) universe. NHTSA does NOT return engine, body
- * style, transmission or drive — those fields stay `null` (honesty rule)
- * unless an optional enrichment source fills them in.
+ * Cars-only: uses the vehicleType-scoped model endpoint so motorcycle
+ * models never enter the catalog. Makes are the union of NHTSA's "car"
+ * and "passenger car" vehicle-type lists MINUS makes that ONLY appear
+ * under "motorcycle" (cuts ~14k motorcycle rows from prior ingests).
+ *
+ * NHTSA does NOT return engine, body style, transmission, or drive —
+ * those fields stay `null` (honesty rule) unless enrichment fills them.
  *
  * Pipeline:
- *   1. fetchMakes()           → ~193 passenger-car makes (vehicle type "car")
- *   2. fetchModelsForMakeYear → models for every (make, year) pair
+ *   1. fetchMakes()           → union(car, passenger car) − moto-only
+ *   2. fetchModelsForMakeYear → cars-only models for every (make, year)
  *   3. emit BulkCatalogRow per (year, make, model) with derived `era`
  *   4. per-year incremental flush → checkpoint + atomic output write
  *   5. optional CarAPI enrichment behind CARAPI_KEY env var
- *   6. (legacy) CarQuery augment behind CARQUERY_ENABLED=1 — host is dead,
- *      so this stays disabled by default.
+ *
+ * Optional flags (default OFF — this pass is cars-only):
+ *   --include-suvs    also ingest "Multipurpose Passenger Vehicle (MPV)"
+ *   --include-trucks  also ingest "truck"
  *
  * CLI:
  *   node scripts/ingest-cars-catalog-bulk.mjs \
  *     --start-year=1950 --end-year=2024 \
  *     --output=src/lib/data/cars-ml/cars-catalog-bulk.json \
  *     --checkpoint=scripts/output/ingest-checkpoint.json \
- *     [--dry-run]
+ *     [--dry-run] [--include-suvs] [--include-trucks]
  */
 
 import { readFile } from "node:fs/promises";
@@ -100,19 +104,74 @@ export function eraForYear(year) {
 // ─── NHTSA: makes ────────────────────────────────────────────────────────────
 
 /**
- * Fetch all NHTSA passenger-car makes (vehicle type = "car"). Returns:
+ * Acronym makes that NHTSA returns ALL-CAPS but are properly displayed
+ * in caps. Title-casing them would produce e.g. "Bmw" / "Gmc" — wrong.
+ * Conservative list — only obvious all-caps brands.
+ */
+const ACRONYM_MAKES = new Set([
+  "BMW",
+  "GMC",
+  "AMC",
+  "MG",
+  "GAZ",
+  "ZAZ",
+  "AC",
+  "ARO",
+  "RUF",
+  "FSO",
+  "IKA",
+  "MGB",
+  "SAAB",
+  "BYD",
+  "FIAT",
+  "SEAT",
+  "DAF",
+  "DKW",
+  "BSA",
+  "TVR",
+  "VAZ",
+  "UAZ",
+  "MAN",
+  "REO",
+  "GAC",
+  "JAC",
+  "MCC",
+  "BMC",
+  "DS",
+  "SRT",
+  "BAC",
+  "BAW",
+  "MAZ",
+  "KTM",
+  "VW",
+]);
+
+/** Title-case a SHOUTY NHTSA make/model name, but preserve known acronyms. */
+function titleCaseMake(s) {
+  if (!s) return s;
+  const upper = s.trim().toUpperCase();
+  if (ACRONYM_MAKES.has(upper)) return upper;
+  return s
+    .toLowerCase()
+    .split(/(\s|-|\/)/)
+    .map((tok) =>
+      /^[a-z]/.test(tok) ? tok[0].toUpperCase() + tok.slice(1) : tok
+    )
+    .join("");
+}
+
+/**
+ * Fetch makes for a given NHTSA vehicleType label. Returns:
  *   [{ id: number, display: string }]
  */
-export async function fetchMakes({
-  fetch: fetchFn = defaultFetch,
-  rateLimiter: rl = sharedRl,
-} = {}) {
+async function fetchMakesForType(typeLabel, { fetch: fetchFn, rateLimiter: rl }) {
   await rl.take();
-  const url =
-    "https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json";
+  const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/${encodeURIComponent(typeLabel)}?format=json`;
   const resp = await fetchFn(url);
   if (!resp.ok) {
-    throw new Error(`NHTSA GetMakesForVehicleType failed: HTTP ${resp.status}`);
+    throw new Error(
+      `NHTSA GetMakesForVehicleType(${typeLabel}) failed: HTTP ${resp.status}`
+    );
   }
   const data = await resp.json();
   return (data.Results ?? []).map((m) => ({
@@ -121,34 +180,103 @@ export async function fetchMakes({
   }));
 }
 
-// ─── NHTSA: models for (makeId, year) ────────────────────────────────────────
+/**
+ * Fetch all NHTSA passenger-car makes — union of "car" and "passenger car"
+ * vehicle types, minus makes that ONLY appear in the "motorcycle" list.
+ * Returns:
+ *   [{ id: number, display: string }]
+ *
+ * Extra vehicle types (MPV, truck) are unioned in only when their flag is set.
+ */
+export async function fetchMakes({
+  fetch: fetchFn = defaultFetch,
+  rateLimiter: rl = sharedRl,
+  includeSuvs = false,
+  includeTrucks = false,
+} = {}) {
+  const types = ["car", "passenger car"];
+  if (includeSuvs) types.push("Multipurpose Passenger Vehicle (MPV)");
+  if (includeTrucks) types.push("truck");
+
+  // Union of all car-ish makes
+  const byId = new Map();
+  for (const t of types) {
+    const ms = await fetchMakesForType(t, { fetch: fetchFn, rateLimiter: rl });
+    for (const m of ms) {
+      if (!byId.has(m.id)) byId.set(m.id, m);
+    }
+  }
+
+  // Cross-reference motorcycle list
+  let motorcycleMakeIds = new Set();
+  try {
+    const motos = await fetchMakesForType("motorcycle", {
+      fetch: fetchFn,
+      rateLimiter: rl,
+    });
+    motorcycleMakeIds = new Set(motos.map((m) => m.id));
+  } catch (err) {
+    jsonLog({
+      operation: "nhtsa.motorcycle.fetch.fail",
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+
+  // Drop makes that are motorcycle-only (in moto list AND not in car list).
+  // Because byId is already the car/passenger-car union, a make that is in
+  // motorcycleMakeIds but ALSO in byId is dual-use (Honda, BMW, Suzuki) and
+  // we keep it — the cars-only model endpoint filters its bikes out.
+  // Motorcycle-only makes are simply not in byId, so no extra subtraction
+  // needed — but log the count of motorcycle-only makes we avoided fetching.
+  const dualUse = [...byId.keys()].filter((id) => motorcycleMakeIds.has(id));
+  const motoOnly = [...motorcycleMakeIds].filter((id) => !byId.has(id));
+  jsonLog({
+    operation: "nhtsa.makes.union",
+    carMakes: byId.size,
+    motorcycleMakes: motorcycleMakeIds.size,
+    dualUseMakes: dualUse.length,
+    motorcycleOnlySkipped: motoOnly.length,
+  });
+
+  return [...byId.values()];
+}
+
+// ─── NHTSA: models for (makeName, year) ──────────────────────────────────────
 
 /**
- * Fetch models for a make + year. Uses the Id-based endpoint to avoid
- * NHTSA's substring matching on the name-based endpoint. Returns:
+ * Fetch CAR models for a make + year. Uses the vehicleType-scoped endpoint
+ * so motorcycles never appear in results. NHTSA only exposes this endpoint
+ * via make NAME (not Id). Returns:
  *   [{ modelId: number, modelName: string, makeId: number, makeName: string }]
  */
 export async function fetchModelsForMakeYear(
-  makeId,
+  makeOrId,
   year,
-  { fetch: fetchFn = defaultFetch, rateLimiter: rl = sharedRl } = {}
+  { fetch: fetchFn = defaultFetch, rateLimiter: rl = sharedRl, vehicleType = "car" } = {}
 ) {
+  // Accept either a make object {id, display} or a raw makeName string for
+  // backwards compatibility with older tests.
+  const makeName = typeof makeOrId === "object" ? makeOrId.display : String(makeOrId);
+  const makeIdFallback = typeof makeOrId === "object" ? makeOrId.id : null;
+
   await rl.take();
   const url =
-    `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeIdYear` +
-    `/makeId/${encodeURIComponent(makeId)}/modelyear/${year}?format=json`;
+    `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear` +
+    `/make/${encodeURIComponent(makeName)}` +
+    `/modelyear/${year}` +
+    `/vehicletype/${encodeURIComponent(vehicleType)}?format=json`;
   const resp = await fetchFn(url);
   if (!resp.ok) {
     throw new Error(
-      `NHTSA GetModelsForMakeIdYear ${makeId}/${year} failed: HTTP ${resp.status}`
+      `NHTSA GetModelsForMakeYear ${makeName}/${year}/${vehicleType} failed: HTTP ${resp.status}`
     );
   }
   const data = await resp.json();
   return (data.Results ?? []).map((r) => ({
     modelId: r.Model_ID,
     modelName: r.Model_Name,
-    makeId: r.Make_ID,
-    makeName: r.Make_Name,
+    makeId: r.Make_ID ?? makeIdFallback,
+    makeName: r.Make_Name ?? makeName,
   }));
 }
 
@@ -157,14 +285,18 @@ export async function fetchModelsForMakeYear(
 /**
  * Build a BulkCatalogRow from an NHTSA model record. Honesty rule: every
  * field NHTSA does not provide is left `null` — never invented.
+ *
+ * `makeDisplay` is the properly-cased presentation form (acronyms preserved,
+ * everything else Title Cased). `make` is the raw NHTSA value.
  */
 export function buildRow({ year, make, model }) {
-  const slug = slugify(`${year}-${make.display}-${model.modelName}`);
+  const properMake = titleCaseMake(make.display);
+  const slug = slugify(`${year}-${properMake}-${model.modelName}`);
   return {
     slug,
     year,
     make: make.display,
-    makeDisplay: make.display,
+    makeDisplay: properMake,
     model: model.modelName,
     trim: null,
     bodyStyle: null,
@@ -227,6 +359,8 @@ export async function ingest({
   fetch: fetchFn = defaultFetch,
   rateLimiter: rl = sharedRl,
   dryRun = false,
+  includeSuvs = false,
+  includeTrucks = false,
 }) {
   const ingestStart = Date.now();
   const state = await resumeState(checkpointPath);
@@ -255,7 +389,12 @@ export async function ingest({
 
   // Makes are stable across years — fetch once.
   const makesStart = Date.now();
-  const makes = await fetchMakes({ fetch: fetchFn, rateLimiter: rl });
+  const makes = await fetchMakes({
+    fetch: fetchFn,
+    rateLimiter: rl,
+    includeSuvs,
+    includeTrucks,
+  });
   jsonLog({
     operation: "nhtsa.makes",
     durationMs: Date.now() - makesStart,
@@ -277,7 +416,7 @@ export async function ingest({
       if (state.completedMakeIds.includes(make.id)) continue;
 
       try {
-        const models = await fetchModelsForMakeYear(make.id, year, {
+        const models = await fetchModelsForMakeYear(make, year, {
           fetch: fetchFn,
           rateLimiter: rl,
         });
@@ -414,11 +553,19 @@ if (process.argv[1]?.endsWith("ingest-cars-catalog-bulk.mjs")) {
   const checkpointPath =
     args.checkpoint ?? "scripts/output/ingest-checkpoint.json";
   const dryRun = args["dry-run"] === true || args["dry-run"] === "true";
+  const includeSuvs = args["include-suvs"] === true || args["include-suvs"] === "true";
+  const includeTrucks = args["include-trucks"] === true || args["include-trucks"] === "true";
 
-  ingest({ startYear, endYear, checkpointPath, outputPath, dryRun }).catch(
-    (err) => {
-      console.error(err);
-      process.exit(1);
-    }
-  );
+  ingest({
+    startYear,
+    endYear,
+    checkpointPath,
+    outputPath,
+    dryRun,
+    includeSuvs,
+    includeTrucks,
+  }).catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 }
