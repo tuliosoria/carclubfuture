@@ -8,6 +8,6 @@ export const SCENARIO_LABEL: Record<Scenario, string> = {
 
 export const SCENARIO_COLOR: Record<Scenario, string> = {
   pessimist: "#f87171",
-  moderate: "#f59e0b",
+  moderate: "#ff8000",
   optimist: "#22c55e",
 };

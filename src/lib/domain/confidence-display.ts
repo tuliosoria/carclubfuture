@@ -7,9 +7,9 @@ export const CONFIDENCE_LABEL: Record<Confidence, string> = {
 };
 
 export const CONFIDENCE_COLOR: Record<Confidence, string> = {
-  high: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-  medium: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-  low: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+  high: "bg-buy/10 text-buy border-buy/30",
+  medium: "bg-hold/10 text-hold border-hold/30",
+  low: "bg-sell/10 text-sell border-sell/30",
 };
 
 /**

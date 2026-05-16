@@ -10,7 +10,7 @@ export function ForecastPendingBadge({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-300",
+      "inline-flex items-center rounded-sm border border-papaya/30 bg-papaya/10 px-2 py-0.5 text-meta uppercase tracking-[0.04em] text-papaya",
         className,
       )}
     >

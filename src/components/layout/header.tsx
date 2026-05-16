@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Gauge } from "lucide-react";
 
 const navItems = [
   { href: "/car-forecast", label: "Catalog" },
@@ -10,18 +9,20 @@ const navItems = [
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link href="/" className="flex items-center gap-2 text-foreground">
-          <Gauge className="h-5 w-5 text-accent" />
-          <span className="text-base font-semibold tracking-tight">CarClubFuture</span>
+    <header className="sticky top-0 z-30 border-b border-border bg-background">
+      <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-4 sm:px-8">
+        <Link
+          href="/"
+          className="font-display text-xl sm:text-2xl font-bold uppercase tracking-tight text-foreground"
+        >
+          CARCLUB<span className="text-papaya">FUTURE</span>
         </Link>
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-8 md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm text-muted-foreground transition hover:text-foreground"
+              className="text-meta uppercase tracking-[0.04em] text-foreground transition-colors duration-150 ease-out hover:text-papaya"
             >
               {item.label}
             </Link>
@@ -29,7 +30,7 @@ export function Header() {
         </nav>
         <Link
           href="/car-forecast"
-          className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:opacity-90"
+          className="rounded-sm bg-papaya px-4 py-2 text-meta font-semibold uppercase tracking-[0.04em] text-papaya-foreground transition-colors duration-150 ease-out hover:bg-papaya-hover active:bg-papaya-press"
         >
           Browse
         </Link>

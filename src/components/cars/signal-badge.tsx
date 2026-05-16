@@ -6,7 +6,7 @@ export function SignalBadge({ recommendation, className }: { recommendation: Rec
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold uppercase tracking-wider",
+        "inline-flex items-center rounded-sm border px-2 py-0.5 text-meta uppercase tracking-[0.04em]",
         REC_COLOR[recommendation],
         className
       )}

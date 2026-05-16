@@ -3,19 +3,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-md font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 disabled:pointer-events-none",
+  "inline-flex items-center justify-center gap-2 rounded-sm transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-papaya focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 disabled:pointer-events-none",
   {
     variants: {
       variant: {
-        primary: "bg-accent text-accent-foreground hover:opacity-90",
-        secondary: "border border-border bg-card text-foreground hover:bg-muted",
-        ghost: "text-foreground hover:bg-muted",
-        outline: "border border-border text-foreground hover:bg-muted",
+        primary:
+          "bg-papaya text-papaya-foreground hover:bg-papaya-hover active:bg-papaya-press uppercase tracking-[0.04em] font-semibold",
+        ghost:
+          "bg-transparent text-foreground border border-border hover:border-papaya hover:text-papaya uppercase tracking-[0.04em] font-semibold",
+        "link-cta":
+          "bg-transparent text-foreground hover:text-papaya px-0 h-auto font-medium",
+        secondary:
+          "border border-border bg-surface-elevated text-foreground hover:border-border-strong",
+        outline:
+          "border border-border text-foreground hover:border-papaya hover:text-papaya uppercase tracking-[0.04em] font-semibold",
       },
       size: {
-        sm: "h-8 px-3 text-sm",
-        md: "h-10 px-4 text-sm",
-        lg: "h-12 px-5 text-base",
+        sm: "h-8 px-3 text-xs",
+        md: "h-10 px-5 text-sm",
+        lg: "h-12 px-6 text-sm",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },

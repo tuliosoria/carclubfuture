@@ -24,8 +24,8 @@ export function ForecastChart({ projection, baseValueUsd }: { projection: Projec
         <AreaChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="upBand" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.5} />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.05} />
+              <stop offset="0%" stopColor="#ff8000" stopOpacity={0.5} />
+              <stop offset="100%" stopColor="#ff8000" stopOpacity={0.05} />
             </linearGradient>
             <linearGradient id="downBand" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stopColor="#71717a" stopOpacity={0.4} />
@@ -40,7 +40,7 @@ export function ForecastChart({ projection, baseValueUsd }: { projection: Projec
             formatter={(v: number) => formatCurrency(v)}
           />
           <ReferenceLine y={baseValueUsd} stroke="#fbbf24" strokeDasharray="2 2" />
-          <Area type="monotone" dataKey="optimistUsd" stroke="#f59e0b" fill="url(#upBand)" name="Optimist" />
+          <Area type="monotone" dataKey="optimistUsd" stroke="#ff8000" fill="url(#upBand)" name="Optimist" />
           <Area type="monotone" dataKey="moderateUsd" stroke="#fbbf24" fill="none" name="Moderate" />
           <Area type="monotone" dataKey="pessimistUsd" stroke="#71717a" fill="url(#downBand)" name="Pessimist" />
         </AreaChart>

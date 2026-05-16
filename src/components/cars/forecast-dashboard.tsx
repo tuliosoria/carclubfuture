@@ -215,17 +215,17 @@ export function ForecastDashboard({
   }
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 md:grid-cols-[260px_minmax(0,1fr)]">
-      <aside className="md:sticky md:top-20 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto">
-        <div className="space-y-6 rounded-lg border border-border bg-card p-5">
+    <div className="mx-auto grid max-w-[1440px] gap-8 px-4 py-10 sm:px-8 md:grid-cols-[280px_minmax(0,1fr)]">
+      <aside className="md:sticky md:top-24 md:max-h-[calc(100vh-7rem)] md:overflow-y-auto">
+        <div className="space-y-6 border border-border bg-surface-elevated p-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            <h2 className="text-overline uppercase text-foreground-muted">
               Filters
             </h2>
             {filtersActive ? (
               <button
                 onClick={reset}
-                className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
+                className="inline-flex items-center gap-1 text-meta uppercase tracking-[0.04em] text-papaya hover:text-papaya-hover"
               >
                 <RotateCcw className="h-3 w-3" /> Reset
               </button>
@@ -304,11 +304,11 @@ export function ForecastDashboard({
               className="pl-9"
             />
           </div>
-          <p className="text-sm text-muted-foreground">
-            Showing {postFiltered.length} of {serverTotal.toLocaleString()}
-            {clientFiltered ? ` (filtered from ${cars.length} loaded)` : ""}
+          <p className="text-sm text-foreground-muted">
+            Showing <span className="font-mono text-foreground tabular-nums">{postFiltered.length.toLocaleString()}</span> of <span className="font-mono text-foreground tabular-nums">{serverTotal.toLocaleString()}</span>
+            {clientFiltered ? ` (filtered from ${cars.length.toLocaleString()} loaded)` : ""}
             {loading ? (
-              <Loader2 className="ml-2 inline h-3 w-3 animate-spin" />
+              <Loader2 className="ml-2 inline h-3 w-3 animate-spin text-papaya" />
             ) : null}
           </p>
         </div>
@@ -327,14 +327,14 @@ export function ForecastDashboard({
         </div>
 
         {error ? (
-          <div className="mt-6 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+          <div className="mt-6 border border-sell/40 bg-sell/10 p-4 text-sm text-sell">
             Failed to load catalog: {error}
           </div>
         ) : null}
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {postFiltered.map((car) => (
-            <Link key={car.id} href={`/car-forecast/${car.slug}`}>
+            <Link key={car.id} href={`/car-forecast/${car.slug}`} className="block h-full">
               <CarForecastCard car={car} scenario={scenario} />
             </Link>
           ))}
@@ -359,9 +359,9 @@ export function ForecastDashboard({
         ) : null}
 
         {!loading && postFiltered.length === 0 ? (
-          <div className="mt-12 rounded-lg border border-dashed border-border bg-card p-10 text-center">
+          <div className="mt-12 border border-dashed border-border bg-surface-elevated p-10 text-center">
             <p className="text-foreground">No vehicles match these filters.</p>
-            <Button onClick={reset} variant="secondary" className="mt-4">
+            <Button onClick={reset} variant="ghost" className="mt-4">
               Reset filters
             </Button>
           </div>
@@ -387,10 +387,10 @@ function cap(s: string) {
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <h3 className="mb-2 text-overline uppercase text-foreground-muted">
         {label}
       </h3>
-      <div className="space-y-1.5">{children}</div>
+      <div className="space-y-1">{children}</div>
     </div>
   );
 }
@@ -409,16 +409,21 @@ function CheckboxRow({
   onChange: () => void;
 }) {
   return (
-    <label className={cn("flex cursor-pointer items-center justify-between gap-2 rounded px-2 py-1 text-sm hover:bg-muted", checked && "text-foreground")}>
+    <label
+      className={cn(
+        "flex cursor-pointer items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors duration-150 ease-out hover:bg-surface-overlay",
+        checked && "bg-papaya/10 text-foreground"
+      )}
+    >
       <span className="flex items-center gap-2">
-        <input type="checkbox" checked={checked} onChange={onChange} className="accent-amber-500" />
-        <span>
+        <input type="checkbox" checked={checked} onChange={onChange} className="accent-papaya" />
+        <span className={cn(checked && "text-papaya font-medium")}>
           {label}
-          {hint ? <span className="ml-1 text-xs text-muted-foreground">({hint})</span> : null}
+          {hint ? <span className="ml-1 text-xs text-foreground-dim">({hint})</span> : null}
         </span>
       </span>
-      {count !== undefined ? (
-        <span className="text-xs text-muted-foreground">{count}</span>
+      {count !== undefined && count > 0 ? (
+        <span className="font-mono text-xs text-foreground-dim tabular-nums">{count.toLocaleString()}</span>
       ) : null}
     </label>
   );
@@ -426,8 +431,13 @@ function CheckboxRow({
 
 function RadioRow({ name, label, checked, onChange }: { name: string; label: string; checked: boolean; onChange: () => void }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-sm hover:bg-muted">
-      <input type="radio" name={name} checked={checked} onChange={onChange} className="accent-amber-500" />
+    <label
+      className={cn(
+        "flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors duration-150 ease-out hover:bg-surface-overlay",
+        checked && "text-papaya font-medium"
+      )}
+    >
+      <input type="radio" name={name} checked={checked} onChange={onChange} className="accent-papaya" />
       <span>{label}</span>
     </label>
   );

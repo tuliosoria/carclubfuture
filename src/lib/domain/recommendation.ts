@@ -7,9 +7,9 @@ export const REC_LABEL: Record<Recommendation, string> = {
 };
 
 export const REC_COLOR: Record<Recommendation, string> = {
-  buy: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
-  hold: "bg-amber-500/20 text-amber-300 border-amber-500/40",
-  sell: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+  buy: "bg-buy/15 text-buy border-buy/40",
+  hold: "bg-hold/15 text-hold border-hold/40",
+  sell: "bg-sell/15 text-sell border-sell/40",
 };
 
 /**

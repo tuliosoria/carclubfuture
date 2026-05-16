@@ -6,7 +6,7 @@ export function MarketRatingGauge({ rating }: { rating: MarketRating }) {
   // Half-circle gauge: -90deg to +90deg
   const angle = (score / 100) * 180 - 90;
   const tone =
-    score >= 60 ? "text-emerald-400" : score <= 40 ? "text-rose-400" : "text-amber-300";
+    score >= 60 ? "text-buy" : score <= 40 ? "text-sell" : "text-hold";
   return (
     <div className="rounded-lg border border-border bg-card p-6 text-center">
       <p className="text-xs uppercase tracking-wider text-muted-foreground">Market Rating</p>

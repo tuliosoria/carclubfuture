@@ -16,7 +16,7 @@ export const SEGMENTS: readonly SegmentDescriptor[] = [
     name: "Blue Chip Classics",
     shortName: "Blue Chip",
     description: "Investment-grade icons with deep auction histories.",
-    accentColor: "bg-amber-500/20 text-amber-300",
+    accentColor: "bg-papaya/20 text-papaya",
     eras: ["pre-war", "post-war-classic"],
   },
   {
