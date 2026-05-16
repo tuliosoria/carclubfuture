@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { Search, RotateCcw } from "lucide-react";
+import { Search, RotateCcw, Loader2 } from "lucide-react";
 import type {
   CollectorCar,
   Recommendation,
@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CarForecastCard } from "./car-forecast-card";
 import { cn } from "@/lib/utils";
-import { tokenize } from "@/lib/utils/string";
 
 type SortKey = "current-value" | "projected-upside" | "confidence" | "auction-volume" | "rarity";
 
@@ -39,8 +38,30 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
 
 const CONFIDENCE_RANK = { high: 3, medium: 2, low: 1 } as const;
 
-export function ForecastDashboard({ initialCars }: { initialCars: CollectorCar[] }) {
+interface SearchResponse {
+  success: boolean;
+  data?: {
+    results: CollectorCar[];
+    count: number;
+    total: number;
+    offset: number;
+    limit: number;
+  };
+}
+
+interface DashboardProps {
+  initialCars: CollectorCar[];
+  totalCount: number;
+  pageSize?: number;
+}
+
+export function ForecastDashboard({
+  initialCars,
+  totalCount,
+  pageSize = 60,
+}: DashboardProps) {
   const [query, setQuery] = React.useState("");
+  const [debouncedQuery, setDebouncedQuery] = React.useState("");
   const [segments, setSegments] = React.useState<Set<Segment>>(new Set());
   const [eras, setEras] = React.useState<Set<Era>>(new Set());
   const [bodies, setBodies] = React.useState<Set<BodyStyle>>(new Set());
@@ -48,23 +69,100 @@ export function ForecastDashboard({ initialCars }: { initialCars: CollectorCar[]
   const [scenario, setScenario] = React.useState<Scenario>("moderate");
   const [sortBy, setSortBy] = React.useState<SortKey>("projected-upside");
 
-  const filtered = React.useMemo(() => {
-    const tokens = tokenize(query);
-    let list = initialCars;
-    if (tokens.length) {
-      list = list.filter((c) => {
-        const hay = [c.displayName, ...c.searchAliases, c.segment ?? ""]
-          .join(" ")
-          .toLowerCase();
-        return tokens.every((t) => hay.includes(t));
-      });
+  // ─── Server-paginated state.
+  const [cars, setCars] = React.useState<CollectorCar[]>(initialCars);
+  const [serverTotal, setServerTotal] = React.useState<number>(totalCount);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const reqIdRef = React.useRef(0);
+
+  React.useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedQuery(query), 250);
+    return () => window.clearTimeout(t);
+  }, [query]);
+
+  // The API supports q + (single) segment + recommendation. Multi-segment,
+  // era, body, and sort are post-filters applied client-side over what
+  // we've loaded.
+  const apiSegment: Segment | null = segments.size === 1 ? [...segments][0] : null;
+  const apiRecommendation = recommendation;
+  const apiQuery = debouncedQuery;
+  const apiKey = `${apiQuery}|${apiSegment ?? ""}|${apiRecommendation}`;
+
+  const buildUrl = React.useCallback(
+    (offset: number, limit: number) => {
+      const sp = new URLSearchParams();
+      if (apiQuery) sp.set("q", apiQuery);
+      if (apiSegment) sp.set("segment", apiSegment);
+      if (apiRecommendation && apiRecommendation !== "all") {
+        sp.set("recommendation", apiRecommendation);
+      }
+      sp.set("offset", String(offset));
+      sp.set("limit", String(limit));
+      return `/api/cars/search?${sp.toString()}`;
+    },
+    [apiQuery, apiSegment, apiRecommendation],
+  );
+
+  const isInitialState =
+    apiQuery === "" && apiSegment == null && apiRecommendation === "all";
+
+  React.useEffect(() => {
+    if (isInitialState) {
+      // Restore the server-rendered initial slice when all API filters clear.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCars(initialCars);
+      setServerTotal(totalCount);
+      setError(null);
+      return;
     }
-    if (segments.size) list = list.filter((c) => c.segment != null && segments.has(c.segment));
+    const myReq = ++reqIdRef.current;
+    setLoading(true);
+    setError(null);
+    fetch(buildUrl(0, pageSize))
+      .then((r) => r.json() as Promise<SearchResponse>)
+      .then((json) => {
+        if (myReq !== reqIdRef.current) return;
+        if (!json.success || !json.data) throw new Error("search failed");
+        setCars(json.data.results);
+        setServerTotal(json.data.total);
+      })
+      .catch((e: unknown) => {
+        if (myReq !== reqIdRef.current) return;
+        setError(e instanceof Error ? e.message : "search failed");
+      })
+      .finally(() => {
+        if (myReq === reqIdRef.current) setLoading(false);
+      });
+  }, [apiKey, isInitialState, initialCars, totalCount, buildUrl, pageSize]);
+
+  async function loadMore() {
+    const offset = cars.length;
+    const myReq = ++reqIdRef.current;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(buildUrl(offset, pageSize));
+      const json = (await res.json()) as SearchResponse;
+      if (myReq !== reqIdRef.current) return;
+      if (!json.success || !json.data) throw new Error("search failed");
+      setCars((prev) => [...prev, ...json.data!.results]);
+      setServerTotal(json.data.total);
+    } catch (e) {
+      if (myReq !== reqIdRef.current) return;
+      setError(e instanceof Error ? e.message : "search failed");
+    } finally {
+      if (myReq === reqIdRef.current) setLoading(false);
+    }
+  }
+
+  const postFiltered = React.useMemo(() => {
+    let list = cars;
+    if (segments.size > 1) {
+      list = list.filter((c) => c.segment != null && segments.has(c.segment));
+    }
     if (eras.size) list = list.filter((c) => eras.has(c.era));
     if (bodies.size) list = list.filter((c) => c.bodyStyle != null && bodies.has(c.bodyStyle));
-    if (recommendation !== "all") {
-      list = list.filter((c) => c.forecast?.recommendation === recommendation);
-    }
     return [...list].sort((a, b) => {
       const af = a.forecast;
       const bf = b.forecast;
@@ -85,30 +183,16 @@ export function ForecastDashboard({ initialCars }: { initialCars: CollectorCar[]
           return (bf?.cagr5yr ?? 0) - (af?.cagr5yr ?? 0);
       }
     });
-  }, [initialCars, query, segments, eras, bodies, recommendation, sortBy]);
+  }, [cars, segments, eras, bodies, sortBy]);
 
   const segmentCounts = React.useMemo(() => {
     const counts = new Map<Segment, number>();
-    for (const c of initialCars) {
+    for (const c of cars) {
       if (c.segment == null) continue;
       counts.set(c.segment, (counts.get(c.segment) ?? 0) + 1);
     }
     return counts;
-  }, [initialCars]);
-
-  // ─── Pagination: cap the rendered window to keep the DOM sane.
-  // Filters/sort apply to the full dataset, but only `visibleCount` cards
-  // are mounted. "Show more" appends another PAGE_SIZE to the window.
-  const PAGE_SIZE = 60;
-  const [visibleCount, setVisibleCount] = React.useState(PAGE_SIZE);
-  React.useEffect(() => {
-    // Reset window whenever the filtered list changes (new search, etc.)
-    setVisibleCount(PAGE_SIZE);
-  }, [query, segments, eras, bodies, recommendation, sortBy]);
-  const visible = React.useMemo(
-    () => filtered.slice(0, visibleCount),
-    [filtered, visibleCount],
-  );
+  }, [cars]);
 
   const filtersActive =
     query.length > 0 ||
@@ -116,6 +200,9 @@ export function ForecastDashboard({ initialCars }: { initialCars: CollectorCar[]
     eras.size > 0 ||
     bodies.size > 0 ||
     recommendation !== "all";
+
+  const hasMore = cars.length < serverTotal;
+  const clientFiltered = postFiltered.length !== cars.length;
 
   function reset() {
     setQuery("");
@@ -218,8 +305,11 @@ export function ForecastDashboard({ initialCars }: { initialCars: CollectorCar[]
             />
           </div>
           <p className="text-sm text-muted-foreground">
-            Showing {Math.min(visibleCount, filtered.length)} of {filtered.length}
-            {filtered.length !== initialCars.length ? ` (filtered from ${initialCars.length})` : ""}
+            Showing {postFiltered.length} of {serverTotal.toLocaleString()}
+            {clientFiltered ? ` (filtered from ${cars.length} loaded)` : ""}
+            {loading ? (
+              <Loader2 className="ml-2 inline h-3 w-3 animate-spin" />
+            ) : null}
           </p>
         </div>
 
@@ -236,26 +326,39 @@ export function ForecastDashboard({ initialCars }: { initialCars: CollectorCar[]
           ))}
         </div>
 
+        {error ? (
+          <div className="mt-6 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+            Failed to load catalog: {error}
+          </div>
+        ) : null}
+
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {visible.map((car) => (
+          {postFiltered.map((car) => (
             <Link key={car.id} href={`/car-forecast/${car.slug}`}>
               <CarForecastCard car={car} scenario={scenario} />
             </Link>
           ))}
         </div>
 
-        {visibleCount < filtered.length ? (
+        {hasMore ? (
           <div className="mt-8 flex justify-center">
             <Button
               variant="secondary"
-              onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+              onClick={loadMore}
+              disabled={loading}
             >
-              Show more ({filtered.length - visibleCount} remaining)
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading…
+                </>
+              ) : (
+                `Show more (${(serverTotal - cars.length).toLocaleString()} remaining)`
+              )}
             </Button>
           </div>
         ) : null}
 
-        {filtered.length === 0 ? (
+        {!loading && postFiltered.length === 0 ? (
           <div className="mt-12 rounded-lg border border-dashed border-border bg-card p-10 text-center">
             <p className="text-foreground">No vehicles match these filters.</p>
             <Button onClick={reset} variant="secondary" className="mt-4">
@@ -306,7 +409,7 @@ function CheckboxRow({
   onChange: () => void;
 }) {
   return (
-    <label className={cn("flex cursor-pointer items-center justify-between gap-2 rounded px-2 py-1 text-sm hover:bg-muted", checked && "text-foreground")}> 
+    <label className={cn("flex cursor-pointer items-center justify-between gap-2 rounded px-2 py-1 text-sm hover:bg-muted", checked && "text-foreground")}>
       <span className="flex items-center gap-2">
         <input type="checkbox" checked={checked} onChange={onChange} className="accent-amber-500" />
         <span>
