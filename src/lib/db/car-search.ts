@@ -54,9 +54,9 @@ const communityScores = communityJson as Record<
   string,
   { community_score: number; data_status?: string }
 >;
-const denylist = new Set(
-  (denylistJson as { denylist: string[] }).denylist.map((s) => s.toLowerCase())
-);
+const denylistFile = denylistJson as { denylist: string[]; denyMakes?: string[] };
+const denylist = new Set(denylistFile.denylist.map((s) => s.toLowerCase()));
+const denyMakes = new Set((denylistFile.denyMakes ?? []).map((s) => s.toLowerCase()));
 interface SearchAliasFile {
   version?: string;
   notes?: string;
@@ -111,6 +111,7 @@ export function loadStoredCatalog(): CollectorCar[] {
   const cars: CollectorCar[] = [];
   for (const row of catalog.vehicles) {
     if (denylist.has(row.id.toLowerCase())) continue;
+    if (denyMakes.has(row.make.toLowerCase())) continue;
     // Backfill segment/bodyStyle for bulk NHTSA rows so client filters work.
     // Curated seed rows keep their original (already-populated) values.
     const segment = row.segment ?? inferSegment(row.make, row.year);

@@ -1,5 +1,31 @@
 {
-  "version": "1.0.0",
-  "notes": "Salvage / flood / rebuilt-title vehicles excluded from default catalog.",
-  "denylist": []
+  "version": "1.1.0",
+  "notes": "Salvage / flood / rebuilt-title vehicles excluded by id, plus NHTSA-registered 'manufacturers' that aren't actual collector cars (limo coachbuilders, kit/replica builders, micro-EVs) excluded by make.",
+  "denylist": [],
+  "denyMakes": [
+    "armbruster stageway",
+    "cruise",
+    "vintage cruiser",
+    "classic roadsters",
+    "yester year auto",
+    "excalibur automobile corporation",
+    "ev innovations",
+    "engine connection",
+    "ives motors corporation (imc)",
+    "clenet",
+    "clenet coachworks",
+    "classic sports cars",
+    "aas",
+    "shay reproduction",
+    "vintage microbus",
+    "vintage rover",
+    "costin sports car",
+    "kandi",
+    "vintage auto",
+    "heritage",
+    "creative coachworks",
+    "daytona coach builders",
+    "londoncoach inc",
+    "total electric vehicles"
+  ]
 }
