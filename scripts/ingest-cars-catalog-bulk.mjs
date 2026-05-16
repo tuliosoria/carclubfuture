@@ -1,14 +1,20 @@
 /**
- * Bulk CarQuery catalog ingest — A1-A8.
+ * Bulk catalog ingest — NHTSA-primary.
  *
- * A1: resumeState / saveCheckpoint
- * A2: fetchMakes
- * A3: fetchTrimsForMake
- * A4: ingest() main loop (resumable, deduped, atomic write)
- * A5: enrichWithNhtsa — vPIC cross-reference grouped by (make, year)
- * A6: Optional CarAPI enrichment gated by CARAPI_KEY env var
- * A7: scoreConfidence — high/medium/low based on source confirmations
- * A8: npm wiring (see package.json) + verify-scripts coverage
+ * Pivoted from CarQuery (host dead — TLS cert serves legacyarcade.com,
+ * ELB returns 400) to NHTSA vPIC as the authoritative source for the
+ * (year, make, model) universe. NHTSA does NOT return engine, body
+ * style, transmission or drive — those fields stay `null` (honesty rule)
+ * unless an optional enrichment source fills them in.
+ *
+ * Pipeline:
+ *   1. fetchMakes()           → ~193 passenger-car makes (vehicle type "car")
+ *   2. fetchModelsForMakeYear → models for every (make, year) pair
+ *   3. emit BulkCatalogRow per (year, make, model) with derived `era`
+ *   4. per-year incremental flush → checkpoint + atomic output write
+ *   5. optional CarAPI enrichment behind CARAPI_KEY env var
+ *   6. (legacy) CarQuery augment behind CARQUERY_ENABLED=1 — host is dead,
+ *      so this stays disabled by default.
  *
  * CLI:
  *   node scripts/ingest-cars-catalog-bulk.mjs \
@@ -26,235 +32,183 @@ import {
   jsonLog,
 } from "./_lib/http.mjs";
 
-// Shared 1 req/s rate limiter across all CarQuery calls.
-const sharedRl = new RateLimiter(1);
+// NHTSA is a public US government API. 5 req/s is polite + well within their
+// "don't pound us" guidance.
+const sharedRl = new RateLimiter(5);
 
-// Default fetch: wraps global fetch with 3-retry exponential backoff.
 const defaultFetch = (url) => fetchWithRetry(url);
 
-// ─── A1: Resumable state ──────────────────────────────────────────────────────
+// ─── Resumable state ─────────────────────────────────────────────────────────
 
 /**
- * Read checkpoint from disk. Returns empty default if file is missing or
- * unreadable (first run or clean start).
+ * Checkpoint shape:
+ *   { lastYear: number|null, completedMakeIds: number[] }
+ *
+ * `lastYear` is the most-recently completed year going downward (endYear
+ * → startYear). `completedMakeIds` tracks per-year progress for the
+ * currently-in-flight year.
  */
 export async function resumeState(checkpointPath) {
-  const empty = { completedMakes: [], lastYear: null };
+  const empty = { completedMakeIds: [], lastYear: null };
   try {
     const raw = await readFile(checkpointPath, "utf8");
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return {
+      completedMakeIds: Array.isArray(parsed.completedMakeIds)
+        ? parsed.completedMakeIds
+        : [],
+      lastYear: typeof parsed.lastYear === "number" ? parsed.lastYear : null,
+    };
   } catch {
     return { ...empty };
   }
 }
 
-/**
- * Atomically write checkpoint state (via writeJsonAtomic: .tmp → rename).
- */
 export async function saveCheckpoint(checkpointPath, state) {
   await writeJsonAtomic(checkpointPath, state);
 }
 
-// ─── Slug helper ─────────────────────────────────────────────────────────────
+// ─── Slug + era helpers ──────────────────────────────────────────────────────
 
-/** Lower-kebab slug; strips anything that isn't [a-z0-9-]. */
 export function slugify(str) {
-  return str
+  return String(str)
     .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
 
-// ─── A2: fetchMakes ───────────────────────────────────────────────────────────
+/**
+ * Era derivation matching the project's Era union in src/lib/types/cars.ts.
+ *   <1946  → pre-war
+ *   1946-1964 → post-war-classic
+ *   1965-1972 → muscle-era
+ *   1973-1983 → malaise
+ *   1984-1999 → modern-classic
+ *   ≥2000     → modern-collectible
+ */
+export function eraForYear(year) {
+  if (year < 1946) return "pre-war";
+  if (year <= 1964) return "post-war-classic";
+  if (year <= 1972) return "muscle-era";
+  if (year <= 1983) return "malaise";
+  if (year <= 1999) return "modern-classic";
+  return "modern-collectible";
+}
+
+// ─── NHTSA: makes ────────────────────────────────────────────────────────────
 
 /**
- * Fetch all US-market makes for a given year from CarQuery.
- * Returns normalized array: [{ id, display, country, isCommon }]
- *
- * @param {number} year
- * @param {{ fetch?: Function, rateLimiter?: object }} opts
+ * Fetch all NHTSA passenger-car makes (vehicle type = "car"). Returns:
+ *   [{ id: number, display: string }]
  */
-export async function fetchMakes(
-  year,
-  { fetch: fetchFn = defaultFetch, rateLimiter: rl = sharedRl } = {}
-) {
+export async function fetchMakes({
+  fetch: fetchFn = defaultFetch,
+  rateLimiter: rl = sharedRl,
+} = {}) {
   await rl.take();
-  const url = `https://www.carqueryapi.com/api/0.3/?cmd=getMakes&year=${year}&sold_in_us=1`;
+  const url =
+    "https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json";
   const resp = await fetchFn(url);
+  if (!resp.ok) {
+    throw new Error(`NHTSA GetMakesForVehicleType failed: HTTP ${resp.status}`);
+  }
   const data = await resp.json();
-  return (data.Makes ?? []).map((m) => ({
-    id: m.make_id,
-    display: m.make_display,
-    country: m.make_country,
-    isCommon: m.make_is_common,
+  return (data.Results ?? []).map((m) => ({
+    id: m.MakeId,
+    display: m.MakeName,
   }));
 }
 
-// ─── A3: fetchTrimsForMake ────────────────────────────────────────────────────
+// ─── NHTSA: models for (makeId, year) ────────────────────────────────────────
 
 /**
- * Fetch all US-market trims for a given make + year from CarQuery.
- * Makes two rounds of calls: getModels, then getTrims per model.
- * Filters trims where sold_in_us !== "1".
- *
- * @param {string} makeId
- * @param {number} year
- * @param {{ fetch?: Function, rateLimiter?: object, makeDisplay?: string }} opts
+ * Fetch models for a make + year. Uses the Id-based endpoint to avoid
+ * NHTSA's substring matching on the name-based endpoint. Returns:
+ *   [{ modelId: number, modelName: string, makeId: number, makeName: string }]
  */
-export async function fetchTrimsForMake(
+export async function fetchModelsForMakeYear(
   makeId,
   year,
-  {
-    fetch: fetchFn = defaultFetch,
-    rateLimiter: rl = sharedRl,
-    makeDisplay = makeId,
-  } = {}
-) {
-  await rl.take();
-  const modelsUrl =
-    `https://www.carqueryapi.com/api/0.3/?cmd=getModels` +
-    `&make=${encodeURIComponent(makeId)}&year=${year}&sold_in_us=1`;
-  const modelsResp = await fetchFn(modelsUrl);
-  const modelsData = await modelsResp.json();
-  const models = modelsData.Models ?? [];
-
-  const trims = [];
-  for (const model of models) {
-    const modelName = model.model_name;
-    await rl.take();
-    const trimsUrl =
-      `https://www.carqueryapi.com/api/0.3/?cmd=getTrims` +
-      `&make=${encodeURIComponent(makeId)}` +
-      `&model=${encodeURIComponent(modelName)}` +
-      `&year=${year}&sold_in_us=1`;
-    const trimsResp = await fetchFn(trimsUrl);
-    const trimsData = await trimsResp.json();
-    const rawTrims = (trimsData.Trims ?? []).filter(
-      (t) => String(t.sold_in_us) === "1"
-    );
-    for (const t of rawTrims) {
-      trims.push({
-        carqueryId: String(t.model_id),
-        slug: slugify(
-          `${year}-${makeId}-${modelName}-${t.model_trim || "base"}`
-        ),
-        year: Number(year),
-        make: makeId,
-        makeDisplay,
-        model: t.model_name,
-        trim: t.model_trim || null,
-        bodyStyle: t.model_body || null,
-        engineDisplacementCc: t.model_engine_cc
-          ? Number(t.model_engine_cc)
-          : null,
-        cylinders: t.model_engine_cyl ? Number(t.model_engine_cyl) : null,
-        fuel: t.model_engine_fuel || null,
-        transmission: t.model_transmission_type || null,
-        driveType: t.model_drive || null,
-        source: "carquery",
-      });
-    }
-  }
-  return trims;
-}
-
-// ─── A5: NHTSA vPIC cross-reference ──────────────────────────────────────────
-
-/**
- * Enrich rows with NHTSA vPIC data. Groups by (make, year) to issue one
- * API call per unique pair rather than one per row. Sets `nhtsaId` and
- * optionally `nhtsaModelName` on each row in place.
- *
- * @param {object[]} rows
- * @param {{ fetch?: Function, rateLimiter?: object }} opts
- * @returns {Promise<object[]>}
- */
-export async function enrichWithNhtsa(
-  rows,
   { fetch: fetchFn = defaultFetch, rateLimiter: rl = sharedRl } = {}
 ) {
-  if (!rows.length) return rows;
-
-  // Group rows by "make|year" to minimise API calls.
-  const groups = new Map();
-  for (const row of rows) {
-    const key = `${row.make}|${row.year}`;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(row);
+  await rl.take();
+  const url =
+    `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeIdYear` +
+    `/makeId/${encodeURIComponent(makeId)}/modelyear/${year}?format=json`;
+  const resp = await fetchFn(url);
+  if (!resp.ok) {
+    throw new Error(
+      `NHTSA GetModelsForMakeIdYear ${makeId}/${year} failed: HTTP ${resp.status}`
+    );
   }
-
-  for (const [key, groupRows] of groups) {
-    const pipeIdx = key.indexOf("|");
-    const make = key.slice(0, pipeIdx);
-    const year = Number(key.slice(pipeIdx + 1));
-
-    await rl.take();
-    try {
-      const url =
-        `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear` +
-        `/make/${encodeURIComponent(make)}/modelyear/${year}?format=json`;
-      const resp = await fetchFn(url);
-      const data = await resp.json();
-      const results = data.Results ?? [];
-
-      for (const row of groupRows) {
-        const match = results.find(
-          (r) => r.Model_Name.toLowerCase() === row.model.toLowerCase()
-        );
-        if (match) {
-          row.nhtsaId = `${match.Make_ID}:${match.Model_ID}`;
-          row.nhtsaModelName = match.Model_Name;
-        } else {
-          row.nhtsaId = null;
-        }
-      }
-    } catch (err) {
-      jsonLog({
-        operation: "nhtsa.enrich",
-        make,
-        year,
-        error: err instanceof Error ? err.message : String(err),
-      });
-      for (const row of groupRows) {
-        row.nhtsaId = null;
-      }
-    }
-  }
-
-  return rows;
+  const data = await resp.json();
+  return (data.Results ?? []).map((r) => ({
+    modelId: r.Model_ID,
+    modelName: r.Model_Name,
+    makeId: r.Make_ID,
+    makeName: r.Make_Name,
+  }));
 }
 
-// ─── A7: Confidence scoring ───────────────────────────────────────────────────
+// ─── Row builder ─────────────────────────────────────────────────────────────
 
 /**
- * Score a row's data confidence based on how many independent sources
- * confirmed it.
- *
- *   CarQuery present (always) = 1 pt
- *   nhtsaId truthy             = 1 pt
- *   carapiId truthy            = 1 pt
- *
- *   3 pts → "high" | 2 pts → "medium" | ≤1 pt → "low"
- *
- * @param {object} row
- * @returns {"high" | "medium" | "low"}
+ * Build a BulkCatalogRow from an NHTSA model record. Honesty rule: every
+ * field NHTSA does not provide is left `null` — never invented.
+ */
+export function buildRow({ year, make, model }) {
+  const slug = slugify(`${year}-${make.display}-${model.modelName}`);
+  return {
+    slug,
+    year,
+    make: make.display,
+    makeDisplay: make.display,
+    model: model.modelName,
+    trim: null,
+    bodyStyle: null,
+    engineDisplacementCc: null,
+    cylinders: null,
+    fuel: null,
+    transmission: null,
+    driveType: null,
+    countryOfOrigin: null,
+    productionStartYear: null,
+    productionEndYear: null,
+    segment: null,
+    era: eraForYear(year),
+    isConvertible: null,
+    nhtsaId: String(model.modelId),
+    nhtsaModelName: model.modelName,
+    carqueryId: null,
+    source: "nhtsa",
+    catalogConfidence: "low",
+  };
+}
+
+// ─── Confidence scoring ──────────────────────────────────────────────────────
+
+/**
+ * Score row confidence by independent source confirmations:
+ *   nhtsaId    → 1pt (always present here, since NHTSA is the source)
+ *   carapiId   → +1pt
+ *   carqueryId → +1pt (only when CARQUERY_ENABLED=1 successfully filled it)
+ *   3 → high | 2 → medium | ≤1 → low
  */
 export function scoreConfidence(row) {
-  let points = 1; // CarQuery is always present for rows in this pipeline
-  if (row.nhtsaId) points++;
-  if (row.carapiId) points++;
-  if (points >= 3) return "high";
-  if (points === 2) return "medium";
+  let pts = 0;
+  if (row.nhtsaId) pts++;
+  if (row.carapiId) pts++;
+  if (row.carqueryId) pts++;
+  if (pts >= 3) return "high";
+  if (pts === 2) return "medium";
   return "low";
 }
 
-// ─── A4: Main ingest loop ─────────────────────────────────────────────────────
+// ─── Main ingest loop ────────────────────────────────────────────────────────
 
 /**
- * Main ingest loop. Iterates years from endYear down to startYear,
- * resuming from checkpoint if present. Dedupes by slug and atomically
- * writes sorted output.
- *
  * @param {{
  *   startYear: number,
  *   endYear: number,
@@ -262,7 +216,7 @@ export function scoreConfidence(row) {
  *   outputPath: string,
  *   fetch?: Function,
  *   rateLimiter?: object,
- *   dryRun?: boolean
+ *   dryRun?: boolean,
  * }} opts
  */
 export async function ingest({
@@ -274,9 +228,9 @@ export async function ingest({
   rateLimiter: rl = sharedRl,
   dryRun = false,
 }) {
+  const ingestStart = Date.now();
   const state = await resumeState(checkpointPath);
 
-  // Dry-run: log years that would be processed, make no API calls.
   if (dryRun) {
     for (let year = endYear; year >= startYear; year--) {
       if (state.lastYear !== null && year >= state.lastYear) {
@@ -288,72 +242,117 @@ export async function ingest({
     return [];
   }
 
-  // Load existing output so resumed runs don't lose already-collected data.
-  let existingTrims = [];
+  // Load existing output so resumed runs preserve already-collected rows.
+  let existingRows = [];
   try {
-    const existing = await readFile(outputPath, "utf8");
-    const parsed = JSON.parse(existing);
-    existingTrims = Array.isArray(parsed) ? parsed : [];
+    const raw = await readFile(outputPath, "utf8");
+    const parsed = JSON.parse(raw);
+    existingRows = Array.isArray(parsed) ? parsed : [];
   } catch {
-    // No existing output — starting fresh.
+    /* fresh run */
   }
-  const allTrims = [...existingTrims];
+  const allRows = [...existingRows];
+
+  // Makes are stable across years — fetch once.
+  const makesStart = Date.now();
+  const makes = await fetchMakes({ fetch: fetchFn, rateLimiter: rl });
+  jsonLog({
+    operation: "nhtsa.makes",
+    durationMs: Date.now() - makesStart,
+    recordsProcessed: makes.length,
+  });
+
+  let totalApiCalls = 1; // fetchMakes
+  const failures = [];
 
   for (let year = endYear; year >= startYear; year--) {
-    // state.lastYear is the most-recently completed year (going downward).
-    // All years >= lastYear have already been collected.
-    if (state.lastYear !== null && year >= state.lastYear) {
-      continue;
-    }
+    if (state.lastYear !== null && year >= state.lastYear) continue;
 
-    jsonLog({ operation: "fetch-year-start", year });
-    const makes = await fetchMakes(year, { fetch: fetchFn, rateLimiter: rl });
+    const yearStart = Date.now();
+    jsonLog({ operation: "year.start", year, makesToProcess: makes.length });
 
+    let yearRowCount = 0;
+    let consecutiveFailures = 0;
     for (const make of makes) {
-      if (state.completedMakes.includes(make.id)) {
-        continue;
+      if (state.completedMakeIds.includes(make.id)) continue;
+
+      try {
+        const models = await fetchModelsForMakeYear(make.id, year, {
+          fetch: fetchFn,
+          rateLimiter: rl,
+        });
+        totalApiCalls++;
+        for (const model of models) {
+          allRows.push(buildRow({ year, make, model }));
+          yearRowCount++;
+        }
+        consecutiveFailures = 0;
+        state.completedMakeIds.push(make.id);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        jsonLog({
+          operation: "nhtsa.models.fail",
+          year,
+          makeId: make.id,
+          makeDisplay: make.display,
+          error: msg,
+        });
+        failures.push({ year, makeId: make.id, make: make.display, error: msg });
+        consecutiveFailures++;
+        if (consecutiveFailures > 5) {
+          // Flush what we have before propagating so the resume-checkpoint
+          // is consistent with the on-disk file.
+          const flush = dedupeBySlug(allRows);
+          await writeJsonAtomic(outputPath, flush);
+          await saveCheckpoint(checkpointPath, state);
+          throw new Error(
+            `aborting: >5 consecutive NHTSA failures (last: ${msg})`
+          );
+        }
+        // Failed makes are NOT added to completedMakeIds, so a resume
+        // will retry them.
       }
-      jsonLog({ operation: "fetch-make", year, make: make.id });
-      const trims = await fetchTrimsForMake(make.id, year, {
-        fetch: fetchFn,
-        rateLimiter: rl,
-        makeDisplay: make.display,
-      });
-      allTrims.push(...trims);
-      state.completedMakes.push(make.id);
-      await saveCheckpoint(checkpointPath, state);
     }
 
-    // Year complete: flush output incrementally so checkpoint and file move
-    // forward together. Crash after this point loses nothing for this year.
-    {
-      const bySlugFlush = new Map();
-      for (const t of allTrims) bySlugFlush.set(t.slug, t);
-      const flushedTrims = [...bySlugFlush.values()].sort((a, b) =>
-        a.slug.localeCompare(b.slug)
-      );
-      await writeJsonAtomic(outputPath, flushedTrims);
-    }
+    // Per-year flush (crash-safety): dedupe by slug, sort, atomic write,
+    // THEN advance lastYear. If we crash before advancing, the year will
+    // be re-processed but the file already has the data so the union is
+    // safe (next run will dedupe again).
+    const dedupedFlush = dedupeBySlug(allRows);
+    await writeJsonAtomic(outputPath, dedupedFlush);
 
-    // Reset per-year state and record.
-    state.completedMakes = [];
+    state.completedMakeIds = [];
     state.lastYear = year;
     await saveCheckpoint(checkpointPath, state);
-    jsonLog({ operation: "fetch-year-done", year });
+
+    jsonLog({
+      operation: "year.done",
+      year,
+      durationMs: Date.now() - yearStart,
+      recordsProcessed: yearRowCount,
+      cumulative: dedupedFlush.length,
+    });
   }
 
-  // A5: NHTSA cross-reference enrichment.
-  await enrichWithNhtsa(allTrims, { fetch: fetchFn, rateLimiter: rl });
-
-  // A6: Optional CarAPI enrichment (gated by CARAPI_KEY).
+  // Optional CarAPI enrichment.
   if (process.env.CARAPI_KEY) {
     try {
-      const { getCarApiToken, enrichWithCarApi } = await import("./_lib/carapi.mjs");
-      const token = await getCarApiToken({ fetch: fetchFn, jwt: process.env.CARAPI_KEY });
-      await enrichWithCarApi(allTrims, { fetch: fetchFn, rateLimiter: rl, token });
+      const { getCarApiToken, enrichWithCarApi } = await import(
+        "./_lib/carapi.mjs"
+      );
+      const token = await getCarApiToken({
+        fetch: fetchFn,
+        jwt: process.env.CARAPI_KEY,
+      });
+      await enrichWithCarApi(allRows, {
+        fetch: fetchFn,
+        rateLimiter: rl,
+        token,
+      });
+      jsonLog({ operation: "carapi.enrich.done" });
     } catch (err) {
       jsonLog({
-        operation: "carapi.enrich",
+        operation: "carapi.enrich.fail",
         error: err instanceof Error ? err.message : String(err),
       });
     }
@@ -361,23 +360,41 @@ export async function ingest({
     jsonLog({ operation: "carapi.skip", reason: "no_key" });
   }
 
-  // Dedupe by slug (last write wins), sort alphabetically.
-  const bySlug = new Map();
-  for (const t of allTrims) {
-    bySlug.set(t.slug, t);
+  // Optional legacy CarQuery augment — host is dead so default OFF.
+  if (process.env.CARQUERY_ENABLED === "1") {
+    jsonLog({
+      operation: "carquery.skip",
+      reason: "host_dead_legacyarcade_cert",
+      note: "CarQuery host serves legacyarcade.com cert + 400 from ELB",
+    });
   }
-  const sorted = [...bySlug.values()].sort((a, b) =>
-    a.slug.localeCompare(b.slug)
-  );
 
-  // A7: Confidence scoring — applied after all enrichment, before write.
+  // Final dedupe + sort + confidence scoring.
+  const sorted = dedupeBySlug(allRows);
   for (const row of sorted) {
     row.catalogConfidence = scoreConfidence(row);
   }
-
   await writeJsonAtomic(outputPath, sorted);
-  jsonLog({ operation: "ingest-complete", recordsProcessed: sorted.length });
+
+  jsonLog({
+    operation: "ingest.complete",
+    durationMs: Date.now() - ingestStart,
+    recordsProcessed: sorted.length,
+    makesProcessed: makes.length,
+    apiCalls: totalApiCalls,
+    failures: failures.length,
+  });
+
   return sorted;
+}
+
+/** Dedupe by slug — keep first occurrence (preserves resumed-run rows). */
+function dedupeBySlug(rows) {
+  const seen = new Map();
+  for (const r of rows) {
+    if (!seen.has(r.slug)) seen.set(r.slug, r);
+  }
+  return [...seen.values()].sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
 // ─── CLI entry point ─────────────────────────────────────────────────────────

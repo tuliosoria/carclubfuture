@@ -167,7 +167,10 @@ export interface MarketRating {
  * when the relevant API call succeeded.
  */
 export interface BulkCatalogRow {
-  carqueryId: string;
+  /** Legacy CarQuery id — null since the CarQuery API host is dead (cert/ELB broken). */
+  carqueryId: string | null;
+  /** NHTSA vPIC Model_ID as string (primary id since the NHTSA pivot). */
+  nhtsaId: string | null;
   slug: string;
   year: number;
   make: string;
@@ -180,19 +183,24 @@ export interface BulkCatalogRow {
   fuel: string | null;
   transmission: string | null;
   driveType: string | null;
-  source: "carquery";
-  // A5: NHTSA vPIC cross-reference
-  nhtsaId?: string | null;
+  countryOfOrigin: string | null;
+  productionStartYear: number | null;
+  productionEndYear: number | null;
+  segment: Segment | null;
+  era: Era | null;
+  isConvertible: boolean | null;
+  source: "nhtsa" | "carquery";
+  // NHTSA enrichment metadata
   nhtsaModelName?: string;
-  // A6: CarAPI enrichment
+  // Optional CarAPI enrichment (gated by CARAPI_KEY)
   carapiId?: number | string | null;
   engineHp?: number | null;
   engineTorque?: number | null;
   mpgCity?: number | null;
   mpgHwy?: number | null;
   bodySubStyle?: string | null;
-  // A7: confidence scoring
-  catalogConfidence?: "high" | "medium" | "low";
+  // Confidence scoring
+  catalogConfidence: "high" | "medium" | "low";
 }
 
 /**

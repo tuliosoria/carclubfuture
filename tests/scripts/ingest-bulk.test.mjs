@@ -1,5 +1,5 @@
 /**
- * Unit tests for ingest-cars-catalog-bulk.mjs (tasks A1-A8).
+ * Unit tests for the NHTSA-primary bulk catalog ingest.
  *
  * Run: node --test tests/scripts/ingest-bulk.test.mjs
  */
@@ -16,146 +16,137 @@ const scriptPath = join(
   "../../scripts/ingest-cars-catalog-bulk.mjs"
 );
 
-// Dynamic import so we pick up the real module exports.
 const {
   resumeState,
-  saveCheckpoint,
   fetchMakes,
-  fetchTrimsForMake,
+  fetchModelsForMakeYear,
+  buildRow,
   slugify,
+  eraForYear,
   ingest,
-  enrichWithNhtsa,
   scoreConfidence,
 } = await import(scriptPath);
 
-/** No-op rate limiter so tests don't wait 1 second per call. */
 const noOpRl = { take: () => Promise.resolve() };
+const okResp = (body) => ({ ok: true, status: 200, json: async () => body });
 
-// ─── A1: resumeState ─────────────────────────────────────────────────────────
+// ─── resumeState ─────────────────────────────────────────────────────────────
 
-test("A1: resumeState returns empty default for nonexistent path", async () => {
-  const state = await resumeState("/nonexistent/path/that/does/not/exist.json");
-  assert.deepEqual(state, { completedMakes: [], lastYear: null });
+test("resumeState returns empty default for nonexistent path", async () => {
+  const state = await resumeState(
+    "/nonexistent/path/that/does/not/exist.json"
+  );
+  assert.deepEqual(state, { completedMakeIds: [], lastYear: null });
 });
 
-// ─── A2: fetchMakes ──────────────────────────────────────────────────────────
+// ─── fetchMakes ──────────────────────────────────────────────────────────────
 
-test("A2: fetchMakes normalizes CarQuery Makes response", async () => {
-  const fakeFetch = async (_url) => ({
-    json: async () => ({
-      Makes: [
+test("fetchMakes maps NHTSA Results to {id, display}", async () => {
+  const fakeFetch = async (_url) =>
+    okResp({
+      Results: [
+        { MakeId: 460, MakeName: "FORD", VehicleTypeName: "Passenger Car" },
         {
-          make_id: "ford",
-          make_display: "Ford",
-          make_country: "USA",
-          make_is_common: "1",
-        },
-        {
-          make_id: "chevrolet",
-          make_display: "Chevrolet",
-          make_country: "USA",
-          make_is_common: "1",
+          MakeId: 467,
+          MakeName: "CHEVROLET",
+          VehicleTypeName: "Passenger Car",
         },
       ],
-    }),
-  });
+    });
 
-  const makes = await fetchMakes(2020, { fetch: fakeFetch, rateLimiter: noOpRl });
-
+  const makes = await fetchMakes({ fetch: fakeFetch, rateLimiter: noOpRl });
   assert.equal(makes.length, 2);
-  assert.deepEqual(makes[0], {
-    id: "ford",
-    display: "Ford",
-    country: "USA",
-    isCommon: "1",
-  });
-  assert.deepEqual(makes[1], {
-    id: "chevrolet",
-    display: "Chevrolet",
-    country: "USA",
-    isCommon: "1",
-  });
+  assert.deepEqual(makes[0], { id: 460, display: "FORD" });
+  assert.deepEqual(makes[1], { id: 467, display: "CHEVROLET" });
 });
 
-// ─── A3: fetchTrimsForMake ────────────────────────────────────────────────────
+// ─── fetchModelsForMakeYear ──────────────────────────────────────────────────
 
-test("A3: fetchTrimsForMake filters non-US trims, normalizes fields, and slugifies", async () => {
+test("fetchModelsForMakeYear normalizes NHTSA Results", async () => {
   const fakeFetch = async (url) => {
-    if (url.includes("cmd=getModels")) {
-      return {
-        json: async () => ({
-          Models: [{ model_name: "Mustang GT/CS", model_make_id: "ford" }],
-        }),
-      };
-    }
-    // getTrims: 1 US trim + 1 non-US trim
-    return {
-      json: async () => ({
-        Trims: [
-          {
-            model_id: "12345",
-            model_name: "Mustang GT/CS",
-            model_trim: "GT/CS",
-            model_year: "2007",
-            model_body: "Coupe",
-            model_engine_cc: "4601",
-            model_engine_cyl: "8",
-            model_engine_fuel: "Gasoline",
-            model_transmission_type: "Automatic",
-            model_drive: "RWD",
-            sold_in_us: "1",
-          },
-          {
-            model_id: "12346",
-            model_name: "Mustang GT/CS",
-            model_trim: "Export",
-            model_year: "2007",
-            model_body: "Coupe",
-            model_engine_cc: "2300",
-            model_engine_cyl: "4",
-            model_engine_fuel: "Gasoline",
-            model_transmission_type: "Manual",
-            model_drive: "RWD",
-            sold_in_us: "0", // not sold in US — must be filtered
-          },
-        ],
-      }),
-    };
+    assert.match(url, /makeId\/460\/modelyear\/2020/);
+    return okResp({
+      Results: [
+        {
+          Make_ID: 460,
+          Make_Name: "FORD",
+          Model_ID: 1781,
+          Model_Name: "Mustang",
+        },
+      ],
+    });
   };
-
-  const trims = await fetchTrimsForMake("ford", 2007, {
+  const models = await fetchModelsForMakeYear(460, 2020, {
     fetch: fakeFetch,
     rateLimiter: noOpRl,
-    makeDisplay: "Ford",
   });
-
-  assert.equal(trims.length, 1, "non-US trim must be filtered out");
-
-  const trim = trims[0];
-  assert.equal(trim.carqueryId, "12345");
-  // slug: "2007-ford-mustang-gt-cs-gt-cs" — slugify strips / and collapses
-  assert.equal(trim.slug, slugify("2007-ford-Mustang GT/CS-GT/CS"));
-  assert.ok(
-    /^[a-z0-9-]+$/.test(trim.slug),
-    "slug must be clean lower-kebab"
-  );
-  assert.equal(trim.year, 2007);
-  assert.equal(trim.make, "ford");
-  assert.equal(trim.makeDisplay, "Ford");
-  assert.equal(trim.model, "Mustang GT/CS");
-  assert.equal(trim.trim, "GT/CS");
-  assert.equal(trim.bodyStyle, "Coupe");
-  assert.equal(trim.engineDisplacementCc, 4601);
-  assert.equal(trim.cylinders, 8);
-  assert.equal(trim.fuel, "Gasoline");
-  assert.equal(trim.transmission, "Automatic");
-  assert.equal(trim.driveType, "RWD");
-  assert.equal(trim.source, "carquery");
+  assert.equal(models.length, 1);
+  assert.deepEqual(models[0], {
+    modelId: 1781,
+    modelName: "Mustang",
+    makeId: 460,
+    makeName: "FORD",
+  });
 });
 
-// ─── A4: ingest ──────────────────────────────────────────────────────────────
+// ─── buildRow / slugify / eraForYear ─────────────────────────────────────────
 
-test("A4: ingest writes deduped sorted JSON for 1yr × 1make × 1model × 1trim", async () => {
+test("buildRow produces a BulkCatalogRow with NHTSA id + null unknowns", () => {
+  const row = buildRow({
+    year: 1969,
+    make: { id: 460, display: "FORD" },
+    model: { modelId: 1781, modelName: "Mustang Boss 429" },
+  });
+  assert.equal(row.slug, "1969-ford-mustang-boss-429");
+  assert.equal(row.year, 1969);
+  assert.equal(row.make, "FORD");
+  assert.equal(row.model, "Mustang Boss 429");
+  assert.equal(row.nhtsaId, "1781");
+  assert.equal(row.carqueryId, null);
+  assert.equal(row.engineDisplacementCc, null);
+  assert.equal(row.cylinders, null);
+  assert.equal(row.transmission, null);
+  assert.equal(row.bodyStyle, null);
+  assert.equal(row.countryOfOrigin, null);
+  assert.equal(row.era, "muscle-era");
+  assert.equal(row.source, "nhtsa");
+  assert.equal(row.catalogConfidence, "low");
+});
+
+test("slugify is ascii-only kebab", () => {
+  assert.equal(slugify("1990 Citroën DS/19"), "1990-citroen-ds-19");
+  assert.match(slugify("XYZ"), /^[a-z0-9-]+$/);
+});
+
+test("eraForYear covers each Era bucket", () => {
+  assert.equal(eraForYear(1939), "pre-war");
+  assert.equal(eraForYear(1955), "post-war-classic");
+  assert.equal(eraForYear(1968), "muscle-era");
+  assert.equal(eraForYear(1980), "malaise");
+  assert.equal(eraForYear(1992), "modern-classic");
+  assert.equal(eraForYear(2010), "modern-collectible");
+});
+
+// ─── scoreConfidence ─────────────────────────────────────────────────────────
+
+test("scoreConfidence: NHTSA-only is low", () => {
+  assert.equal(scoreConfidence({ nhtsaId: "1781" }), "low");
+});
+
+test("scoreConfidence: NHTSA + CarAPI is medium", () => {
+  assert.equal(scoreConfidence({ nhtsaId: "1781", carapiId: 99 }), "medium");
+});
+
+test("scoreConfidence: NHTSA + CarAPI + CarQuery is high", () => {
+  assert.equal(
+    scoreConfidence({ nhtsaId: "1", carapiId: 2, carqueryId: "x" }),
+    "high"
+  );
+});
+
+// ─── ingest end-to-end (mocked) ──────────────────────────────────────────────
+
+test("ingest writes deduped sorted JSON for 1yr × 1make × 1model", async () => {
   const outputPath = join(
     __dirname,
     "../../scripts/output/test-ingest-output.json"
@@ -164,53 +155,28 @@ test("A4: ingest writes deduped sorted JSON for 1yr × 1make × 1model × 1trim"
     __dirname,
     "../../scripts/output/test-ingest-checkpoint.json"
   );
-
-  // Clean up any leftover files from a previous run.
   await unlink(outputPath).catch(() => {});
   await unlink(checkpointPath).catch(() => {});
 
   const fakeFetch = async (url) => {
-    if (url.includes("cmd=getMakes")) {
-      return {
-        json: async () => ({
-          Makes: [
-            {
-              make_id: "ford",
-              make_display: "Ford",
-              make_country: "USA",
-              make_is_common: "1",
-            },
-          ],
-        }),
-      };
-    }
-    if (url.includes("cmd=getModels")) {
-      return {
-        json: async () => ({
-          Models: [{ model_name: "Mustang", model_make_id: "ford" }],
-        }),
-      };
-    }
-    // getTrims
-    return {
-      json: async () => ({
-        Trims: [
-          {
-            model_id: "99999",
-            model_name: "Mustang",
-            model_trim: "GT",
-            model_year: "2020",
-            model_body: "Coupe",
-            model_engine_cc: "5000",
-            model_engine_cyl: "8",
-            model_engine_fuel: "Gasoline",
-            model_transmission_type: "Automatic",
-            model_drive: "RWD",
-            sold_in_us: "1",
-          },
+    if (url.includes("GetMakesForVehicleType")) {
+      return okResp({
+        Results: [
+          { MakeId: 460, MakeName: "FORD", VehicleTypeName: "Passenger Car" },
         ],
-      }),
-    };
+      });
+    }
+    // GetModelsForMakeIdYear
+    return okResp({
+      Results: [
+        {
+          Make_ID: 460,
+          Make_Name: "FORD",
+          Model_ID: 1781,
+          Model_Name: "Mustang",
+        },
+      ],
+    });
   };
 
   const result = await ingest({
@@ -222,98 +188,25 @@ test("A4: ingest writes deduped sorted JSON for 1yr × 1make × 1model × 1trim"
     rateLimiter: noOpRl,
   });
 
-  // Return value check
-  assert.ok(Array.isArray(result), "ingest() should return an array");
   assert.equal(result.length, 1);
-  assert.equal(result[0].slug, "2020-ford-mustang-gt");
-  assert.equal(result[0].year, 2020);
-  assert.equal(result[0].make, "ford");
-  assert.equal(result[0].makeDisplay, "Ford");
-  assert.equal(result[0].source, "carquery");
+  assert.equal(result[0].slug, "2020-ford-mustang");
+  assert.equal(result[0].nhtsaId, "1781");
+  assert.equal(result[0].source, "nhtsa");
 
-  // File on disk check
-  const raw = await readFile(outputPath, "utf8");
-  const fromDisk = JSON.parse(raw);
-  assert.ok(Array.isArray(fromDisk), "output file should contain an array");
+  const fromDisk = JSON.parse(await readFile(outputPath, "utf8"));
   assert.equal(fromDisk.length, 1);
-  assert.equal(fromDisk[0].slug, "2020-ford-mustang-gt");
+  assert.equal(fromDisk[0].slug, "2020-ford-mustang");
 
-  // Checkpoint should record year as complete
-  const cpRaw = await readFile(checkpointPath, "utf8");
-  const cp = JSON.parse(cpRaw);
+  const cp = JSON.parse(await readFile(checkpointPath, "utf8"));
   assert.equal(cp.lastYear, 2020);
 
-  // Clean up
   await unlink(outputPath).catch(() => {});
   await unlink(checkpointPath).catch(() => {});
 });
 
-// ─── A5: enrichWithNhtsa ──────────────────────────────────────────────────────
+// ─── Crash-resume durability (per-year incremental flush) ────────────────────
 
-test("A5: enrichWithNhtsa sets nhtsaId on match, null on miss", async () => {
-  const noOpRl2 = { take: () => Promise.resolve() };
-
-  // NHTSA returns one model for ford/2020 — Mustang matches, Explorer does not.
-  const fakeFetch = async (_url) => ({
-    json: async () => ({
-      Results: [
-        { Make_ID: 460, Make_Name: "FORD", Model_ID: 1861, Model_Name: "Mustang" },
-      ],
-    }),
-  });
-
-  const rows = [
-    { year: 2020, make: "ford", model: "Mustang", trim: "GT" },
-    { year: 2020, make: "ford", model: "Explorer", trim: "Base" },
-  ];
-
-  await enrichWithNhtsa(rows, { fetch: fakeFetch, rateLimiter: noOpRl2 });
-
-  // Match
-  assert.equal(rows[0].nhtsaId, "460:1861");
-  assert.equal(rows[0].nhtsaModelName, "Mustang");
-
-  // Miss
-  assert.equal(rows[1].nhtsaId, null);
-  assert.equal(rows[1].nhtsaModelName, undefined);
-});
-
-test("A5: enrichWithNhtsa issues one API call per unique make+year (not per row)", async () => {
-  const noOpRl2 = { take: () => Promise.resolve() };
-  let callCount = 0;
-
-  const fakeFetch = async (_url) => {
-    callCount++;
-    return { json: async () => ({ Results: [] }) };
-  };
-
-  // 3 rows — 2 with same make+year, 1 different make — should yield 2 calls.
-  const rows = [
-    { year: 2020, make: "ford", model: "Mustang" },
-    { year: 2020, make: "ford", model: "F-150" },
-    { year: 2020, make: "chevrolet", model: "Camaro" },
-  ];
-
-  await enrichWithNhtsa(rows, { fetch: fakeFetch, rateLimiter: noOpRl2 });
-
-  assert.equal(callCount, 2, "must call NHTSA once per unique (make, year)");
-});
-
-// ─── A7: scoreConfidence ─────────────────────────────────────────────────────
-
-test("A7: scoreConfidence returns 'high' when all three sources are present", () => {
-  const row = { nhtsaId: "460:1861", carapiId: 99 };
-  assert.equal(scoreConfidence(row), "high");
-});
-
-test("A7: scoreConfidence returns 'low' when only CarQuery is present", () => {
-  const row = { nhtsaId: null };
-  assert.equal(scoreConfidence(row), "low");
-});
-
-// ─── A4: incremental flush durability ────────────────────────────────────────
-
-test("A4: ingest flushes output after each year — partial data survives crash mid-run", async () => {
+test("ingest flushes after each year — partial data survives crash mid-run", async () => {
   const outputPath = join(
     __dirname,
     "../../scripts/output/test-ingest-crash-output.json"
@@ -322,64 +215,38 @@ test("A4: ingest flushes output after each year — partial data survives crash 
     __dirname,
     "../../scripts/output/test-ingest-crash-checkpoint.json"
   );
-
   await unlink(outputPath).catch(() => {});
   await unlink(checkpointPath).catch(() => {});
 
-  // fakeFetch for the FIRST (crashing) run.
-  // getMakes is called once per year; throw on the 3rd call (year 2020).
-  let makeCallCount = 0;
+  // GetMakesForVehicleType returns 6 makes; on the year-2020 descent,
+  // every model fetch throws, triggering the >5-consecutive-failure abort.
+  // Years 2022 + 2021 should have already been flushed.
+  const sixMakes = [1, 2, 3, 4, 5, 6].map((id) => ({
+    MakeId: id,
+    MakeName: `M${id}`,
+    VehicleTypeName: "Passenger Car",
+  }));
   const fakeFetchCrash = async (url) => {
-    if (url.includes("cmd=getMakes")) {
-      makeCallCount++;
-      if (makeCallCount === 3) throw new Error("simulated crash on year 2020");
-      const yearMatch = url.match(/year=(\d+)/);
-      const year = yearMatch ? yearMatch[1] : "2022";
-      return {
-        json: async () => ({
-          Makes: [
-            {
-              make_id: "ford",
-              make_display: "Ford",
-              make_country: "USA",
-              make_is_common: "1",
-            },
-          ],
-        }),
-      };
+    if (url.includes("GetMakesForVehicleType")) {
+      return okResp({ Results: sixMakes });
     }
-    if (url.includes("cmd=getModels")) {
-      return {
-        json: async () => ({
-          Models: [{ model_name: "Mustang", model_make_id: "ford" }],
-        }),
-      };
+    const yr = url.match(/modelyear\/(\d+)/)?.[1] ?? "0";
+    if (yr === "2020") {
+      throw new Error("simulated crash on year 2020");
     }
-    // getTrims — extract year from URL, return one trim per year
-    const yearMatch = url.match(/year=(\d+)/);
-    const year = yearMatch ? Number(yearMatch[1]) : 2022;
-    return {
-      json: async () => ({
-        Trims: [
-          {
-            model_id: String(year),
-            model_name: "Mustang",
-            model_trim: "GT",
-            model_year: String(year),
-            model_body: "Coupe",
-            model_engine_cc: "5000",
-            model_engine_cyl: "8",
-            model_engine_fuel: "Gasoline",
-            model_transmission_type: "Automatic",
-            model_drive: "RWD",
-            sold_in_us: "1",
-          },
-        ],
-      }),
-    };
+    const makeId = url.match(/makeId\/(\d+)/)?.[1] ?? "0";
+    return okResp({
+      Results: [
+        {
+          Make_ID: Number(makeId),
+          Make_Name: `M${makeId}`,
+          Model_ID: Number(`${yr}${makeId}`),
+          Model_Name: `Model${yr}-${makeId}`,
+        },
+      ],
+    });
   };
 
-  // First run: 2022 → 2021 → crash on 2020.
   await assert.rejects(
     () =>
       ingest({
@@ -390,62 +257,39 @@ test("A4: ingest flushes output after each year — partial data survives crash 
         fetch: fakeFetchCrash,
         rateLimiter: noOpRl,
       }),
-    /simulated crash/
+    /aborting: >5 consecutive NHTSA failures/
   );
 
-  // The incremental flushes must have persisted years 2022 and 2021.
-  const rawPartial = await readFile(outputPath, "utf8");
-  const partial = JSON.parse(rawPartial);
-  assert.ok(Array.isArray(partial), "partial output should be an array");
-  assert.equal(partial.length, 2, "should have 2 trims from the two completed years");
-  const partialYears = partial.map((t) => t.year).sort((a, b) => a - b);
+  const partial = JSON.parse(await readFile(outputPath, "utf8"));
+  assert.ok(Array.isArray(partial));
+  assert.equal(
+    partial.length,
+    12,
+    "two completed years × 6 makes × 1 model each should be flushed"
+  );
+  const partialYears = [...new Set(partial.map((r) => r.year))].sort();
   assert.deepEqual(partialYears, [2021, 2022]);
 
-  // Resume run: processes only year 2020 and merges with existing output.
+  // Resume — only year 2020 is left to process. All 6 makes succeed this time.
   const fakeFetchResume = async (url) => {
-    if (url.includes("cmd=getMakes")) {
-      return {
-        json: async () => ({
-          Makes: [
-            {
-              make_id: "ford",
-              make_display: "Ford",
-              make_country: "USA",
-              make_is_common: "1",
-            },
-          ],
-        }),
-      };
+    if (url.includes("GetMakesForVehicleType")) {
+      return okResp({ Results: sixMakes });
     }
-    if (url.includes("cmd=getModels")) {
-      return {
-        json: async () => ({
-          Models: [{ model_name: "Mustang", model_make_id: "ford" }],
-        }),
-      };
-    }
-    return {
-      json: async () => ({
-        Trims: [
-          {
-            model_id: "2020",
-            model_name: "Mustang",
-            model_trim: "GT",
-            model_year: "2020",
-            model_body: "Coupe",
-            model_engine_cc: "5000",
-            model_engine_cyl: "8",
-            model_engine_fuel: "Gasoline",
-            model_transmission_type: "Automatic",
-            model_drive: "RWD",
-            sold_in_us: "1",
-          },
-        ],
-      }),
-    };
+    const yr = url.match(/modelyear\/(\d+)/)?.[1] ?? "0";
+    const makeId = url.match(/makeId\/(\d+)/)?.[1] ?? "0";
+    return okResp({
+      Results: [
+        {
+          Make_ID: Number(makeId),
+          Make_Name: `M${makeId}`,
+          Model_ID: Number(`${yr}${makeId}`),
+          Model_Name: `Model${yr}-${makeId}`,
+        },
+      ],
+    });
   };
 
-  const result = await ingest({
+  const resumed = await ingest({
     startYear: 2020,
     endYear: 2022,
     checkpointPath,
@@ -453,12 +297,10 @@ test("A4: ingest flushes output after each year — partial data survives crash 
     fetch: fakeFetchResume,
     rateLimiter: noOpRl,
   });
+  assert.equal(resumed.length, 18, "3 years × 6 makes × 1 model = 18");
+  const allYears = [...new Set(resumed.map((r) => r.year))].sort();
+  assert.deepEqual(allYears, [2020, 2021, 2022]);
 
-  assert.equal(result.length, 3, "resumed run should produce union of all 3 years");
-  const resultYears = result.map((t) => t.year).sort((a, b) => a - b);
-  assert.deepEqual(resultYears, [2020, 2021, 2022]);
-
-  // Clean up
   await unlink(outputPath).catch(() => {});
   await unlink(checkpointPath).catch(() => {});
 });
