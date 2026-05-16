@@ -54,11 +54,16 @@ interface DdbItem {
 
 interface BundledImageRecord {
   url: string;
-  width?: number;
+  width?: number | null;
+  height?: number | null;
+  source?: string;
+  imageStatus?: string;
   license?: string;
   author?: string;
   licenseUrl?: string;
   sourcePageUrl?: string;
+  mirroredAt?: string;
+  cachedAt?: string;
 }
 
 interface BundledPricesJson {
