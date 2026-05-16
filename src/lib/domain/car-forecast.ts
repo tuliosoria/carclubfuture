@@ -14,6 +14,22 @@ import type {
 import { classifyConfidence } from "./confidence-display";
 import { recommendationFromCagr } from "./recommendation";
 import { getCommunityScore } from "@/lib/db/car-search";
+import marketcheckRaw from "@/lib/data/cars-ml/marketcheck-stats.json";
+
+const MARKETCHECK_STATS = (marketcheckRaw as { stats: Record<string, MarketcheckStat> }).stats ?? {};
+
+interface MarketcheckStat {
+  source: "marketcheck";
+  asOf: string;
+  askMedianUsd: number | null;
+  askMeanUsd: number | null;
+  askIqrUsd: number | null;
+  domMedianDays: number | null;
+  domMeanDays: number | null;
+  milesMedianMi: number | null;
+  listingCount: number;
+  cpoCount: number;
+}
 
 const MIN_AUCTIONS_36MO = 5;
 
@@ -63,12 +79,34 @@ function compoundProjection(baseValue: number, baseCagr: number, sigma: number):
 }
 
 export function computeForecast(car: CollectorCar): CarForecast {
-  const price = car.price;
+  let price = car.price;
+  let priceSource: "oldcarsdata" | "marketcheck-ask" = "oldcarsdata";
+
+  // Fallback: if OldCarsData is missing or thin, try Marketcheck asking-price stats.
+  // Marketcheck is dealer-listing aggregate (asking, not sold). Clearly labeled in notes/drivers.
+  const mcStat = MARKETCHECK_STATS[car.id];
+  if ((!price || price.auctionCount12mo < MIN_AUCTIONS_36MO) && mcStat?.askMedianUsd && mcStat.listingCount >= 3) {
+    price = {
+      asOf: mcStat.asOf,
+      conditionAnchor: 3,
+      valueUsd: mcStat.askMedianUsd,
+      auctionMedian12moUsd: mcStat.askMedianUsd,
+      auctionCount12mo: mcStat.listingCount,
+      // Approximate "reserve met rate" from days-on-market: faster sales => stronger demand.
+      // <90d=hot(0.85), 90-180d=normal(0.65), >180d=soft(0.45).
+      reserveMetRate12mo:
+        (mcStat.domMedianDays ?? 180) < 90 ? 0.85 :
+        (mcStat.domMedianDays ?? 180) < 180 ? 0.65 : 0.45,
+      source: "estimate",
+    };
+    priceSource = "marketcheck-ask";
+  }
+
   if (!price) {
     return insufficient(car, "No bundled price snapshot.");
   }
-  if (price.auctionCount12mo < MIN_AUCTIONS_36MO) {
-    return insufficient(car, `Only ${price.auctionCount12mo} auction results in trailing 12 months.`);
+  if (price.auctionCount12mo < (priceSource === "marketcheck-ask" ? 3 : MIN_AUCTIONS_36MO)) {
+    return insufficient(car, `Only ${price.auctionCount12mo} data points in trailing 12 months.`);
   }
   if (!car.segment) {
     return insufficient(car, "No segment classification on bulk catalog entry.");
@@ -78,11 +116,16 @@ export function computeForecast(car: CollectorCar): CarForecast {
   // Demand tilt: community score nudges baseCagr up to ±2 percentage points.
   const community = getCommunityScore(car.id) ?? 50;
   const demandTilt = ((community - 60) / 60) * 0.02; // centered around 60
-  const baseCagr = baseline.baseCagr + demandTilt;
+  // Marketcheck-derived forecasts: dampen the baseline 1 percentage point because
+  // asking-price trends overstate sold-price reality.
+  const sourceAdj = priceSource === "marketcheck-ask" ? -0.01 : 0;
+  const baseCagr = baseline.baseCagr + demandTilt + sourceAdj;
 
   // Reserve-met rate dampens volatility (more bidder agreement => narrower bands).
   const reserveAdj = price.reserveMetRate12mo ?? 0.5;
-  const sigma = baseline.volatility * (1 + (0.7 - reserveAdj));
+  // Widen bands for Marketcheck-based forecasts to reflect lower confidence.
+  const sourceSigmaMult = priceSource === "marketcheck-ask" ? 1.3 : 1.0;
+  const sigma = baseline.volatility * (1 + (0.7 - reserveAdj)) * sourceSigmaMult;
 
   const projection = compoundProjection(price.valueUsd, baseCagr, sigma);
   const final = projection[projection.length - 1];
@@ -100,13 +143,20 @@ export function computeForecast(car: CollectorCar): CarForecast {
   const drivers = [
     `Segment baseline CAGR ${(baseline.baseCagr * 100).toFixed(1)}%`,
     `Community score ${community} (${community >= 80 ? "strong" : community >= 60 ? "stable" : "soft"} demand)`,
-    `12-mo reserve-met rate ${((price.reserveMetRate12mo ?? 0) * 100).toFixed(0)}%`,
+    priceSource === "marketcheck-ask"
+      ? `${mcStat?.listingCount ?? 0} dealer listings, median DOM ${mcStat?.domMedianDays ?? "?"}d (Marketcheck asking-price)`
+      : `12-mo reserve-met rate ${((price.reserveMetRate12mo ?? 0) * 100).toFixed(0)}%`,
     `Rarity: ${car.rarity}`,
   ];
 
+  const notes =
+    priceSource === "marketcheck-ask"
+      ? ["Forecast based on dealer asking-price data (Marketcheck), not auction-sold results. Treat as directional."]
+      : [];
+
   return {
     recommendation: recommendationFromCagr(cagr5yr),
-    confidence,
+    confidence: priceSource === "marketcheck-ask" ? "low" : confidence,
     asOf: price.asOf,
     baseValueUsd: price.valueUsd,
     baseConditionGrade: 3,
@@ -115,7 +165,7 @@ export function computeForecast(car: CollectorCar): CarForecast {
     cagr5yr,
     projection,
     drivers,
-    notes: [],
+    notes,
   };
 }
 
