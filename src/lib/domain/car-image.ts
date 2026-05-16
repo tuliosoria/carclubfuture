@@ -11,6 +11,8 @@
 import type { CollectorCar, Segment } from "@/lib/types/cars";
 import imagesIndex from "@/lib/data/cars-ml/oldcarsdata-auction-images.json";
 
+const GENERIC_FALLBACK = "/images/fallback/generic.svg";
+
 const SEGMENT_FALLBACK: Record<Segment, string> = {
   "blue-chip": "/images/fallback/blue-chip.svg",
   "american-muscle": "/images/fallback/american-muscle.svg",
@@ -60,5 +62,9 @@ export function resolveCarImage(
       },
     };
   }
-  return { src: car.imageUrl ?? SEGMENT_FALLBACK[car.segment], attribution: null };
+  if (car.imageUrl) return { src: car.imageUrl, attribution: null };
+  // Bulk catalog rows have null segment — fall back to the generic
+  // silhouette rather than crashing on SEGMENT_FALLBACK lookup.
+  const segmentSrc = car.segment ? SEGMENT_FALLBACK[car.segment] : null;
+  return { src: segmentSrc ?? GENERIC_FALLBACK, attribution: null };
 }

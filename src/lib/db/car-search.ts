@@ -24,7 +24,7 @@ interface CatalogVehicleRow {
   model: string;
   trim: string | null;
   displayName: string;
-  segment: Segment;
+  segment: Segment | null;
   era: CollectorCar["era"];
   bodyStyle: CollectorCar["bodyStyle"];
   market: CollectorCar["market"];
@@ -32,7 +32,7 @@ interface CatalogVehicleRow {
   productionTotal: number | null;
   engineDisplacementCc: number | null;
   cylinders: number | null;
-  isConvertible: boolean;
+  isConvertible: boolean | null;
   imageUrl?: string | null;
   description: string | null;
 }
@@ -55,7 +55,19 @@ const communityScores = communityJson as Record<
 const denylist = new Set(
   (denylistJson as { denylist: string[] }).denylist.map((s) => s.toLowerCase())
 );
-const aliasMap = (searchAliasesJson as { aliases: Record<string, string[]> }).aliases;
+interface SearchAliasRow {
+  slug: string;
+  displayName: string;
+  searchAliases: string[];
+  segment: string;
+}
+
+const aliasMap: Record<string, string[]> = Object.fromEntries(
+  (searchAliasesJson as unknown as SearchAliasRow[]).map((r) => [
+    r.slug,
+    r.searchAliases ?? [],
+  ]),
+);
 
 function buildAliases(row: CatalogVehicleRow): string[] {
   const tokens = new Set<string>();

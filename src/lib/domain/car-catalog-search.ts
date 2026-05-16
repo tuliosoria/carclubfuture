@@ -42,6 +42,6 @@ export function buildCarSearchAliases(car: Pick<CollectorCar, "make" | "model" |
   out.add(`${car.make} ${car.model}`.toLowerCase());
   out.add(car.model.toLowerCase());
   if (car.trim) out.add(`${car.model} ${car.trim}`.toLowerCase());
-  out.add(car.segment);
+  if (car.segment) out.add(car.segment);
   return Array.from(out);
 }
