@@ -7,7 +7,7 @@ import { FirstVisitDisclaimer } from "@/components/layout/first-visit-disclaimer
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["500", "700"],
+  weight: ["300", "400", "500"],
   variable: "--font-space-grotesk",
   display: "swap",
 });

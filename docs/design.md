@@ -1,6 +1,8 @@
 # CarClubFuture Design System
 
-Inspired by **mclaren.com/racing** (Nov 2026 capture). McLaren's proprietary assets (the `mclStandard` typeface family and the Speedmark logo) are not redistributable, so this system substitutes open-source equivalents that capture the same geometric, motorsport-inflected feel while staying legally clean.
+Inspired by **maserati.com** (May 2026 capture). Maserati's proprietary assets (the *Everett* typeface and the Trident wordmark) are not redistributable, so this system substitutes open-source equivalents that capture the same restrained Italian-luxury feel while staying legally clean.
+
+> Replaces the previous McLaren-flavored system. Token variable names (`--papaya-*`) are retained for backward compatibility — they now resolve to gold values, so existing utility classes like `bg-papaya` / `text-papaya` automatically render in Trident gold.
 
 ---
 
@@ -8,65 +10,63 @@ Inspired by **mclaren.com/racing** (Nov 2026 capture). McLaren's proprietary ass
 
 | Attribute | Direction |
 |---|---|
-| Tone | Editorial, confident, motorsport-adjacent. Headlines shout, body whispers. |
-| Density | High contrast: large hero blocks → tight data cards. |
-| Color discipline | Pure black canvas. One signal color (papaya). Status colors only where data demands. |
-| Geometry | Sharp. No `rounded-2xl`. 0–4px corners only. |
-| Motion | Restrained. 150ms ease-out. No bounce. |
+| Tone | Italian heritage, restrained confidence. Headlines whisper with weight, not shout. |
+| Density | Generous editorial whitespace. Surfaces breathe. |
+| Color discipline | Indigo-black canvas. One brand accent (Trident gold) used as punctuation, not decoration. |
+| Geometry | Hairline. 0–2px corners. Borders are 1px, never bold. |
+| Motion | Slow and deliberate. 200ms ease-in-out. Hover reveals gold underlines, never bounces. |
 
 ---
 
 ## 2. Color Tokens
 
-McLaren uses pure black canvas with a single brand accent (papaya orange) and neutral grays. We retain CarClubFuture's existing semantic colors (buy/hold/sell) because they carry real meaning the McLaren site doesn't need.
+Maserati uses a deep indigo-black canvas (warmer than pure black), a single Trident gold accent, and warm ivory ink. We keep CarClubFuture's buy/hold/sell semantics — desaturated so they harmonize with gold rather than fight it.
 
 ```css
 :root {
-  /* Canvas */
-  --background:        #000000;   /* pure black, was #0a0a0b */
-  --surface:           #0a0a0a;   /* one step up from canvas */
-  --surface-elevated:  #141414;   /* cards */
-  --surface-overlay:   #1f1f1f;   /* hover, modal */
+  /* Canvas — indigo-black, warmer than pure #000 */
+  --background:        #05070d;
+  --surface:           #0b0e16;
+  --surface-elevated:  #141822;
+  --surface-overlay:   #1d2230;
 
-  /* Ink */
-  --foreground:        #ffffff;   /* primary text */
-  --foreground-muted:  #c4c4c4;   /* secondary text — McLaren's exact gray */
-  --foreground-dim:    #6b6b6b;   /* tertiary / meta */
+  /* Ink — warm ivory */
+  --foreground:        #f4f1e9;
+  --foreground-muted:  #b8b3a6;
+  --foreground-dim:    #6c6759;
 
-  /* Borders & dividers */
-  --border:            #2a2a2a;
-  --border-strong:     #3f3f3f;
+  /* Borders — hairline restraint */
+  --border:            #1f2330;
+  --border-strong:     #2f3445;
 
-  /* Brand */
-  --papaya:            #ff8000;   /* McLaren primary — exact match */
-  --papaya-hover:      #ff9933;
-  --papaya-press:      #cc6600;
-  --papaya-foreground: #000000;   /* text on papaya */
+  /* Brand — Trident gold */
+  --papaya:            #b9975b;   /* primary accent (name kept for compat) */
+  --papaya-hover:      #cdb076;
+  --papaya-press:      #9a7d48;
+  --papaya-foreground: #05070d;   /* ink on gold */
 
-  /* Semantic (kept from existing system, retuned for black canvas) */
-  --buy:               #00d563;   /* slightly brighter for contrast on black */
-  --hold:              #ffb800;
-  --sell:              #ff3b3b;
-  --confidence-high:   var(--buy);
-  --confidence-medium: var(--hold);
-  --confidence-low:    var(--sell);
+  /* Semantic signals — desaturated for tonal harmony with gold */
+  --buy:               #4ab87a;
+  --hold:              #d4a84a;
+  --sell:              #c85a5a;
 }
 ```
 
 **Usage rules**
-- Papaya is reserved for: primary CTAs, active filter chips, hover/focus rings, the brand wordmark accent, and key data highlights (e.g., 12-mo CAGR badge).
-- Never use papaya for body copy or large surfaces. It is a punctuation color.
-- Buy/Hold/Sell pills retain their meaning — they are not decorative.
+
+- Gold is reserved for: primary CTAs, active filter chips, hover/focus rings, the wordmark accent, the upside arrow on a positive forecast.
+- Never use gold for body copy, large fills, or decorative gradients. It is a punctuation color.
+- Buy/Hold/Sell pills retain their semantic meaning — they describe forecasts, not chrome.
 
 ---
 
 ## 3. Typography
 
-McLaren ships proprietary `mclStandardRegular` / `mclStandardLight`. We cannot use these. The closest open-source pairing that preserves the same wide-set geometric display + clean humanist body:
+Maserati ships proprietary *Everett* (a geometric humanist sans). We can't use it. The closest open-source pairing — wide-set geometric display + clean humanist body + tabular mono for numbers:
 
 | Role | Family | Source | Weights |
 |---|---|---|---|
-| Display (H1–H2, hero, all-caps overlines) | **Space Grotesk** | next/font/google | 500, 700 |
+| Display (H1–H2, hero, overlines) | **Space Grotesk** | next/font/google | 300, 400, 500 |
 | Body & UI | **Inter** | next/font/google | 400, 500, 600 |
 | Numeric (prices, CAGR, mileage) | **JetBrains Mono** | next/font/google | 400, 500 — tabular figures |
 
@@ -74,194 +74,114 @@ McLaren ships proprietary `mclStandardRegular` / `mclStandardLight`. We cannot u
 
 | Token | Size / line-height | Weight | Tracking | Case | Use |
 |---|---|---|---|---|---|
-| `display-2xl` | 5.5rem / 1.0 | 700 | -0.02em | UPPER | Home hero headline only |
-| `display-xl`  | 4rem / 1.05  | 700 | -0.02em | UPPER | Section openers ("CATALOG", "FORECAST") |
-| `display-lg`  | 2.75rem / 1.1| 700 | -0.01em | UPPER | Page titles |
-| `h1`          | 2rem / 1.15  | 700 | -0.01em | sentence | Card cluster heads |
-| `h2`          | 1.5rem / 1.2 | 600 | 0       | sentence | Sub-sections |
-| `h3`          | 1.125rem / 1.3 | 600 | 0     | sentence | Card titles |
-| `overline`    | 0.75rem / 1.3 | 600 | 0.12em | UPPER | Eyebrow labels above headings |
-| `body`        | 1rem / 1.55  | 400 | 0       | sentence | Default copy |
-| `body-sm`     | 0.875rem / 1.5 | 400 | 0     | sentence | Card body, captions |
-| `meta`        | 0.75rem / 1.4 | 500 | 0.04em | UPPER | Timestamps, source pills |
-| `num-lg`      | 2rem / 1.0 (mono) | 500 | 0    | — | Hero figures (price) |
-| `num-md`      | 1.25rem / 1.0 (mono) | 500 | 0  | — | Card figures (CAGR) |
+| `display-2xl` | 5.5rem / 1.0 | 300 | 0 | UPPER | Home hero headline only |
+| `display-xl`  | 4rem / 1.05  | 300 | 0 | UPPER | Section openers ("CATALOG", "FORECAST") |
+| `display-lg`  | 2.75rem / 1.1 | 500 | 0 | UPPER | Page titles |
+| `h1`          | 2rem / 1.15  | 500 | 0 | sentence | Card cluster heads |
+| `h2`          | 1.5rem / 1.2 | 500 | 0 | sentence | Sub-sections |
+| `h3`          | 1.125rem / 1.3 | 500 | 0 | sentence | Card titles |
+| `overline`    | 0.75rem / 1.3 | 500 | 0.18em | UPPER | Eyebrow labels (wider tracking than McLaren) |
+| `body`        | 1rem / 1.55  | 400 | 0 | sentence | Default copy |
+| `body-sm`     | 0.875rem / 1.5 | 400 | 0 | sentence | Card body, captions |
+| `meta`        | 0.75rem / 1.4 | 500 | 0.08em | UPPER | Timestamps, source pills |
+| `num-lg`      | 2rem / 1.0 (mono) | 500 | 0 | — | Hero figures (price) |
+| `num-md`      | 1.25rem / 1.0 (mono) | 500 | 0 | — | Card figures (CAGR) |
 
-All-caps display headings are McLaren's defining signature. Use them ruthlessly for section headers, but never for body or links.
+The shift from McLaren's bold 700 weights to Maserati's light 300/500 is the single biggest visual change. Display headlines stay all-caps but lose their motorsport bark — they read like a magazine masthead, not a race banner.
 
 ---
 
 ## 4. Spacing & Layout
 
 ```
-4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96 / 128 px
+4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96 / 128 / 192 px
 ```
 
-- Content max-width: `1440px` (was `1280px`) — McLaren leans wide.
-- Section vertical rhythm: `96px` desktop, `48px` mobile.
-- Card grid gap: `24px` desktop, `16px` mobile.
-- Page gutters: `clamp(16px, 4vw, 48px)`.
+- Content max-width: `1440px` — generous editorial leading.
+- Vertical section rhythm: `96px` on desktop between major sections (more than McLaren's 64).
+- Card padding: `24px` minimum.
+- Hairline rule (`1px var(--border)`) is the dominant divider; no thick separators.
 
 ---
 
-## 5. Radius & Borders
+## 5. Geometry
 
-McLaren cards are nearly square. Sharp geometry is the whole point.
+- Border radius: `0`, `1px`, or `2px`. Never higher.
+- All borders are `1px solid var(--border)` unless an interactive state escalates to `--border-strong`.
+- No drop shadows on chrome. Only photos / hero imagery get soft shadows for elevation.
 
-| Token | Value | Use |
+---
+
+## 6. Motion
+
+| Pattern | Duration | Easing |
 |---|---|---|
-| `radius-none` | 0 | Hero cards, primary buttons |
-| `radius-sm` | 2px | Default — all cards, inputs, chips |
-| `radius-md` | 4px | Only for elements that must feel pillowy (avatar, kebab menus) |
+| Hover color / underline | 200ms | ease-in-out |
+| Card border lift | 250ms | ease-in-out |
+| Image scale (hero) | 400ms | ease-out |
+| Modal / drawer | 240ms | ease-in-out |
+| Reduced-motion | 0.01ms (all) | linear |
 
-Borders are 1px `--border` by default; bump to `--border-strong` on hover. **No glow/shadow elevations.** Elevation is communicated by surface color step, not by shadow.
-
----
-
-## 6. Component Patterns
-
-### 6.1 Button
-
-```
-[ primary  ]   bg-papaya  text-black  px-6 py-3  uppercase tracking-[0.04em]  font-semibold
-[ ghost    ]   bg-transparent  text-white  border-border  hover:border-papaya  hover:text-papaya
-[ link cta ]   inline-flex items-center gap-2  text-white  hover:text-papaya
-               trailing "↗" icon (papaya), 16x16
-```
-
-The "arrow top right" (↗) is McLaren's universal "more" affordance. Apply it to every navigable card and outbound link.
-
-### 6.2 Card — "Image Tile" (catalog, hero promo)
-
-```
-┌─────────────────────────────┐
-│                             │
-│       full-bleed image      │   16:9 default; image fills, no padding
-│                             │
-├─────────────────────────────┤
-│ OVERLINE                    │   meta token, papaya
-│ ## TITLE                    │   h3, white
-│ supporting copy             │   body-sm, foreground-muted
-│                          ↗  │   papaya arrow, bottom-right
-└─────────────────────────────┘
-
-bg: surface-elevated   border: 1px border
-hover: border-papaya, image scale(1.02) 300ms ease-out
-```
-
-### 6.3 Card — "Data Card" (forecast card)
-
-```
-┌────────────────────────────────────────────┐
-│ [thumb 96x72]   YEAR MAKE MODEL            │
-│                 trim · era                 │
-│                                            │
-│   $124,500            +12.4%               │   num-lg     num-md (papaya)
-│   median price        12-mo CAGR           │   meta       meta
-│                                            │
-│   [BUY pill]  [confidence: HIGH]        ↗ │
-└────────────────────────────────────────────┘
-
-bg: surface-elevated   border: 1px border   radius: sm
-hover: border-papaya
-```
-
-### 6.4 Filter Chip
-
-```
-inactive:  bg-surface  border-border  text-foreground-muted  px-4 py-2  uppercase meta token  radius-sm
-hover:     border-strong
-active:    bg-papaya text-black  border-papaya
-disabled:  opacity-40, no border change
-```
-
-Counts render in a tabular num right of the label: `JAPANESE ICONS  2175`.
-
-### 6.5 Navigation (top bar)
-
-- Solid black, 72px tall, sticks to top.
-- Left: wordmark "CARCLUBFUTURE" in display-lg, 700, tracking-tight, white. The "FUTURE" half is papaya.
-- Right: links in `meta` token, UPPER, white → papaya on hover. Active link gets a 2px papaya underline.
-- No background blur, no translucency. Pure black.
-
-### 6.6 Hero (home page)
-
-- Full-viewport-height (clamp 600–900px) section.
-- Full-bleed background image (a curated catalog vehicle, randomized daily from a vetted list).
-- Bottom-left content block: overline → display-2xl headline → 1-sentence subhead → primary button.
-- Gradient `linear-gradient(to top, #000 0%, transparent 60%)` over the image for legibility.
-
-### 6.7 Section Header
-
-```
-─────────────────────────────────────
-OVERLINE                              (meta, papaya)
-DISPLAY HEADLINE                      (display-xl, white, uppercase)
-optional 1-line subhead               (body, foreground-muted)
-─────────────────────────────────────
-```
-
-The top rule is a 1px `--border-strong` line spanning the content column. McLaren uses this constantly.
+No bounce, no spring, no skeuomorphic flourishes. Maserati's chrome moves like a heavy door — slow and confident.
 
 ---
 
-## 7. Iconography
+## 7. Component Patterns
 
-- Single icon family: **Lucide** (already common in Next.js projects). 1.5px stroke. Currentcolor.
-- The "arrow top right" CTA icon is `lucide:arrow-up-right`, always 16×16, always papaya on hover/active card states.
-- No emoji in UI chrome. Emoji acceptable only in user-generated text (none on this site today).
+### Button
+
+```
+[ primary  ]   bg-papaya (gold)  text-papaya-foreground  px-6 py-3  uppercase tracking-[0.08em]  font-medium
+[ ghost    ]   bg-transparent  text-foreground  border-border  hover:border-papaya  hover:text-papaya
+[ link cta ]   inline-flex items-center gap-2  text-foreground  hover:text-papaya
+               trailing "↗" icon (gold), 16x16
+```
+
+### Forecast card
+
+```
+┌─────────────────────────────────┐
+│ OVERLINE                        │   overline token, gold
+│ 1972 Ferrari Dino 246 GT        │   h3, ivory
+│                                 │
+│   $124,500            +12.4%    │   num-lg     num-md (gold)
+│                                 │
+│ ────────────────────────────    │   1px hairline divider
+│ JDM · MODERN CLASSIC      ↗    │   meta token, gold arrow
+└─────────────────────────────────┘
+
+hover: border becomes gold, image scale(1.02) 400ms ease-out
+```
+
+### Filter chip
+
+- Default: 1px border `--border`, ivory text
+- Active: 1px border gold, gold text, subtle `--papaya/10` fill
+- Hover: border `--border-strong`, text shifts to gold
 
 ---
 
 ## 8. Imagery
 
-- Black-and-white treatment is **off** by default — collector cars need their color. McLaren's monochrome look does not transfer here.
-- All catalog thumbnails crop to 16:9 (`object-cover`).
-- Attribution line (Wikimedia author + license) renders in `meta` token, `foreground-dim`, below the image on detail pages. Already required by Wikimedia license — non-negotiable.
-- Cars-without-images keep the existing generic SVG fallback. Do not invent imagery.
+- Hero photos preferred over illustrations. Editorial framing.
+- 16:9 or 21:9 aspect ratios for hero / list cards.
+- Subtle vignette acceptable on hero only.
+- Image attribution must remain visible at `meta` size in the bottom-right of any displayed photo.
 
 ---
 
-## 9. Motion
+## 9. What Changed From the McLaren System
 
-- All hover transitions: `150ms ease-out` for color/border; `300ms ease-out` for image transforms.
-- No page transitions, no scroll-jacking, no parallax. McLaren uses these — we won't, because they hurt forecast-data scanability.
-- Reduced-motion: respect `prefers-reduced-motion: reduce` — drop all transforms, keep color transitions at `0ms`.
+| Token | McLaren | Maserati |
+|---|---|---|
+| `--background` | `#000000` | `#05070d` (indigo-black) |
+| `--papaya` (accent) | `#ff8000` orange | `#b9975b` gold |
+| `--foreground` | `#ffffff` | `#f4f1e9` ivory |
+| Display weight | `700` | `300` / `500` |
+| Display tracking | `-0.02em` | `0` |
+| Overline tracking | `0.12em` | `0.18em` |
+| Radius scale | `0/2/4px` | `0/1/2px` |
+| Motion duration | `150ms ease-out` | `200ms ease-in-out` |
+| Buy/Hold/Sell | Bright (`#00d563`) | Desaturated (`#4ab87a`) |
 
----
-
-## 10. Mapping to Existing CarClubFuture Files
-
-| Current file | Change |
-|---|---|
-| `src/app/globals.css` | Replace `:root` color tokens with §2; add font CSS vars |
-| `src/app/layout.tsx` | Wire `Space_Grotesk`, `Inter`, `JetBrains_Mono` via `next/font/google`; expose via CSS vars |
-| `tailwind.config.*` (or `@theme inline` block in globals.css — project uses Tailwind v4) | Add `display-*`, `overline`, `meta`, `num-*` font-size tokens; add `papaya` color tokens |
-| `src/components/ui/button.tsx` (if exists) | Add `primary` / `ghost` / `link-cta` variants per §6.1 |
-| `src/components/cars/car-forecast-card.tsx` | Restyle per §6.3; replace rounded corners with `rounded-sm`; add ↗ icon |
-| `src/components/cars/forecast-dashboard.tsx` | Restyle filter chips per §6.4; add overline + section header per §6.7 |
-| `src/components/layout/*` | Restyle nav per §6.5 |
-| `src/app/page.tsx` | New hero per §6.6 (image picker: top-N most-recently-mirrored vehicles with `imageStatus:"ok"`) |
-| `src/app/car-forecast/[slug]/page.tsx` | Apply section headers; convert info cards to data card pattern |
-
----
-
-## 11. What This Design Explicitly Does NOT Take From McLaren
-
-To stay legally and ethically clean:
-
-- **No McLaren logo / Speedmark** — we have our own wordmark.
-- **No `mclStandard` font files** — proprietary; we use Space Grotesk + Inter + JetBrains Mono.
-- **No McLaren imagery** — all hero/card images come from our existing Wikimedia-licensed catalog.
-- **No team/driver references** — this is a car investment site, not a racing site.
-- **No "MCL", "Papaya Rules", or McLaren-trademarked phrases** in copy.
-
-What we DO take is purely visual language that is not protectable: black canvas, single signal color (any orange-family hue would work — papaya is the strongest motorsport reference), all-caps geometric headlines, sharp corners, ↗ arrow CTA convention, and the section-rule + overline pattern.
-
----
-
-## 12. Open Questions
-
-- Should the existing amber accent (`#f59e0b`) be fully removed from the codebase, or kept as a fallback for any place we miss in this pass? **Recommendation:** fully remove — half-replacement looks like a bug.
-- Should we keep buy/hold/sell green/yellow/red, or compress to white/papaya/sell-only? **Recommendation:** keep — semantic loss isn't worth the visual purity.
-- Does anything on McLaren's site that we like need a license we don't have (e.g., the Speedmark animation)? **Confirmed:** No — we are not copying any McLaren-trademarked or copyrighted asset.
+Variable names (`--papaya-*`) intentionally retained — utility classes across the codebase (`bg-papaya`, `text-papaya`, `hover:border-papaya`) keep working unchanged and now render in gold. This is a token-only refresh; no component logic moved.

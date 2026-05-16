@@ -1,26 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  /* === Canvas (McLaren-inspired pure black) === */
-  --background: #000000;
-  --surface: #0a0a0a;
-  --surface-elevated: #141414;
-  --surface-overlay: #1f1f1f;
+  /* === Canvas (Maserati-inspired indigo-black) === */
+  --background: #05070d;
+  --surface: #0b0e16;
+  --surface-elevated: #141822;
+  --surface-overlay: #1d2230;
 
-  /* === Ink === */
-  --foreground: #ffffff;
-  --foreground-muted: #c4c4c4;
-  --foreground-dim: #6b6b6b;
+  /* === Ink (warm ivory, Italian luxury) === */
+  --foreground: #f4f1e9;
+  --foreground-muted: #b8b3a6;
+  --foreground-dim: #6c6759;
 
-  /* === Borders === */
-  --border: #2a2a2a;
-  --border-strong: #3f3f3f;
+  /* === Borders (hairline, restrained) === */
+  --border: #1f2330;
+  --border-strong: #2f3445;
 
-  /* === Brand: McLaren papaya === */
-  --papaya: #ff8000;
-  --papaya-hover: #ff9933;
-  --papaya-press: #cc6600;
-  --papaya-foreground: #000000;
+  /* === Brand: Maserati Trident gold ===
+     (variable names retained as `papaya-*` so existing utility
+     classes like `bg-papaya` / `text-papaya` keep working — they
+     now render in gold via these token swaps.) */
+  --papaya: #b9975b;
+  --papaya-hover: #cdb076;
+  --papaya-press: #9a7d48;
+  --papaya-foreground: #05070d;
 
   /* === Legacy aliases (keep existing code working) === */
   --muted: var(--surface);
@@ -32,10 +35,10 @@
   --primary: var(--papaya);
   --primary-foreground: var(--papaya-foreground);
 
-  /* === Semantic signal colors (retuned for black canvas) === */
-  --buy: #00d563;
-  --hold: #ffb800;
-  --sell: #ff3b3b;
+  /* === Semantic signal colors (Maserati-tuned: desaturated to harmonize with gold) === */
+  --buy: #4ab87a;
+  --hold: #d4a84a;
+  --sell: #c85a5a;
   --confidence-high: var(--buy);
   --confidence-medium: var(--hold);
   --confidence-low: var(--sell);
@@ -86,27 +89,27 @@
   /* Display type scale */
   --text-display-2xl: 5.5rem;
   --text-display-2xl--line-height: 1;
-  --text-display-2xl--letter-spacing: -0.02em;
-  --text-display-2xl--font-weight: 700;
+  --text-display-2xl--letter-spacing: 0;
+  --text-display-2xl--font-weight: 300;
 
   --text-display-xl: 4rem;
   --text-display-xl--line-height: 1.05;
-  --text-display-xl--letter-spacing: -0.02em;
-  --text-display-xl--font-weight: 700;
+  --text-display-xl--letter-spacing: 0;
+  --text-display-xl--font-weight: 300;
 
   --text-display-lg: 2.75rem;
   --text-display-lg--line-height: 1.1;
-  --text-display-lg--letter-spacing: -0.01em;
-  --text-display-lg--font-weight: 700;
+  --text-display-lg--letter-spacing: 0;
+  --text-display-lg--font-weight: 500;
 
   --text-overline: 0.75rem;
   --text-overline--line-height: 1.3;
-  --text-overline--letter-spacing: 0.12em;
-  --text-overline--font-weight: 600;
+  --text-overline--letter-spacing: 0.18em;
+  --text-overline--font-weight: 500;
 
   --text-meta: 0.75rem;
   --text-meta--line-height: 1.4;
-  --text-meta--letter-spacing: 0.04em;
+  --text-meta--letter-spacing: 0.08em;
   --text-meta--font-weight: 500;
 
   --text-num-lg: 2rem;
@@ -117,10 +120,10 @@
   --text-num-md--line-height: 1;
   --text-num-md--font-weight: 500;
 
-  /* Radius scale (McLaren sharp geometry) */
+  /* Radius scale (Maserati restrained: 0–2px only) */
   --radius-none: 0;
-  --radius-sm: 2px;
-  --radius-md: 4px;
+  --radius-sm: 1px;
+  --radius-md: 2px;
 
   /* Container max-width */
   --container-max: 1440px;
@@ -138,10 +141,11 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
-/* Display headlines use Space Grotesk by default */
+/* Display headlines use Space Grotesk (Maserati: lighter weights + open tracking) */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+  font-weight: 400;
 }
 
 /* Monospace numerics get tabular figures */
