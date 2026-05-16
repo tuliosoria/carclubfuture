@@ -15,6 +15,7 @@ import type {
   Segment,
 } from "@/lib/types/cars";
 import { tokenize } from "@/lib/utils/string";
+import { inferSegment, inferBodyStyle } from "@/lib/domain/car-classify";
 
 interface CatalogVehicleRow {
   id: string;
@@ -110,8 +111,14 @@ export function loadStoredCatalog(): CollectorCar[] {
   const cars: CollectorCar[] = [];
   for (const row of catalog.vehicles) {
     if (denylist.has(row.id.toLowerCase())) continue;
+    // Backfill segment/bodyStyle for bulk NHTSA rows so client filters work.
+    // Curated seed rows keep their original (already-populated) values.
+    const segment = row.segment ?? inferSegment(row.make, row.year);
+    const bodyStyle = row.bodyStyle ?? inferBodyStyle(row.model);
     cars.push({
       ...row,
+      segment,
+      bodyStyle,
       imageUrl: row.imageUrl ?? null,
       searchAliases: buildAliases(row),
       price: priceFor(row.id),
