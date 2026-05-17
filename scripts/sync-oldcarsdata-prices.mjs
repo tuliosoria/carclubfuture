@@ -33,8 +33,13 @@ const OUT = resolve(ROOT, "src/lib/data/cars-ml/oldcarsdata-current-prices.json"
 const ENDPOINT = process.env.OLDCARSDATA_BASE_URL ?? "https://api.oldcarsdata.com";
 const UA = "CarClubFuture/1.0 (+https://carclubfuture.com)";
 
-const limiter = new RateLimiter(0.5);
+const RATE_RPS = Number(process.env.OLDCARSDATA_RPS ?? "2");
+const limiter = new RateLimiter(RATE_RPS);
 const SLOW_RETRY = { delaysMs: [2000, 6000, 15000] };
+const FLUSH_EVERY = Number(process.env.OLDCARSDATA_FLUSH_EVERY ?? "100");
+const PROGRESS_EVERY = Number(process.env.OLDCARSDATA_PROGRESS_EVERY ?? "50");
+
+async function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
 async function fetchSnapshot(apiKey, year, make, model) {
   await limiter.take();
@@ -52,7 +57,24 @@ async function fetchSnapshot(apiKey, year, make, model) {
   }, SLOW_RETRY);
   const remaining = Number(r.headers.get("x-ratelimit-remaining"));
   const reset = r.headers.get("x-ratelimit-reset");
-  if (!r.ok) return { ok: false, status: r.status, remaining, reset };
+  if (!r.ok) {
+    if (r.status === 429) {
+      const nowSec = Math.floor(Date.now() / 1000);
+      const resetSec = Number(reset);
+      const waitSec = Number.isFinite(resetSec) && resetSec > nowSec ? resetSec - nowSec : 60;
+      // Abort hard if the reset is more than 5 minutes away — that means we've
+      // hit a daily/monthly quota wall, not a transient rate limit. Looping is pointless.
+      if (waitSec > 300) {
+        const err = new Error(`oldcarsdata_quota_exhausted: ${waitSec}s until reset`);
+        err.code = "QUOTA_EXHAUSTED";
+        err.resetSec = resetSec;
+        throw err;
+      }
+      jsonLog({ operation: "oldcarsdata.rate_limit_wait", waitSec, remaining, reset });
+      await sleep(waitSec * 1000);
+    }
+    return { ok: false, status: r.status, remaining, reset };
+  }
   return { ok: true, body: await r.json(), remaining, reset };
 }
 
@@ -75,6 +97,23 @@ function snapshotToPriceRow(snap) {
     ? reservedSales.filter((s) => (s.auction_status ?? s.status) === "sold").length /
       reservedSales.length
     : null;
+  // Preserve raw per-sale observations so aggregator can window them properly.
+  const salesRaw = sales
+    .map((s) => {
+      const priceUsd = Number(s.price ?? s.soldPrice);
+      if (!Number.isFinite(priceUsd) || priceUsd <= 0) return null;
+      const dateStr = s.auction_end_date ?? s.auction_end_at ?? s.soldDate ?? s.created_at;
+      const soldDateMs = dateStr ? new Date(dateStr).getTime() : null;
+      if (!soldDateMs || Number.isNaN(soldDateMs)) return null;
+      const mileageNum = Number(s.mileage);
+      return {
+        priceUsd: Math.round(priceUsd),
+        soldDateMs,
+        reserveMet: s.has_reserve ? (s.auction_status ?? s.status) === "sold" : null,
+        mileage: Number.isFinite(mileageNum) ? mileageNum : null,
+      };
+    })
+    .filter(Boolean);
   return {
     asOf: new Date().toISOString(),
     conditionAnchor: 3,
@@ -82,6 +121,7 @@ function snapshotToPriceRow(snap) {
     auctionMedian12moUsd: Math.round(med),
     auctionCount12mo: prices.length,
     reserveMetRate12mo: reserveMet,
+    sales: salesRaw,
   };
 }
 
@@ -97,54 +137,37 @@ function snapshotToPriceRow(snap) {
  *                                         Promise<{ok, body?, status?, remaining, reset}>
  * @returns {Promise<{prices, ok, failed, recordsProcessed}>}
  */
-export async function syncCars({ cars, apiKey, existingPrices = {}, ddbClient, fetchSlug } = {}) {
-  // Start from existing prices so unprocessed slugs retain their previous values.
+export async function syncCars({ cars, apiKey, existingPrices = {}, ddbClient, fetchSlug, onFlush, resume = false } = {}) {
   const prices = { ...existingPrices };
   let ok = 0;
   let failed = 0;
+  let processed = 0;
+  let sinceFlush = 0;
 
-  for (const c of cars) {
-    // Track whether this iteration hit the monthly quota cap inside fetchOrigin so
-    // we can break after the withCache call (which may still serve L2 for this slug).
-    let quotaHit = false;
-    let quotaReset = null;
+  const queue = resume ? cars.filter((c) => !(c.slug in existingPrices)) : cars;
+  if (resume) {
+    jsonLog({ operation: "oldcarsdata.resume", skipped: cars.length - queue.length, remaining: queue.length });
+  }
 
+  for (const c of queue) {
     try {
       const result = await withCache({
         pk: `oldcarsdata#${c.slug}`,
-        sk: "v1",
-        ttlSeconds: 48 * 3600, // 48h freshness for auction snapshots (per plan)
+        sk: "v2",
+        ttlSeconds: 30 * 24 * 3600, // 30d (paid tier, historical auctions stable)
         source: "oldcarsdata",
-        // L2: serve the previously-synced value when DynamoDB is unreachable.
         bundledFallback: async () => existingPrices[c.slug] ?? null,
-        // L3: only called on a full cache miss — burns one of the 10 monthly requests.
         fetchOrigin: async () => {
           const raw = fetchSlug
             ? await fetchSlug(c.year, c.make, c.model)
             : await fetchSnapshot(apiKey, c.year, c.make, c.model);
-
           if (!raw.ok) {
-            // Free tier = 10 req/month. Signal quota exhaustion so the loop exits.
-            if (raw.status === 429 && raw.remaining === 0) {
-              quotaHit = true;
-              quotaReset = raw.reset;
-              const err = new Error("quota_exhausted");
-              err.reset = raw.reset;
-              throw err;
-            }
             jsonLog({ operation: "oldcarsdata.miss", slug: c.slug, status: raw.status, remaining: raw.remaining });
             return null;
           }
           return snapshotToPriceRow(raw.body);
         },
         ddbClient,
-      });
-
-      jsonLog({
-        operation: "sync.oldcarsdata",
-        slug: c.slug,
-        cache_layer: result.layer,
-        durationMs: result.durationMs,
       });
 
       if (result.value != null) {
@@ -155,16 +178,37 @@ export async function syncCars({ cars, apiKey, existingPrices = {}, ddbClient, f
       }
     } catch (err) {
       failed++;
-      jsonLog({ operation: "oldcarsdata.error", slug: c.slug, error: err });
+      jsonLog({ operation: "oldcarsdata.error", slug: c.slug, error: String(err?.message ?? err) });
+      if (err?.code === "QUOTA_EXHAUSTED") {
+        jsonLog({ operation: "oldcarsdata.aborted", reason: "quota_exhausted", processed, ok, failed });
+        if (onFlush) await onFlush(prices);
+        return { prices, ok, failed, recordsProcessed: processed, abortedBy: "quota_exhausted" };
+      }
     }
 
-    if (quotaHit) {
-      jsonLog({ operation: "oldcarsdata.quota_exhausted", reset: quotaReset });
-      break;
+    processed++;
+    sinceFlush++;
+
+    if (PROGRESS_EVERY > 0 && processed % PROGRESS_EVERY === 0) {
+      jsonLog({
+        operation: "oldcarsdata.progress",
+        processed,
+        total: queue.length,
+        ok,
+        failed,
+        pct: Math.round((processed / queue.length) * 100),
+      });
+    }
+
+    if (onFlush && FLUSH_EVERY > 0 && sinceFlush >= FLUSH_EVERY) {
+      await onFlush(prices);
+      sinceFlush = 0;
     }
   }
 
-  return { prices, ok, failed, recordsProcessed: cars.length };
+  if (onFlush && sinceFlush > 0) await onFlush(prices);
+
+  return { prices, ok, failed, recordsProcessed: processed };
 }
 
 async function main() {
@@ -174,8 +218,14 @@ async function main() {
     return;
   }
 
+  const args = process.argv.slice(2);
+  const limitArg = args.find((a) => a.startsWith("--limit="));
+  const limit = limitArg ? Number(limitArg.split("=")[1]) : 0;
+  const resume = args.includes("--resume");
+
   const catalogFile = JSON.parse(await readFile(CATALOG, "utf8"));
-  const cars = Array.isArray(catalogFile) ? catalogFile : catalogFile.vehicles ?? [];
+  let cars = Array.isArray(catalogFile) ? catalogFile : catalogFile.vehicles ?? [];
+  if (limit > 0) cars = cars.slice(0, limit);
 
   let existingPrices = {};
   try {
@@ -183,14 +233,21 @@ async function main() {
     if (existing?.prices) existingPrices = existing.prices;
   } catch { /* fresh run */ }
 
+  jsonLog({ operation: "oldcarsdata.start", totalCars: cars.length, rps: RATE_RPS, resume, alreadyCached: Object.keys(existingPrices).length });
+
+  const flush = async (prices) => {
+    await writeJsonAtomic(OUT, { generatedAt: new Date().toISOString(), prices });
+    jsonLog({ operation: "oldcarsdata.flush", count: Object.keys(prices).length });
+  };
+
   let syncResult;
   await timed("sync:oldcarsdata", async () => {
-    syncResult = await syncCars({ cars, apiKey, existingPrices });
+    syncResult = await syncCars({ cars, apiKey, existingPrices, onFlush: flush, resume });
     return { recordsProcessed: syncResult.recordsProcessed, ok: syncResult.ok, failed: syncResult.failed };
   });
 
   await writeJsonAtomic(OUT, { generatedAt: new Date().toISOString(), prices: syncResult.prices });
-  jsonLog({ operation: "oldcarsdata.persisted", count: Object.keys(syncResult.prices).length });
+  jsonLog({ operation: "oldcarsdata.persisted", count: Object.keys(syncResult.prices).length, ok: syncResult.ok, failed: syncResult.failed });
 }
 
 // Only execute when run directly — not when imported by tests.

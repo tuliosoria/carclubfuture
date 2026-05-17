@@ -42,3 +42,4 @@ scripts/.cache/
 *.tsbuildinfo
 next-env.d.ts
 /public/cars/
+.sync-logs/

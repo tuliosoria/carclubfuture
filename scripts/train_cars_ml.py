@@ -145,7 +145,24 @@ def main() -> int:
         n_estimators=200, max_depth=4, learning_rate=0.05, random_state=42
     )
     final.fit(X, y)
-    final.save_model(str(DATA / "model-1yr.json"))
+    # Save raw XGBoost artifact under a sub-key inside our wrapper JSON so the
+    # runtime loader contract (kind/horizon/features/trainedAt) stays intact.
+    xgb_path = DATA / "model-1yr.xgb.json"
+    final.save_model(str(xgb_path))
+    xgb_artifact = json.loads(xgb_path.read_text())
+    wrapper = {
+        "kind": "xgboost",
+        "horizon": 1,
+        "trainedAt": datetime.now(timezone.utc).isoformat(),
+        "features": feature_cols,
+        "modelArtifact": xgb_artifact,
+        "notes": (
+            "Real XGBoost regressor trained on OldCarsData auction sales. "
+            "Target is 12-month trailing return (proxy for 1yr forward) until "
+            "historical snapshots enable true forward targets (Phase H)."
+        ),
+    }
+    atomic_write_json(DATA / "model-1yr.json", wrapper)
 
     summary["status"] = "trained"
     summary["trained"] = True

@@ -66,9 +66,22 @@ export function buildAggregates({ oldcarsdataRows, batHistoryRows, slugs, now = 
     const observations = []; // { soldPriceUsd, soldDate (ms), reserveMet, mileage, source }
     const data_sources = [];
 
-    // OldCarsData row: treat valueUsd as a single recent observation anchored at asOf
+    // OldCarsData: prefer raw per-sale records if present (new sync format),
+    // else fall back to single anchored observation (legacy format).
     const ocd = (oldcarsdataRows ?? {})[slug];
-    if (ocd && typeof ocd.valueUsd === "number") {
+    if (ocd && Array.isArray(ocd.sales) && ocd.sales.length) {
+      for (const s of ocd.sales) {
+        if (typeof s.priceUsd !== "number" || !s.soldDateMs) continue;
+        observations.push({
+          soldPriceUsd: s.priceUsd,
+          soldDateMs: s.soldDateMs,
+          reserveMet: s.reserveMet ?? null,
+          mileage: s.mileage != null ? String(s.mileage) : null,
+          source: "oldcarsdata",
+        });
+      }
+      if (!data_sources.includes("oldcarsdata")) data_sources.push("oldcarsdata");
+    } else if (ocd && typeof ocd.valueUsd === "number") {
       const ts = ocd.asOf ? new Date(ocd.asOf).getTime() : nowMs;
       observations.push({
         soldPriceUsd: ocd.valueUsd,

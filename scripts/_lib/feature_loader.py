@@ -34,7 +34,13 @@ def load_features(
     )
 
     # --- optional data files ------------------------------------------------
-    prices: dict = json.loads(prices_path.read_text()) if prices_path.exists() else {}
+    raw_prices = json.loads(prices_path.read_text()) if prices_path.exists() else {}
+    # price-aggregates.json wraps slugs under an "aggregates" key
+    prices: dict = (
+        raw_prices.get("aggregates", raw_prices)
+        if isinstance(raw_prices, dict)
+        else {}
+    )
 
     raw_community = json.loads(community_path.read_text()) if community_path.exists() else {}
     community: dict = raw_community if isinstance(raw_community, dict) else {}

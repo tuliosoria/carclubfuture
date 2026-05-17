@@ -1,13 +1,52 @@
 {
-  "status": "insufficient_data",
-  "trained": false,
-  "total_catalog_rows": 12,
-  "eligible_count": 0,
+  "status": "trained",
+  "trained": true,
+  "total_catalog_rows": 15157,
+  "eligible_count": 44,
   "min_required": 30,
   "horizons": {
     "1yr": {
-      "trained": false,
-      "reason": "insufficient_eligible_rows"
+      "trained": true,
+      "target": "price_momentum_12mo (12-month trailing return used as 1yr proxy \u2014 forward targets require historical snapshots, planned Phase H)",
+      "feature_columns": [
+        "year",
+        "auction_median_12mo",
+        "auction_count_12mo",
+        "auction_count_36mo",
+        "reserve_met_rate_12mo",
+        "price_momentum_1mo",
+        "mileage_median_sold",
+        "community_score",
+        "brand_avg_cagr_5yr",
+        "brand_auction_volume_rank",
+        "brand_appreciation_tier_encoded",
+        "correlated_sp500_12mo",
+        "correlated_gold_12mo"
+      ],
+      "cv_folds": [
+        {
+          "mape": 50.98741456427212,
+          "r2": 0.0
+        },
+        {
+          "mape": 4.749745128457272e-08,
+          "r2": 0.0
+        },
+        {
+          "mape": 4.749745128457272e-08,
+          "r2": -0.16649694495319922
+        },
+        {
+          "mape": 4.749745128457272e-08,
+          "r2": 0.0
+        },
+        {
+          "mape": 43.74148836119899,
+          "r2": -2.0112184645517055
+        }
+      ],
+      "mean_mape": 18.945780613592696,
+      "mean_r2": -0.43554308190098096
     },
     "3yr": {
       "trained": false,
@@ -19,6 +58,6 @@
     }
   },
   "feature_set_version": "phase-g-2025-q4",
-  "computed_at": "2026-05-15T20:33:38.620673+00:00",
-  "duration_ms": 1
+  "computed_at": "2026-05-17T00:36:41.915893+00:00",
+  "duration_ms": 2055
 }
