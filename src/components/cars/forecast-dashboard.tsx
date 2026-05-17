@@ -369,9 +369,9 @@ export function ForecastDashboard({
   );
 
   return (
-    <div className="mx-auto grid max-w-[1440px] gap-8 px-4 py-10 sm:px-8 md:grid-cols-[280px_minmax(0,1fr)]">
+    <div className="mx-auto grid w-full max-w-[1440px] gap-8 overflow-x-clip px-4 py-10 sm:px-8 md:grid-cols-[280px_minmax(0,1fr)]">
       {/* Desktop sticky sidebar */}
-      <aside className="hidden md:block md:sticky md:top-24 md:max-h-[calc(100vh-7rem)] md:overflow-y-auto">
+      <aside className="hidden md:block md:sticky md:top-24 md:max-h-[calc(100vh-7rem)] md:min-w-0 md:overflow-y-auto">
         {filterPanel}
       </aside>
 
@@ -393,7 +393,7 @@ export function ForecastDashboard({
         </div>
       ) : null}
 
-      <section>
+      <section className="min-w-0">
         {/* Top picks — only when no query/filters active */}
         {showTopPicks ? (
           <div className="mb-8">
@@ -426,22 +426,22 @@ export function ForecastDashboard({
         ) : null}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative w-full sm:max-w-md">
+          <div className="relative w-full min-w-0 sm:max-w-md">
             <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by year, make, model, or segment alias…"
-              className="pl-9"
+              placeholder="Search by year, make, model…"
+              className="w-full pl-9"
             />
           </div>
-          <div className="flex items-center justify-between gap-3 sm:justify-end">
+          <div className="flex flex-wrap items-center justify-between gap-3 sm:justify-end">
             {/* Mobile filter trigger */}
             <button
               type="button"
               onClick={() => setMobileFiltersOpen(true)}
               aria-label="Open filters"
-              className="md:hidden inline-flex items-center gap-2 rounded-sm border border-border bg-surface-elevated px-3 py-2 text-sm text-foreground hover:border-papaya/60"
+              className="md:hidden inline-flex shrink-0 items-center gap-2 rounded-sm border border-border bg-surface-elevated px-3 py-2 text-sm text-foreground hover:border-papaya/60"
             >
               <SlidersHorizontal className="h-4 w-4" />
               Filters

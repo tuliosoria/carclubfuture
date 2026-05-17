@@ -38,7 +38,7 @@ export function CarForecastCard({ car, scenario = "moderate" as Scenario }: { ca
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="text-overline uppercase text-papaya">{segmentLabel}</div>
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-lg font-bold uppercase leading-tight text-foreground">
+          <h3 className="break-words font-display text-lg font-bold uppercase leading-tight text-foreground">
             {car.displayName}
           </h3>
           {hasForecast ? <SignalBadge recommendation={f!.recommendation} /> : null}

@@ -131,12 +131,15 @@
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
+html { overflow-x: hidden; }
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 a { color: inherit; text-decoration: none; }
