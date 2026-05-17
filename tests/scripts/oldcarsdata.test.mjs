@@ -166,7 +166,7 @@ test("L3 fetch writes result back to DynamoDB", async () => {
   assert.equal(apiCalled, true, "OldCarsData API MUST be called on a full cache miss");
   assert.equal(puts.length, 1, "PutCommand must be called to write L3 result back to DynamoDB");
   assert.equal(puts[0].Item.pk, "oldcarsdata#chevrolet-corvette-1967");
-  assert.equal(puts[0].Item.sk, "v1");
+  assert.equal(puts[0].Item.sk, "v2");
   assert.equal(puts[0].Item.source, "oldcarsdata");
   assert.ok(result.prices["chevrolet-corvette-1967"] != null, "price row should be present");
   assert.equal(result.prices["chevrolet-corvette-1967"].valueUsd, 31000, "median of 30000 and 32000 is 31000");
