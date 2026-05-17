@@ -9,6 +9,7 @@ import communityJson from "@/lib/data/cars-ml/community-score.json";
 import denylistJson from "@/lib/data/cars-ml/cars-catalog-title-denylist.json";
 import searchAliasesJson from "@/lib/data/cars-ml/cars-search-catalog.json";
 import imagesJson from "@/lib/data/cars-ml/oldcarsdata-auction-images.json";
+import marketcheckStatsJson from "@/lib/data/cars-ml/marketcheck-stats.json";
 import type {
   CollectorCar,
   PriceSnapshot,
@@ -79,6 +80,36 @@ for (const [slug, entry] of Object.entries(imagesIndex)) {
   }
 }
 
+// Slugs the forecast engine can produce a real prediction for. Mirrors the
+// eligibility logic in `computeForecast()`:
+//   - OCD auctionCount12mo >= 5  (real auction-based forecast), OR
+//   - Marketcheck listingCount >= 3 with askMedianUsd (asking-price fallback).
+// All other catalog rows would surface "Forecast pending — insufficient data",
+// so we hide them from search and listings by default.
+interface MarketcheckStat {
+  askMedianUsd?: number | null;
+  listingCount?: number | null;
+}
+const marketcheckStats = (marketcheckStatsJson as { stats?: Record<string, MarketcheckStat> })
+  .stats ?? {};
+const MIN_AUCTIONS_36MO = 5;
+const MIN_MC_LISTINGS = 3;
+const slugsWithPrediction = new Set<string>();
+for (const [slug, row] of Object.entries(prices.prices)) {
+  if (row && (row.auctionCount12mo ?? 0) >= MIN_AUCTIONS_36MO) {
+    slugsWithPrediction.add(slug);
+  }
+}
+for (const [slug, stat] of Object.entries(marketcheckStats)) {
+  if (stat && stat.askMedianUsd && (stat.listingCount ?? 0) >= MIN_MC_LISTINGS) {
+    slugsWithPrediction.add(slug);
+  }
+}
+
+// Escape hatch so we can disable the filter for debugging without redeploying.
+// Set CARCLUB_SHOW_ALL_CARS=1 to surface every catalog row.
+const showAllCars = process.env.CARCLUB_SHOW_ALL_CARS === "1";
+
 function buildAliases(row: CatalogVehicleRow): string[] {
   const tokens = new Set<string>();
   tokens.add(row.make.toLowerCase());
@@ -112,6 +143,7 @@ export function loadStoredCatalog(): CollectorCar[] {
   for (const row of catalog.vehicles) {
     if (denylist.has(row.id.toLowerCase())) continue;
     if (denyMakes.has(row.make.toLowerCase())) continue;
+    if (!showAllCars && !slugsWithPrediction.has(row.slug)) continue;
     // Backfill segment/bodyStyle for bulk NHTSA rows so client filters work.
     // Curated seed rows keep their original (already-populated) values.
     const segment = row.segment ?? inferSegment(row.make, row.year);

@@ -1,0 +1,107 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-05-15T20:28:30.047Z",
+  "makes": 10,
+  "data": {
+    "Chevrolet": {
+      "make": "Chevrolet",
+      "brand_avg_cagr_5yr": null,
+      "brand_appreciation_tier": null,
+      "brand_auction_volume_rank": 2,
+      "brand_total_auction_count_12mo": 0,
+      "brand_eligible_models_count": 0,
+      "brand_data_status": "insufficient",
+      "computed_at": "2026-05-15T20:28:30.039Z"
+    },
+    "Plymouth": {
+      "make": "Plymouth",
+      "brand_avg_cagr_5yr": null,
+      "brand_appreciation_tier": null,
+      "brand_auction_volume_rank": 7,
+      "brand_total_auction_count_12mo": 0,
+      "brand_eligible_models_count": 0,
+      "brand_data_status": "insufficient",
+      "computed_at": "2026-05-15T20:28:30.039Z"
+    },
+    "Ford": {
+      "make": "Ford",
+      "brand_avg_cagr_5yr": null,
+      "brand_appreciation_tier": null,
+      "brand_auction_volume_rank": 4,
+      "brand_total_auction_count_12mo": 0,
+      "brand_eligible_models_count": 0,
+      "brand_data_status": "insufficient",
+      "computed_at": "2026-05-15T20:28:30.039Z"
+    },
+    "Acura": {
+      "make": "Acura",
+      "brand_avg_cagr_5yr": null,
+      "brand_appreciation_tier": null,
+      "brand_auction_volume_rank": 1,
+      "brand_total_auction_count_12mo": 0,
+      "brand_eligible_models_count": 0,
+      "brand_data_status": "insufficient",
+      "computed_at": "2026-05-15T20:28:30.039Z"
+    },
+    "Toyota": {
+      "make": "Toyota",
+      "brand_avg_cagr_5yr": null,
+      "brand_appreciation_tier": null,
+      "brand_auction_volume_rank": 10,
+      "brand_total_auction_count_12mo": 0,
+      "brand_eligible_models_count": 0,
+      "brand_data_status": "insufficient",
+      "computed_at": "2026-05-15T20:28:30.039Z"
+    },
+    "Mazda": {
+      "make": "Mazda",
+      "brand_avg_cagr_5yr": null,
+      "brand_appreciation_tier": null,
+      "brand_auction_volume_rank": 5,
+      "brand_total_auction_count_12mo": 0,
+      "brand_eligible_models_count": 0,
+      "brand_data_status": "insufficient",
+      "computed_at": "2026-05-15T20:28:30.039Z"
+    },
+    "Nissan": {
+      "make": "Nissan",
+      "brand_avg_cagr_5yr": null,
+      "brand_appreciation_tier": null,
+      "brand_auction_volume_rank": 6,
+      "brand_total_auction_count_12mo": 0,
+      "brand_eligible_models_count": 0,
+      "brand_data_status": "insufficient",
+      "computed_at": "2026-05-15T20:28:30.039Z"
+    },
+    "Porsche": {
+      "make": "Porsche",
+      "brand_avg_cagr_5yr": null,
+      "brand_appreciation_tier": null,
+      "brand_auction_volume_rank": 8,
+      "brand_total_auction_count_12mo": 0,
+      "brand_eligible_models_count": 0,
+      "brand_data_status": "insufficient",
+      "computed_at": "2026-05-15T20:28:30.039Z"
+    },
+    "Shelby": {
+      "make": "Shelby",
+      "brand_avg_cagr_5yr": null,
+      "brand_appreciation_tier": null,
+      "brand_auction_volume_rank": 9,
+      "brand_total_auction_count_12mo": 0,
+      "brand_eligible_models_count": 0,
+      "brand_data_status": "insufficient",
+      "computed_at": "2026-05-15T20:28:30.039Z"
+    },
+    "Ferrari": {
+      "make": "Ferrari",
+      "brand_avg_cagr_5yr": null,
+      "brand_appreciation_tier": null,
+      "brand_auction_volume_rank": 3,
+      "brand_total_auction_count_12mo": 0,
+      "brand_eligible_models_count": 0,
+      "brand_data_status": "insufficient",
+      "computed_at": "2026-05-15T20:28:30.039Z"
+    }
+  }
+}

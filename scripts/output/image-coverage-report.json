@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-05-16T10:31:51.558Z",
+  "elapsedMs": 18846828,
+  "elapsedHuman": "5h14m6s",
+  "totalVehicles": 15157,
+  "wikimediaHits": 9175,
+  "wikipediaHits": 675,
+  "oldcarsdataHits": 0,
+  "skippedAlreadyOk": 1515,
+  "missing": 5307,
+  "totalHits": 11365,
+  "coveragePct": 74.98,
+  "httpRequests": {
+    "wikimedia": 13642,
+    "wikipedia": 11578
+  },
+  "bytesMirrored": 0,
+  "missingSampleTop20": [
+    "1980-armbruster-stageway-buick-first-call",
+    "1980-armbruster-stageway-buick-funeral-car",
+    "1980-armbruster-stageway-buick-limousine",
+    "1980-armbruster-stageway-buick-ski-cruiser",
+    "1980-armbruster-stageway-cadillac-first-call",
+    "1980-armbruster-stageway-cadillac-funeral-car",
+    "1980-armbruster-stageway-cadillac-limousine",
+    "1980-armbruster-stageway-cadillac-ski-cruiser",
+    "1980-armbruster-stageway-lincoln-first-call",
+    "1980-armbruster-stageway-lincoln-funeral-car",
+    "1980-armbruster-stageway-lincoln-limousine",
+    "1980-armbruster-stageway-lincoln-ski-cruiser",
+    "1980-armbruster-stageway-mercedes-first-call",
+    "1980-armbruster-stageway-mercedes-funeral-car",
+    "1980-armbruster-stageway-mercedes-limousine",
+    "1980-armbruster-stageway-mercedes-ski-cruiser",
+    "1980-classic-roadsters-cobra",
+    "1980-classic-roadsters-duchess",
+    "1980-classic-roadsters-duke",
+    "1980-classic-roadsters-marlene"
+  ]
+}

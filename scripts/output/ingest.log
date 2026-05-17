@@ -1,0 +1,529 @@
+{"ts":"2026-05-16T00:29:08.624Z","operation":"nhtsa.makes.union","carMakes":193,"motorcycleMakes":1676,"dualUseMakes":6,"motorcycleOnlySkipped":1670}
+{"ts":"2026-05-16T00:29:08.626Z","operation":"nhtsa.makes","durationMs":955,"recordsProcessed":193}
+{"ts":"2026-05-16T00:29:08.626Z","operation":"year.start","year":2024,"makesToProcess":193}
+{"ts":"2026-05-16T00:29:38.485Z","operation":"nhtsa.models.fail","year":2024,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:29:42.799Z","operation":"nhtsa.models.fail","year":2024,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:29:44.077Z","operation":"nhtsa.models.fail","year":2024,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:29:44.296Z","operation":"nhtsa.models.fail","year":2024,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:29:47.709Z","operation":"nhtsa.models.fail","year":2024,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:29:59.987Z","operation":"year.done","year":2024,"durationMs":51361,"recordsProcessed":485,"cumulative":485}
+{"ts":"2026-05-16T00:29:59.987Z","operation":"year.start","year":2023,"makesToProcess":193}
+{"ts":"2026-05-16T00:30:29.309Z","operation":"nhtsa.models.fail","year":2023,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:30:32.552Z","operation":"nhtsa.models.fail","year":2023,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:30:33.364Z","operation":"nhtsa.models.fail","year":2023,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:30:33.578Z","operation":"nhtsa.models.fail","year":2023,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:30:35.096Z","operation":"nhtsa.models.fail","year":2023,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:30:44.641Z","operation":"year.done","year":2023,"durationMs":44654,"recordsProcessed":481,"cumulative":966}
+{"ts":"2026-05-16T00:30:44.641Z","operation":"year.start","year":2022,"makesToProcess":193}
+{"ts":"2026-05-16T00:31:15.831Z","operation":"nhtsa.models.fail","year":2022,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:31:19.229Z","operation":"nhtsa.models.fail","year":2022,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:31:19.956Z","operation":"nhtsa.models.fail","year":2022,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:31:20.156Z","operation":"nhtsa.models.fail","year":2022,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:31:21.713Z","operation":"nhtsa.models.fail","year":2022,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:31:31.012Z","operation":"year.done","year":2022,"durationMs":46371,"recordsProcessed":483,"cumulative":1449}
+{"ts":"2026-05-16T00:31:31.012Z","operation":"year.start","year":2021,"makesToProcess":193}
+{"ts":"2026-05-16T00:32:00.882Z","operation":"nhtsa.models.fail","year":2021,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:32:04.138Z","operation":"nhtsa.models.fail","year":2021,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:32:04.882Z","operation":"nhtsa.models.fail","year":2021,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:32:05.165Z","operation":"nhtsa.models.fail","year":2021,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:32:06.557Z","operation":"nhtsa.models.fail","year":2021,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:32:16.170Z","operation":"year.done","year":2021,"durationMs":45158,"recordsProcessed":484,"cumulative":1933}
+{"ts":"2026-05-16T00:32:16.170Z","operation":"year.start","year":2020,"makesToProcess":193}
+{"ts":"2026-05-16T00:32:45.818Z","operation":"nhtsa.models.fail","year":2020,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:32:49.739Z","operation":"nhtsa.models.fail","year":2020,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:32:50.357Z","operation":"nhtsa.models.fail","year":2020,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:32:50.599Z","operation":"nhtsa.models.fail","year":2020,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:32:52.195Z","operation":"nhtsa.models.fail","year":2020,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:33:01.348Z","operation":"year.done","year":2020,"durationMs":45178,"recordsProcessed":498,"cumulative":2431}
+{"ts":"2026-05-16T00:33:01.348Z","operation":"year.start","year":2019,"makesToProcess":193}
+{"ts":"2026-05-16T00:33:31.184Z","operation":"nhtsa.models.fail","year":2019,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:33:34.574Z","operation":"nhtsa.models.fail","year":2019,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:33:35.214Z","operation":"nhtsa.models.fail","year":2019,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:33:35.416Z","operation":"nhtsa.models.fail","year":2019,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:33:36.663Z","operation":"nhtsa.models.fail","year":2019,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:33:44.823Z","operation":"year.done","year":2019,"durationMs":43475,"recordsProcessed":489,"cumulative":2920}
+{"ts":"2026-05-16T00:33:44.823Z","operation":"year.start","year":2018,"makesToProcess":193}
+{"ts":"2026-05-16T00:34:14.184Z","operation":"nhtsa.models.fail","year":2018,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:34:18.005Z","operation":"nhtsa.models.fail","year":2018,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:34:18.807Z","operation":"nhtsa.models.fail","year":2018,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:34:19.029Z","operation":"nhtsa.models.fail","year":2018,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:34:20.456Z","operation":"nhtsa.models.fail","year":2018,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:34:29.465Z","operation":"year.done","year":2018,"durationMs":44642,"recordsProcessed":489,"cumulative":3409}
+{"ts":"2026-05-16T00:34:29.465Z","operation":"year.start","year":2017,"makesToProcess":193}
+{"ts":"2026-05-16T00:34:57.429Z","operation":"nhtsa.models.fail","year":2017,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:35:00.488Z","operation":"nhtsa.models.fail","year":2017,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:35:01.089Z","operation":"nhtsa.models.fail","year":2017,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:35:01.292Z","operation":"nhtsa.models.fail","year":2017,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:35:02.878Z","operation":"nhtsa.models.fail","year":2017,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:35:11.260Z","operation":"year.done","year":2017,"durationMs":41795,"recordsProcessed":456,"cumulative":3865}
+{"ts":"2026-05-16T00:35:11.260Z","operation":"year.start","year":2016,"makesToProcess":193}
+{"ts":"2026-05-16T00:35:38.517Z","operation":"nhtsa.models.fail","year":2016,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:35:42.197Z","operation":"nhtsa.models.fail","year":2016,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:35:42.816Z","operation":"nhtsa.models.fail","year":2016,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:35:43.032Z","operation":"nhtsa.models.fail","year":2016,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:35:44.236Z","operation":"nhtsa.models.fail","year":2016,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:35:52.514Z","operation":"year.done","year":2016,"durationMs":41254,"recordsProcessed":436,"cumulative":4301}
+{"ts":"2026-05-16T00:35:52.514Z","operation":"year.start","year":2015,"makesToProcess":193}
+{"ts":"2026-05-16T00:36:20.481Z","operation":"nhtsa.models.fail","year":2015,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:36:23.628Z","operation":"nhtsa.models.fail","year":2015,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:36:24.406Z","operation":"nhtsa.models.fail","year":2015,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:36:24.613Z","operation":"nhtsa.models.fail","year":2015,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:36:26.305Z","operation":"nhtsa.models.fail","year":2015,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:36:34.592Z","operation":"year.done","year":2015,"durationMs":42078,"recordsProcessed":424,"cumulative":4725}
+{"ts":"2026-05-16T00:36:34.593Z","operation":"year.start","year":2014,"makesToProcess":193}
+{"ts":"2026-05-16T00:37:03.211Z","operation":"nhtsa.models.fail","year":2014,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:37:06.850Z","operation":"nhtsa.models.fail","year":2014,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:37:07.572Z","operation":"nhtsa.models.fail","year":2014,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:37:07.784Z","operation":"nhtsa.models.fail","year":2014,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:37:09.309Z","operation":"nhtsa.models.fail","year":2014,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:37:18.235Z","operation":"year.done","year":2014,"durationMs":43642,"recordsProcessed":417,"cumulative":5142}
+{"ts":"2026-05-16T00:37:18.235Z","operation":"year.start","year":2013,"makesToProcess":193}
+{"ts":"2026-05-16T00:37:45.502Z","operation":"nhtsa.models.fail","year":2013,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:37:48.607Z","operation":"nhtsa.models.fail","year":2013,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:37:49.269Z","operation":"nhtsa.models.fail","year":2013,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:37:49.786Z","operation":"nhtsa.models.fail","year":2013,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:37:51.079Z","operation":"nhtsa.models.fail","year":2013,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:38:00.030Z","operation":"year.done","year":2013,"durationMs":41795,"recordsProcessed":399,"cumulative":5541}
+{"ts":"2026-05-16T00:38:00.030Z","operation":"year.start","year":2012,"makesToProcess":193}
+{"ts":"2026-05-16T00:38:27.538Z","operation":"nhtsa.models.fail","year":2012,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:38:30.622Z","operation":"nhtsa.models.fail","year":2012,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:38:31.221Z","operation":"nhtsa.models.fail","year":2012,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:38:31.434Z","operation":"nhtsa.models.fail","year":2012,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:38:32.784Z","operation":"nhtsa.models.fail","year":2012,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:38:41.400Z","operation":"year.done","year":2012,"durationMs":41370,"recordsProcessed":391,"cumulative":5932}
+{"ts":"2026-05-16T00:38:41.400Z","operation":"year.start","year":2011,"makesToProcess":193}
+{"ts":"2026-05-16T00:39:13.859Z","operation":"nhtsa.models.fail","year":2011,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:39:17.303Z","operation":"nhtsa.models.fail","year":2011,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:39:17.900Z","operation":"nhtsa.models.fail","year":2011,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:39:18.147Z","operation":"nhtsa.models.fail","year":2011,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:39:19.605Z","operation":"nhtsa.models.fail","year":2011,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:39:28.081Z","operation":"year.done","year":2011,"durationMs":46681,"recordsProcessed":375,"cumulative":6307}
+{"ts":"2026-05-16T00:39:28.081Z","operation":"year.start","year":2010,"makesToProcess":193}
+{"ts":"2026-05-16T00:39:58.434Z","operation":"nhtsa.models.fail","year":2010,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:40:01.982Z","operation":"nhtsa.models.fail","year":2010,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:40:02.785Z","operation":"nhtsa.models.fail","year":2010,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:40:03.000Z","operation":"nhtsa.models.fail","year":2010,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:40:04.211Z","operation":"nhtsa.models.fail","year":2010,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:40:13.447Z","operation":"year.done","year":2010,"durationMs":45366,"recordsProcessed":368,"cumulative":6675}
+{"ts":"2026-05-16T00:40:13.448Z","operation":"year.start","year":2009,"makesToProcess":193}
+{"ts":"2026-05-16T00:40:42.210Z","operation":"nhtsa.models.fail","year":2009,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:40:45.499Z","operation":"nhtsa.models.fail","year":2009,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:40:46.096Z","operation":"nhtsa.models.fail","year":2009,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:40:46.394Z","operation":"nhtsa.models.fail","year":2009,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:40:47.606Z","operation":"nhtsa.models.fail","year":2009,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:40:56.147Z","operation":"year.done","year":2009,"durationMs":42699,"recordsProcessed":365,"cumulative":7040}
+{"ts":"2026-05-16T00:40:56.147Z","operation":"year.start","year":2008,"makesToProcess":193}
+{"ts":"2026-05-16T00:41:24.646Z","operation":"nhtsa.models.fail","year":2008,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:41:27.892Z","operation":"nhtsa.models.fail","year":2008,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:41:28.518Z","operation":"nhtsa.models.fail","year":2008,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:41:29.010Z","operation":"nhtsa.models.fail","year":2008,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:41:30.216Z","operation":"nhtsa.models.fail","year":2008,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:41:40.640Z","operation":"year.done","year":2008,"durationMs":44493,"recordsProcessed":357,"cumulative":7397}
+{"ts":"2026-05-16T00:41:40.640Z","operation":"year.start","year":2007,"makesToProcess":193}
+{"ts":"2026-05-16T00:42:09.069Z","operation":"nhtsa.models.fail","year":2007,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:42:12.216Z","operation":"nhtsa.models.fail","year":2007,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:42:12.886Z","operation":"nhtsa.models.fail","year":2007,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:42:13.174Z","operation":"nhtsa.models.fail","year":2007,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:42:14.465Z","operation":"nhtsa.models.fail","year":2007,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:42:23.196Z","operation":"year.done","year":2007,"durationMs":42556,"recordsProcessed":338,"cumulative":7735}
+{"ts":"2026-05-16T00:42:23.197Z","operation":"year.start","year":2006,"makesToProcess":193}
+{"ts":"2026-05-16T00:42:53.862Z","operation":"nhtsa.models.fail","year":2006,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:42:57.100Z","operation":"nhtsa.models.fail","year":2006,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:42:57.760Z","operation":"nhtsa.models.fail","year":2006,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:42:58.158Z","operation":"nhtsa.models.fail","year":2006,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:42:59.540Z","operation":"nhtsa.models.fail","year":2006,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:43:08.677Z","operation":"year.done","year":2006,"durationMs":45480,"recordsProcessed":331,"cumulative":8066}
+{"ts":"2026-05-16T00:43:08.677Z","operation":"year.start","year":2005,"makesToProcess":193}
+{"ts":"2026-05-16T00:43:36.864Z","operation":"nhtsa.models.fail","year":2005,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:43:40.401Z","operation":"nhtsa.models.fail","year":2005,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:43:41.634Z","operation":"nhtsa.models.fail","year":2005,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:43:41.907Z","operation":"nhtsa.models.fail","year":2005,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:43:43.184Z","operation":"nhtsa.models.fail","year":2005,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:43:52.537Z","operation":"year.done","year":2005,"durationMs":43860,"recordsProcessed":327,"cumulative":8393}
+{"ts":"2026-05-16T00:43:52.538Z","operation":"year.start","year":2004,"makesToProcess":193}
+{"ts":"2026-05-16T00:44:22.414Z","operation":"nhtsa.models.fail","year":2004,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:44:25.496Z","operation":"nhtsa.models.fail","year":2004,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:44:26.188Z","operation":"nhtsa.models.fail","year":2004,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:44:26.677Z","operation":"nhtsa.models.fail","year":2004,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:44:28.225Z","operation":"nhtsa.models.fail","year":2004,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:44:36.765Z","operation":"year.done","year":2004,"durationMs":44227,"recordsProcessed":322,"cumulative":8715}
+{"ts":"2026-05-16T00:44:36.767Z","operation":"year.start","year":2003,"makesToProcess":193}
+{"ts":"2026-05-16T00:45:06.462Z","operation":"nhtsa.models.fail","year":2003,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:45:09.732Z","operation":"nhtsa.models.fail","year":2003,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:45:10.359Z","operation":"nhtsa.models.fail","year":2003,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:45:10.586Z","operation":"nhtsa.models.fail","year":2003,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:45:12.034Z","operation":"nhtsa.models.fail","year":2003,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:45:21.099Z","operation":"year.done","year":2003,"durationMs":44332,"recordsProcessed":303,"cumulative":9018}
+{"ts":"2026-05-16T00:45:21.099Z","operation":"year.start","year":2002,"makesToProcess":193}
+{"ts":"2026-05-16T00:45:53.832Z","operation":"nhtsa.models.fail","year":2002,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:45:56.973Z","operation":"nhtsa.models.fail","year":2002,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:45:57.691Z","operation":"nhtsa.models.fail","year":2002,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:45:57.965Z","operation":"nhtsa.models.fail","year":2002,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:45:59.268Z","operation":"nhtsa.models.fail","year":2002,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:46:09.143Z","operation":"year.done","year":2002,"durationMs":48044,"recordsProcessed":296,"cumulative":9314}
+{"ts":"2026-05-16T00:46:09.145Z","operation":"year.start","year":2001,"makesToProcess":193}
+{"ts":"2026-05-16T00:46:42.930Z","operation":"nhtsa.models.fail","year":2001,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:46:45.983Z","operation":"nhtsa.models.fail","year":2001,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:46:46.886Z","operation":"nhtsa.models.fail","year":2001,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:46:47.151Z","operation":"nhtsa.models.fail","year":2001,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:46:48.736Z","operation":"nhtsa.models.fail","year":2001,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:46:58.823Z","operation":"year.done","year":2001,"durationMs":49678,"recordsProcessed":291,"cumulative":9605}
+{"ts":"2026-05-16T00:46:58.823Z","operation":"year.start","year":2000,"makesToProcess":193}
+{"ts":"2026-05-16T00:47:26.509Z","operation":"nhtsa.models.fail","year":2000,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:47:29.584Z","operation":"nhtsa.models.fail","year":2000,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:47:30.181Z","operation":"nhtsa.models.fail","year":2000,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:47:30.417Z","operation":"nhtsa.models.fail","year":2000,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:47:31.693Z","operation":"nhtsa.models.fail","year":2000,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:47:39.959Z","operation":"year.done","year":2000,"durationMs":41136,"recordsProcessed":285,"cumulative":9890}
+{"ts":"2026-05-16T00:47:39.959Z","operation":"year.start","year":1999,"makesToProcess":193}
+{"ts":"2026-05-16T00:48:10.430Z","operation":"nhtsa.models.fail","year":1999,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:48:15.401Z","operation":"nhtsa.models.fail","year":1999,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:48:16.046Z","operation":"nhtsa.models.fail","year":1999,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:48:16.267Z","operation":"nhtsa.models.fail","year":1999,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:48:18.111Z","operation":"nhtsa.models.fail","year":1999,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:48:27.490Z","operation":"year.done","year":1999,"durationMs":47531,"recordsProcessed":270,"cumulative":10160}
+{"ts":"2026-05-16T00:48:27.490Z","operation":"year.start","year":1998,"makesToProcess":193}
+{"ts":"2026-05-16T00:48:55.475Z","operation":"nhtsa.models.fail","year":1998,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:48:58.622Z","operation":"nhtsa.models.fail","year":1998,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:48:59.216Z","operation":"nhtsa.models.fail","year":1998,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:48:59.417Z","operation":"nhtsa.models.fail","year":1998,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:49:00.638Z","operation":"nhtsa.models.fail","year":1998,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:49:09.509Z","operation":"year.done","year":1998,"durationMs":42019,"recordsProcessed":265,"cumulative":10425}
+{"ts":"2026-05-16T00:49:09.509Z","operation":"year.start","year":1997,"makesToProcess":193}
+{"ts":"2026-05-16T00:49:36.084Z","operation":"nhtsa.models.fail","year":1997,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:49:39.276Z","operation":"nhtsa.models.fail","year":1997,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:49:39.907Z","operation":"nhtsa.models.fail","year":1997,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:49:40.133Z","operation":"nhtsa.models.fail","year":1997,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:49:41.329Z","operation":"nhtsa.models.fail","year":1997,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:49:49.781Z","operation":"year.done","year":1997,"durationMs":40272,"recordsProcessed":277,"cumulative":10702}
+{"ts":"2026-05-16T00:49:49.781Z","operation":"year.start","year":1996,"makesToProcess":193}
+{"ts":"2026-05-16T00:50:16.766Z","operation":"nhtsa.models.fail","year":1996,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:50:19.782Z","operation":"nhtsa.models.fail","year":1996,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:50:20.372Z","operation":"nhtsa.models.fail","year":1996,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:50:20.591Z","operation":"nhtsa.models.fail","year":1996,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:50:21.790Z","operation":"nhtsa.models.fail","year":1996,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:50:29.987Z","operation":"year.done","year":1996,"durationMs":40206,"recordsProcessed":275,"cumulative":10977}
+{"ts":"2026-05-16T00:50:29.988Z","operation":"year.start","year":1995,"makesToProcess":193}
+{"ts":"2026-05-16T00:50:57.214Z","operation":"nhtsa.models.fail","year":1995,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:51:00.282Z","operation":"nhtsa.models.fail","year":1995,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:51:01.038Z","operation":"nhtsa.models.fail","year":1995,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:51:01.258Z","operation":"nhtsa.models.fail","year":1995,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:51:02.476Z","operation":"nhtsa.models.fail","year":1995,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:51:10.867Z","operation":"year.done","year":1995,"durationMs":40879,"recordsProcessed":294,"cumulative":11271}
+{"ts":"2026-05-16T00:51:10.867Z","operation":"year.start","year":1994,"makesToProcess":193}
+{"ts":"2026-05-16T00:51:38.683Z","operation":"nhtsa.models.fail","year":1994,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:51:41.736Z","operation":"nhtsa.models.fail","year":1994,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:51:42.419Z","operation":"nhtsa.models.fail","year":1994,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:51:42.636Z","operation":"nhtsa.models.fail","year":1994,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:51:43.827Z","operation":"nhtsa.models.fail","year":1994,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:51:52.489Z","operation":"year.done","year":1994,"durationMs":41622,"recordsProcessed":287,"cumulative":11558}
+{"ts":"2026-05-16T00:51:52.489Z","operation":"year.start","year":1993,"makesToProcess":193}
+{"ts":"2026-05-16T00:52:20.613Z","operation":"nhtsa.models.fail","year":1993,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:52:23.871Z","operation":"nhtsa.models.fail","year":1993,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:52:24.492Z","operation":"nhtsa.models.fail","year":1993,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:52:24.685Z","operation":"nhtsa.models.fail","year":1993,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:52:25.997Z","operation":"nhtsa.models.fail","year":1993,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:52:34.921Z","operation":"year.done","year":1993,"durationMs":42432,"recordsProcessed":297,"cumulative":11855}
+{"ts":"2026-05-16T00:52:34.922Z","operation":"year.start","year":1992,"makesToProcess":193}
+{"ts":"2026-05-16T00:53:02.182Z","operation":"nhtsa.models.fail","year":1992,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:53:05.348Z","operation":"nhtsa.models.fail","year":1992,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:53:06.058Z","operation":"nhtsa.models.fail","year":1992,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:53:06.268Z","operation":"nhtsa.models.fail","year":1992,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:53:07.582Z","operation":"nhtsa.models.fail","year":1992,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:53:17.615Z","operation":"year.done","year":1992,"durationMs":42693,"recordsProcessed":293,"cumulative":12148}
+{"ts":"2026-05-16T00:53:17.615Z","operation":"year.start","year":1991,"makesToProcess":193}
+{"ts":"2026-05-16T00:53:45.709Z","operation":"nhtsa.models.fail","year":1991,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:53:49.367Z","operation":"nhtsa.models.fail","year":1991,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:53:50.049Z","operation":"nhtsa.models.fail","year":1991,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:53:50.578Z","operation":"nhtsa.models.fail","year":1991,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:53:52.149Z","operation":"nhtsa.models.fail","year":1991,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:54:02.564Z","operation":"year.done","year":1991,"durationMs":44949,"recordsProcessed":303,"cumulative":12451}
+{"ts":"2026-05-16T00:54:02.565Z","operation":"year.start","year":1990,"makesToProcess":193}
+{"ts":"2026-05-16T00:54:32.033Z","operation":"nhtsa.models.fail","year":1990,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:54:35.272Z","operation":"nhtsa.models.fail","year":1990,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:54:35.934Z","operation":"nhtsa.models.fail","year":1990,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:54:36.155Z","operation":"nhtsa.models.fail","year":1990,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:54:37.653Z","operation":"nhtsa.models.fail","year":1990,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:54:46.281Z","operation":"year.done","year":1990,"durationMs":43716,"recordsProcessed":290,"cumulative":12741}
+{"ts":"2026-05-16T00:54:46.281Z","operation":"year.start","year":1989,"makesToProcess":193}
+{"ts":"2026-05-16T00:55:17.045Z","operation":"nhtsa.models.fail","year":1989,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:55:21.075Z","operation":"nhtsa.models.fail","year":1989,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:55:22.177Z","operation":"nhtsa.models.fail","year":1989,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:55:22.406Z","operation":"nhtsa.models.fail","year":1989,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:55:23.665Z","operation":"nhtsa.models.fail","year":1989,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:55:32.551Z","operation":"year.done","year":1989,"durationMs":46270,"recordsProcessed":288,"cumulative":13029}
+{"ts":"2026-05-16T00:55:32.552Z","operation":"year.start","year":1988,"makesToProcess":193}
+{"ts":"2026-05-16T00:56:01.098Z","operation":"nhtsa.models.fail","year":1988,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:56:04.336Z","operation":"nhtsa.models.fail","year":1988,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:56:05.174Z","operation":"nhtsa.models.fail","year":1988,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:56:05.407Z","operation":"nhtsa.models.fail","year":1988,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:56:06.724Z","operation":"nhtsa.models.fail","year":1988,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:56:14.968Z","operation":"year.done","year":1988,"durationMs":42416,"recordsProcessed":290,"cumulative":13319}
+{"ts":"2026-05-16T00:56:14.968Z","operation":"year.start","year":1987,"makesToProcess":193}
+{"ts":"2026-05-16T00:56:43.068Z","operation":"nhtsa.models.fail","year":1987,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:56:46.271Z","operation":"nhtsa.models.fail","year":1987,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:56:46.873Z","operation":"nhtsa.models.fail","year":1987,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:56:47.101Z","operation":"nhtsa.models.fail","year":1987,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:56:48.575Z","operation":"nhtsa.models.fail","year":1987,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:56:57.447Z","operation":"year.done","year":1987,"durationMs":42479,"recordsProcessed":288,"cumulative":13607}
+{"ts":"2026-05-16T00:56:57.448Z","operation":"year.start","year":1986,"makesToProcess":193}
+{"ts":"2026-05-16T00:57:25.448Z","operation":"nhtsa.models.fail","year":1986,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:57:29.371Z","operation":"nhtsa.models.fail","year":1986,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:57:31.287Z","operation":"nhtsa.models.fail","year":1986,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:57:31.528Z","operation":"nhtsa.models.fail","year":1986,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:57:32.945Z","operation":"nhtsa.models.fail","year":1986,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:57:41.347Z","operation":"year.done","year":1986,"durationMs":43899,"recordsProcessed":273,"cumulative":13880}
+{"ts":"2026-05-16T00:57:41.348Z","operation":"year.start","year":1985,"makesToProcess":193}
+{"ts":"2026-05-16T00:58:08.673Z","operation":"nhtsa.models.fail","year":1985,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:58:11.856Z","operation":"nhtsa.models.fail","year":1985,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:58:12.496Z","operation":"nhtsa.models.fail","year":1985,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:58:12.806Z","operation":"nhtsa.models.fail","year":1985,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:58:15.113Z","operation":"nhtsa.models.fail","year":1985,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:58:25.900Z","operation":"year.done","year":1985,"durationMs":44552,"recordsProcessed":269,"cumulative":14149}
+{"ts":"2026-05-16T00:58:25.901Z","operation":"year.start","year":1984,"makesToProcess":193}
+{"ts":"2026-05-16T00:58:55.853Z","operation":"nhtsa.models.fail","year":1984,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:58:59.151Z","operation":"nhtsa.models.fail","year":1984,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:58:59.771Z","operation":"nhtsa.models.fail","year":1984,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:58:59.980Z","operation":"nhtsa.models.fail","year":1984,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:59:01.434Z","operation":"nhtsa.models.fail","year":1984,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:59:09.714Z","operation":"year.done","year":1984,"durationMs":43813,"recordsProcessed":239,"cumulative":14388}
+{"ts":"2026-05-16T00:59:09.714Z","operation":"year.start","year":1983,"makesToProcess":193}
+{"ts":"2026-05-16T00:59:37.789Z","operation":"nhtsa.models.fail","year":1983,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:59:41.149Z","operation":"nhtsa.models.fail","year":1983,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:59:41.754Z","operation":"nhtsa.models.fail","year":1983,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:59:41.969Z","operation":"nhtsa.models.fail","year":1983,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:59:43.784Z","operation":"nhtsa.models.fail","year":1983,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T00:59:52.581Z","operation":"year.done","year":1983,"durationMs":42867,"recordsProcessed":243,"cumulative":14631}
+{"ts":"2026-05-16T00:59:52.581Z","operation":"year.start","year":1982,"makesToProcess":193}
+{"ts":"2026-05-16T01:00:22.755Z","operation":"nhtsa.models.fail","year":1982,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:00:25.923Z","operation":"nhtsa.models.fail","year":1982,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:00:26.589Z","operation":"nhtsa.models.fail","year":1982,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:00:26.786Z","operation":"nhtsa.models.fail","year":1982,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:00:28.111Z","operation":"nhtsa.models.fail","year":1982,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:00:37.491Z","operation":"year.done","year":1982,"durationMs":44910,"recordsProcessed":241,"cumulative":14872}
+{"ts":"2026-05-16T01:00:37.491Z","operation":"year.start","year":1981,"makesToProcess":193}
+{"ts":"2026-05-16T01:01:05.351Z","operation":"nhtsa.models.fail","year":1981,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:01:08.404Z","operation":"nhtsa.models.fail","year":1981,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:01:09.015Z","operation":"nhtsa.models.fail","year":1981,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:01:09.572Z","operation":"nhtsa.models.fail","year":1981,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:01:10.805Z","operation":"nhtsa.models.fail","year":1981,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:01:20.520Z","operation":"year.done","year":1981,"durationMs":43029,"recordsProcessed":251,"cumulative":15123}
+{"ts":"2026-05-16T01:01:20.520Z","operation":"year.start","year":1980,"makesToProcess":193}
+{"ts":"2026-05-16T01:01:47.685Z","operation":"nhtsa.models.fail","year":1980,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:01:50.846Z","operation":"nhtsa.models.fail","year":1980,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:01:51.442Z","operation":"nhtsa.models.fail","year":1980,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:01:51.646Z","operation":"nhtsa.models.fail","year":1980,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:01:52.910Z","operation":"nhtsa.models.fail","year":1980,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:02:02.492Z","operation":"year.done","year":1980,"durationMs":41972,"recordsProcessed":23,"cumulative":15146}
+{"ts":"2026-05-16T01:02:02.492Z","operation":"year.start","year":1979,"makesToProcess":193}
+{"ts":"2026-05-16T01:02:29.346Z","operation":"nhtsa.models.fail","year":1979,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:02:32.669Z","operation":"nhtsa.models.fail","year":1979,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:02:33.261Z","operation":"nhtsa.models.fail","year":1979,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:02:33.477Z","operation":"nhtsa.models.fail","year":1979,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:02:34.696Z","operation":"nhtsa.models.fail","year":1979,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:02:42.860Z","operation":"year.done","year":1979,"durationMs":40368,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:02:42.861Z","operation":"year.start","year":1978,"makesToProcess":193}
+{"ts":"2026-05-16T01:03:09.162Z","operation":"nhtsa.models.fail","year":1978,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:03:12.167Z","operation":"nhtsa.models.fail","year":1978,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:03:12.780Z","operation":"nhtsa.models.fail","year":1978,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:03:12.971Z","operation":"nhtsa.models.fail","year":1978,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:03:14.243Z","operation":"nhtsa.models.fail","year":1978,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:03:22.365Z","operation":"year.done","year":1978,"durationMs":39504,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:03:22.365Z","operation":"year.start","year":1977,"makesToProcess":193}
+{"ts":"2026-05-16T01:03:49.307Z","operation":"nhtsa.models.fail","year":1977,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:03:52.522Z","operation":"nhtsa.models.fail","year":1977,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:03:53.156Z","operation":"nhtsa.models.fail","year":1977,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:03:53.484Z","operation":"nhtsa.models.fail","year":1977,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:03:54.804Z","operation":"nhtsa.models.fail","year":1977,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:04:03.317Z","operation":"year.done","year":1977,"durationMs":40952,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:04:03.317Z","operation":"year.start","year":1976,"makesToProcess":193}
+{"ts":"2026-05-16T01:04:29.913Z","operation":"nhtsa.models.fail","year":1976,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:04:32.911Z","operation":"nhtsa.models.fail","year":1976,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:04:33.511Z","operation":"nhtsa.models.fail","year":1976,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:04:33.746Z","operation":"nhtsa.models.fail","year":1976,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:04:34.991Z","operation":"nhtsa.models.fail","year":1976,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:04:44.968Z","operation":"year.done","year":1976,"durationMs":41651,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:04:44.968Z","operation":"year.start","year":1975,"makesToProcess":193}
+{"ts":"2026-05-16T01:05:14.609Z","operation":"nhtsa.models.fail","year":1975,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:05:17.892Z","operation":"nhtsa.models.fail","year":1975,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:05:18.610Z","operation":"nhtsa.models.fail","year":1975,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:05:18.844Z","operation":"nhtsa.models.fail","year":1975,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:05:20.107Z","operation":"nhtsa.models.fail","year":1975,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:05:29.134Z","operation":"year.done","year":1975,"durationMs":44166,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:05:29.134Z","operation":"year.start","year":1974,"makesToProcess":193}
+{"ts":"2026-05-16T01:05:58.011Z","operation":"nhtsa.models.fail","year":1974,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:06:03.023Z","operation":"nhtsa.models.fail","year":1974,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:06:03.652Z","operation":"nhtsa.models.fail","year":1974,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:06:03.888Z","operation":"nhtsa.models.fail","year":1974,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:06:05.240Z","operation":"nhtsa.models.fail","year":1974,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:06:17.637Z","operation":"year.done","year":1974,"durationMs":48503,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:06:17.638Z","operation":"year.start","year":1973,"makesToProcess":193}
+{"ts":"2026-05-16T01:06:45.429Z","operation":"nhtsa.models.fail","year":1973,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:06:48.437Z","operation":"nhtsa.models.fail","year":1973,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:06:49.092Z","operation":"nhtsa.models.fail","year":1973,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:06:49.308Z","operation":"nhtsa.models.fail","year":1973,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:06:50.540Z","operation":"nhtsa.models.fail","year":1973,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:06:58.894Z","operation":"year.done","year":1973,"durationMs":41256,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:06:58.894Z","operation":"year.start","year":1972,"makesToProcess":193}
+{"ts":"2026-05-16T01:07:26.990Z","operation":"nhtsa.models.fail","year":1972,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:07:30.807Z","operation":"nhtsa.models.fail","year":1972,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:07:31.477Z","operation":"nhtsa.models.fail","year":1972,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:07:31.671Z","operation":"nhtsa.models.fail","year":1972,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:07:32.983Z","operation":"nhtsa.models.fail","year":1972,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:07:41.716Z","operation":"year.done","year":1972,"durationMs":42822,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:07:41.716Z","operation":"year.start","year":1971,"makesToProcess":193}
+{"ts":"2026-05-16T01:08:10.023Z","operation":"nhtsa.models.fail","year":1971,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:08:13.069Z","operation":"nhtsa.models.fail","year":1971,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:08:14.062Z","operation":"nhtsa.models.fail","year":1971,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:08:14.515Z","operation":"nhtsa.models.fail","year":1971,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:08:15.865Z","operation":"nhtsa.models.fail","year":1971,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:08:25.243Z","operation":"year.done","year":1971,"durationMs":43527,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:08:25.243Z","operation":"year.start","year":1970,"makesToProcess":193}
+{"ts":"2026-05-16T01:08:52.960Z","operation":"nhtsa.models.fail","year":1970,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:08:55.985Z","operation":"nhtsa.models.fail","year":1970,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:08:56.590Z","operation":"nhtsa.models.fail","year":1970,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:08:56.787Z","operation":"nhtsa.models.fail","year":1970,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:08:57.991Z","operation":"nhtsa.models.fail","year":1970,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:09:06.047Z","operation":"year.done","year":1970,"durationMs":40804,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:09:06.047Z","operation":"year.start","year":1969,"makesToProcess":193}
+{"ts":"2026-05-16T01:09:34.160Z","operation":"nhtsa.models.fail","year":1969,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:09:37.185Z","operation":"nhtsa.models.fail","year":1969,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:09:38.032Z","operation":"nhtsa.models.fail","year":1969,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:09:38.253Z","operation":"nhtsa.models.fail","year":1969,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:09:39.456Z","operation":"nhtsa.models.fail","year":1969,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:09:47.945Z","operation":"year.done","year":1969,"durationMs":41898,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:09:47.945Z","operation":"year.start","year":1968,"makesToProcess":193}
+{"ts":"2026-05-16T01:10:14.822Z","operation":"nhtsa.models.fail","year":1968,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:10:18.086Z","operation":"nhtsa.models.fail","year":1968,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:10:18.761Z","operation":"nhtsa.models.fail","year":1968,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:10:19.013Z","operation":"nhtsa.models.fail","year":1968,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:10:20.304Z","operation":"nhtsa.models.fail","year":1968,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:10:28.683Z","operation":"year.done","year":1968,"durationMs":40738,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:10:28.683Z","operation":"year.start","year":1967,"makesToProcess":193}
+{"ts":"2026-05-16T01:10:54.815Z","operation":"nhtsa.models.fail","year":1967,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:10:58.141Z","operation":"nhtsa.models.fail","year":1967,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:10:58.747Z","operation":"nhtsa.models.fail","year":1967,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:10:58.975Z","operation":"nhtsa.models.fail","year":1967,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:11:00.190Z","operation":"nhtsa.models.fail","year":1967,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:11:08.574Z","operation":"year.done","year":1967,"durationMs":39891,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:11:08.574Z","operation":"year.start","year":1966,"makesToProcess":193}
+{"ts":"2026-05-16T01:11:36.878Z","operation":"nhtsa.models.fail","year":1966,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:11:39.921Z","operation":"nhtsa.models.fail","year":1966,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:11:40.520Z","operation":"nhtsa.models.fail","year":1966,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:11:40.763Z","operation":"nhtsa.models.fail","year":1966,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:11:42.249Z","operation":"nhtsa.models.fail","year":1966,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:11:50.537Z","operation":"year.done","year":1966,"durationMs":41963,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:11:50.539Z","operation":"year.start","year":1965,"makesToProcess":193}
+{"ts":"2026-05-16T01:12:17.211Z","operation":"nhtsa.models.fail","year":1965,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:12:20.369Z","operation":"nhtsa.models.fail","year":1965,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:12:20.967Z","operation":"nhtsa.models.fail","year":1965,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:12:21.175Z","operation":"nhtsa.models.fail","year":1965,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:12:22.404Z","operation":"nhtsa.models.fail","year":1965,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:12:31.692Z","operation":"year.done","year":1965,"durationMs":41153,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:12:31.692Z","operation":"year.start","year":1964,"makesToProcess":193}
+{"ts":"2026-05-16T01:13:02.537Z","operation":"nhtsa.models.fail","year":1964,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:13:06.961Z","operation":"nhtsa.models.fail","year":1964,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:13:07.803Z","operation":"nhtsa.models.fail","year":1964,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:13:08.062Z","operation":"nhtsa.models.fail","year":1964,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:13:09.623Z","operation":"nhtsa.models.fail","year":1964,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:13:19.215Z","operation":"year.done","year":1964,"durationMs":47523,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:13:19.216Z","operation":"year.start","year":1963,"makesToProcess":193}
+{"ts":"2026-05-16T01:13:46.112Z","operation":"nhtsa.models.fail","year":1963,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:13:49.121Z","operation":"nhtsa.models.fail","year":1963,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:13:49.737Z","operation":"nhtsa.models.fail","year":1963,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:13:50.202Z","operation":"nhtsa.models.fail","year":1963,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:13:51.448Z","operation":"nhtsa.models.fail","year":1963,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:13:59.581Z","operation":"year.done","year":1963,"durationMs":40365,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:13:59.581Z","operation":"year.start","year":1962,"makesToProcess":193}
+{"ts":"2026-05-16T01:14:26.596Z","operation":"nhtsa.models.fail","year":1962,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:14:29.787Z","operation":"nhtsa.models.fail","year":1962,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:14:30.443Z","operation":"nhtsa.models.fail","year":1962,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:14:30.728Z","operation":"nhtsa.models.fail","year":1962,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:14:31.928Z","operation":"nhtsa.models.fail","year":1962,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:14:41.265Z","operation":"year.done","year":1962,"durationMs":41684,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:14:41.265Z","operation":"year.start","year":1961,"makesToProcess":193}
+{"ts":"2026-05-16T01:15:08.983Z","operation":"nhtsa.models.fail","year":1961,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:15:12.419Z","operation":"nhtsa.models.fail","year":1961,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:15:13.050Z","operation":"nhtsa.models.fail","year":1961,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:15:13.322Z","operation":"nhtsa.models.fail","year":1961,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:15:14.751Z","operation":"nhtsa.models.fail","year":1961,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:15:23.822Z","operation":"year.done","year":1961,"durationMs":42557,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:15:23.822Z","operation":"year.start","year":1960,"makesToProcess":193}
+{"ts":"2026-05-16T01:15:53.065Z","operation":"nhtsa.models.fail","year":1960,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:15:57.174Z","operation":"nhtsa.models.fail","year":1960,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:15:57.962Z","operation":"nhtsa.models.fail","year":1960,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:15:58.382Z","operation":"nhtsa.models.fail","year":1960,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:16:00.055Z","operation":"nhtsa.models.fail","year":1960,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:16:10.775Z","operation":"year.done","year":1960,"durationMs":46953,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:16:10.775Z","operation":"year.start","year":1959,"makesToProcess":193}
+{"ts":"2026-05-16T01:16:39.238Z","operation":"nhtsa.models.fail","year":1959,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:16:42.398Z","operation":"nhtsa.models.fail","year":1959,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:16:43.076Z","operation":"nhtsa.models.fail","year":1959,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:16:43.295Z","operation":"nhtsa.models.fail","year":1959,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:16:44.565Z","operation":"nhtsa.models.fail","year":1959,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:16:53.538Z","operation":"year.done","year":1959,"durationMs":42763,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:16:53.538Z","operation":"year.start","year":1958,"makesToProcess":193}
+{"ts":"2026-05-16T01:17:23.607Z","operation":"nhtsa.models.fail","year":1958,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:17:27.245Z","operation":"nhtsa.models.fail","year":1958,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:17:28.362Z","operation":"nhtsa.models.fail","year":1958,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:17:28.599Z","operation":"nhtsa.models.fail","year":1958,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:17:30.040Z","operation":"nhtsa.models.fail","year":1958,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:17:38.997Z","operation":"year.done","year":1958,"durationMs":45459,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:17:38.997Z","operation":"year.start","year":1957,"makesToProcess":193}
+{"ts":"2026-05-16T01:18:09.491Z","operation":"nhtsa.models.fail","year":1957,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:18:12.823Z","operation":"nhtsa.models.fail","year":1957,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:18:13.506Z","operation":"nhtsa.models.fail","year":1957,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:18:13.795Z","operation":"nhtsa.models.fail","year":1957,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:18:15.282Z","operation":"nhtsa.models.fail","year":1957,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:18:25.327Z","operation":"year.done","year":1957,"durationMs":46330,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:18:25.327Z","operation":"year.start","year":1956,"makesToProcess":193}
+{"ts":"2026-05-16T01:18:55.128Z","operation":"nhtsa.models.fail","year":1956,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:18:59.346Z","operation":"nhtsa.models.fail","year":1956,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:18:59.958Z","operation":"nhtsa.models.fail","year":1956,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:19:00.229Z","operation":"nhtsa.models.fail","year":1956,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:19:01.631Z","operation":"nhtsa.models.fail","year":1956,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:19:10.379Z","operation":"year.done","year":1956,"durationMs":45052,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:19:10.379Z","operation":"year.start","year":1955,"makesToProcess":193}
+{"ts":"2026-05-16T01:19:38.549Z","operation":"nhtsa.models.fail","year":1955,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:19:41.582Z","operation":"nhtsa.models.fail","year":1955,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:19:42.198Z","operation":"nhtsa.models.fail","year":1955,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:19:42.425Z","operation":"nhtsa.models.fail","year":1955,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:19:43.747Z","operation":"nhtsa.models.fail","year":1955,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:19:52.537Z","operation":"year.done","year":1955,"durationMs":42158,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:19:52.538Z","operation":"year.start","year":1954,"makesToProcess":193}
+{"ts":"2026-05-16T01:20:19.917Z","operation":"nhtsa.models.fail","year":1954,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:20:23.141Z","operation":"nhtsa.models.fail","year":1954,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:20:24.215Z","operation":"nhtsa.models.fail","year":1954,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:20:24.497Z","operation":"nhtsa.models.fail","year":1954,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:20:25.695Z","operation":"nhtsa.models.fail","year":1954,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:20:33.880Z","operation":"year.done","year":1954,"durationMs":41342,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:20:33.880Z","operation":"year.start","year":1953,"makesToProcess":193}
+{"ts":"2026-05-16T01:21:01.381Z","operation":"nhtsa.models.fail","year":1953,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:21:04.651Z","operation":"nhtsa.models.fail","year":1953,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:21:05.341Z","operation":"nhtsa.models.fail","year":1953,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:21:05.557Z","operation":"nhtsa.models.fail","year":1953,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:21:06.765Z","operation":"nhtsa.models.fail","year":1953,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:21:15.080Z","operation":"year.done","year":1953,"durationMs":41200,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:21:15.080Z","operation":"year.start","year":1952,"makesToProcess":193}
+{"ts":"2026-05-16T01:21:44.263Z","operation":"nhtsa.models.fail","year":1952,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:21:47.468Z","operation":"nhtsa.models.fail","year":1952,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:21:48.075Z","operation":"nhtsa.models.fail","year":1952,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:21:48.326Z","operation":"nhtsa.models.fail","year":1952,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:21:49.613Z","operation":"nhtsa.models.fail","year":1952,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:21:57.974Z","operation":"year.done","year":1952,"durationMs":42893,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:21:57.974Z","operation":"year.start","year":1951,"makesToProcess":193}
+{"ts":"2026-05-16T01:22:24.363Z","operation":"nhtsa.models.fail","year":1951,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:22:27.531Z","operation":"nhtsa.models.fail","year":1951,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:22:28.335Z","operation":"nhtsa.models.fail","year":1951,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:22:28.544Z","operation":"nhtsa.models.fail","year":1951,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:22:29.852Z","operation":"nhtsa.models.fail","year":1951,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:22:37.887Z","operation":"year.done","year":1951,"durationMs":39913,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:22:37.888Z","operation":"year.start","year":1950,"makesToProcess":193}
+{"ts":"2026-05-16T01:23:04.503Z","operation":"nhtsa.models.fail","year":1950,"makeId":6663,"makeDisplay":"GULLWING INTERNATIONAL MOTORS, LTD.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:23:07.743Z","operation":"nhtsa.models.fail","year":1950,"makeId":8785,"makeDisplay":"PHOENIX SPORTS CARS, INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:23:08.347Z","operation":"nhtsa.models.fail","year":1950,"makeId":9364,"makeDisplay":"CREATIVE COACHWORKS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:23:08.617Z","operation":"nhtsa.models.fail","year":1950,"makeId":9376,"makeDisplay":"WESTFALL MOTORS CORP.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:23:09.875Z","operation":"nhtsa.models.fail","year":1950,"makeId":9720,"makeDisplay":"SF MOTORS INC.","error":"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"}
+{"ts":"2026-05-16T01:23:18.364Z","operation":"year.done","year":1950,"durationMs":40476,"recordsProcessed":0,"cumulative":15146}
+{"ts":"2026-05-16T01:23:18.364Z","operation":"carapi.skip","reason":"no_key"}
+{"ts":"2026-05-16T01:23:18.413Z","operation":"ingest.complete","durationMs":3250743,"recordsProcessed":15146,"makesProcessed":193,"apiCalls":14101,"failures":375}
