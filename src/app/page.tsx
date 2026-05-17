@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, LineChart, Calculator, Gauge } from "lucide-react";
 import { FadeIn } from "@/components/ui/fade-in";
-import { getCarBySlug } from "@/lib/db/car-search";
+import { getCarBySlug, loadStoredCatalog } from "@/lib/db/car-search";
 import { resolveCarImage } from "@/lib/domain/car-image";
 import imagesJsonRaw from "@/lib/data/cars-ml/oldcarsdata-auction-images.json";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -34,6 +34,7 @@ export default function HomePage() {
   const heroSlug = pickHeroSlug();
   const heroCar = heroSlug ? getCarBySlug(heroSlug) : null;
   const heroImg = heroCar ? resolveCarImage(heroCar) : null;
+  const forecastCount = loadStoredCatalog().length;
 
   return (
     <>
@@ -65,9 +66,9 @@ export default function HomePage() {
               </h1>
               <p className="mt-6 max-w-xl text-base text-foreground-muted sm:text-lg">
                 5-year value forecasts and Buy / Hold / Sell signals for{" "}
-                <span className="font-mono text-white tabular-nums">15,157</span>{" "}
-                collectible vehicles. Built on real auction data — no mocks, no
-                guesses.
+                <span className="font-mono text-white tabular-nums">{forecastCount.toLocaleString()}</span>{" "}
+                collectible vehicles with confident forecasts. Built on real
+                auction data — no mocks, no guesses.
               </p>
               <div className="mt-10 flex flex-wrap gap-3">
                 <Link

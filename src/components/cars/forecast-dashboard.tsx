@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { Search, RotateCcw, Loader2 } from "lucide-react";
+import { Search, RotateCcw, Loader2, SlidersHorizontal, X, TrendingUp } from "lucide-react";
 import type {
   CollectorCar,
   Recommendation,
@@ -64,12 +64,14 @@ interface DashboardProps {
   initialCars: CollectorCar[];
   totalCount: number;
   pageSize?: number;
+  topPicks?: CollectorCar[];
 }
 
 export function ForecastDashboard({
   initialCars,
   totalCount,
   pageSize = 60,
+  topPicks = [],
 }: DashboardProps) {
   const [query, setQuery] = React.useState("");
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
@@ -80,6 +82,22 @@ export function ForecastDashboard({
   const [recommendation, setRecommendation] = React.useState<Recommendation | "all">("all");
   const [scenario, setScenario] = React.useState<Scenario>("moderate");
   const [sortBy, setSortBy] = React.useState<SortKey>("projected-upside");
+  const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
+
+  // Lock body scroll when mobile drawer is open + close on Escape.
+  React.useEffect(() => {
+    if (!mobileFiltersOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileFiltersOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [mobileFiltersOpen]);
 
   // ─── Server-paginated state.
   const [cars, setCars] = React.useState<CollectorCar[]>(initialCars);
@@ -228,107 +246,185 @@ export function ForecastDashboard({
     setSortBy("projected-upside");
   }
 
+  const showTopPicks = isInitialState && topPicks.length > 0;
+  const activeFilterCount =
+    segments.size + eras.size + bodies.size + decades.size + (recommendation !== "all" ? 1 : 0);
+
+  const filterPanel = (
+    <div className="space-y-6 border border-border bg-surface-elevated p-5">
+      <div className="flex items-center justify-between">
+        <h2 className="text-overline uppercase text-foreground-muted">
+          Filters
+        </h2>
+        <div className="flex items-center gap-2">
+          {filtersActive ? (
+            <button
+              onClick={reset}
+              className="inline-flex items-center gap-1 text-meta uppercase tracking-[0.04em] text-papaya hover:text-papaya-hover"
+            >
+              <RotateCcw className="h-3 w-3" /> Reset
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => setMobileFiltersOpen(false)}
+            aria-label="Close filters"
+            className="md:hidden -mr-1 rounded-sm p-1 text-foreground-muted hover:text-foreground"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+
+      <FilterGroup label="Decade">
+        {DECADES.map((d) => (
+          <CheckboxRow
+            key={d}
+            label={`${d}s`}
+            count={facets?.decades[`${d}s`] ?? 0}
+            checked={decades.has(d)}
+            onChange={() => toggle(setDecades, d)}
+          />
+        ))}
+      </FilterGroup>
+
+      <FilterGroup label="Segment">
+        {SEGMENTS.map((s) => (
+          <CheckboxRow
+            key={s.id}
+            label={s.shortName}
+            count={facets?.segments[s.id] ?? 0}
+            checked={segments.has(s.id)}
+            onChange={() => toggle<Segment | "unclassified">(setSegments, s.id)}
+          />
+        ))}
+        <CheckboxRow
+          label="Unclassified"
+          hint="no segment match"
+          count={facets?.unclassifiedSegment ?? 0}
+          checked={segments.has("unclassified")}
+          onChange={() => toggle<Segment | "unclassified">(setSegments, "unclassified")}
+        />
+      </FilterGroup>
+
+      <FilterGroup label="Era">
+        {ERAS.map((e) => (
+          <CheckboxRow
+            key={e}
+            label={ERA_DESCRIPTORS[e].label}
+            hint={ERA_DESCRIPTORS[e].range}
+            count={facets?.eras[e] ?? 0}
+            checked={eras.has(e)}
+            onChange={() => toggle(setEras, e)}
+          />
+        ))}
+      </FilterGroup>
+
+      <FilterGroup label="Body style">
+        {BODIES.map((b) => (
+          <CheckboxRow
+            key={b}
+            label={cap(b)}
+            count={facets?.bodies[b] ?? 0}
+            checked={bodies.has(b)}
+            onChange={() => toggle(setBodies, b)}
+          />
+        ))}
+      </FilterGroup>
+
+      <FilterGroup label="Recommendation">
+        {(["all", "buy", "hold", "sell"] as const).map((r) => (
+          <RadioRow
+            key={r}
+            name="rec"
+            label={cap(r)}
+            checked={recommendation === r}
+            onChange={() => setRecommendation(r)}
+          />
+        ))}
+      </FilterGroup>
+
+      <FilterGroup label="Scenario">
+        {(["pessimist", "moderate", "optimist"] as const).map((s) => (
+          <RadioRow
+            key={s}
+            name="scn"
+            label={cap(s)}
+            checked={scenario === s}
+            onChange={() => setScenario(s)}
+          />
+        ))}
+      </FilterGroup>
+
+      {/* Apply button — mobile only, closes the drawer */}
+      <div className="md:hidden pt-2">
+        <Button
+          onClick={() => setMobileFiltersOpen(false)}
+          className="w-full"
+        >
+          Show {serverTotal.toLocaleString()} {serverTotal === 1 ? "result" : "results"}
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="mx-auto grid max-w-[1440px] gap-8 px-4 py-10 sm:px-8 md:grid-cols-[280px_minmax(0,1fr)]">
-      <aside className="md:sticky md:top-24 md:max-h-[calc(100vh-7rem)] md:overflow-y-auto">
-        <div className="space-y-6 border border-border bg-surface-elevated p-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-overline uppercase text-foreground-muted">
-              Filters
-            </h2>
-            {filtersActive ? (
-              <button
-                onClick={reset}
-                className="inline-flex items-center gap-1 text-meta uppercase tracking-[0.04em] text-papaya hover:text-papaya-hover"
-              >
-                <RotateCcw className="h-3 w-3" /> Reset
-              </button>
-            ) : null}
-          </div>
-
-          <FilterGroup label="Decade">
-            {DECADES.map((d) => (
-              <CheckboxRow
-                key={d}
-                label={`${d}s`}
-                count={facets?.decades[`${d}s`] ?? 0}
-                checked={decades.has(d)}
-                onChange={() => toggle(setDecades, d)}
-              />
-            ))}
-          </FilterGroup>
-
-          <FilterGroup label="Segment">
-            {SEGMENTS.map((s) => (
-              <CheckboxRow
-                key={s.id}
-                label={s.shortName}
-                count={facets?.segments[s.id] ?? 0}
-                checked={segments.has(s.id)}
-                onChange={() => toggle<Segment | "unclassified">(setSegments, s.id)}
-              />
-            ))}
-            <CheckboxRow
-              label="Unclassified"
-              hint="no segment match"
-              count={facets?.unclassifiedSegment ?? 0}
-              checked={segments.has("unclassified")}
-              onChange={() => toggle<Segment | "unclassified">(setSegments, "unclassified")}
-            />
-          </FilterGroup>
-
-          <FilterGroup label="Era">
-            {ERAS.map((e) => (
-              <CheckboxRow
-                key={e}
-                label={ERA_DESCRIPTORS[e].label}
-                hint={ERA_DESCRIPTORS[e].range}
-                count={facets?.eras[e] ?? 0}
-                checked={eras.has(e)}
-                onChange={() => toggle(setEras, e)}
-              />
-            ))}
-          </FilterGroup>
-
-          <FilterGroup label="Body style">
-            {BODIES.map((b) => (
-              <CheckboxRow
-                key={b}
-                label={cap(b)}
-                count={facets?.bodies[b] ?? 0}
-                checked={bodies.has(b)}
-                onChange={() => toggle(setBodies, b)}
-              />
-            ))}
-          </FilterGroup>
-
-          <FilterGroup label="Recommendation">
-            {(["all", "buy", "hold", "sell"] as const).map((r) => (
-              <RadioRow
-                key={r}
-                name="rec"
-                label={cap(r)}
-                checked={recommendation === r}
-                onChange={() => setRecommendation(r)}
-              />
-            ))}
-          </FilterGroup>
-
-          <FilterGroup label="Scenario">
-            {(["pessimist", "moderate", "optimist"] as const).map((s) => (
-              <RadioRow
-                key={s}
-                name="scn"
-                label={cap(s)}
-                checked={scenario === s}
-                onChange={() => setScenario(s)}
-              />
-            ))}
-          </FilterGroup>
-        </div>
+      {/* Desktop sticky sidebar */}
+      <aside className="hidden md:block md:sticky md:top-24 md:max-h-[calc(100vh-7rem)] md:overflow-y-auto">
+        {filterPanel}
       </aside>
 
+      {/* Mobile drawer */}
+      {mobileFiltersOpen ? (
+        <div className="md:hidden fixed inset-0 z-50">
+          <button
+            type="button"
+            aria-label="Close filter overlay"
+            onClick={() => setMobileFiltersOpen(false)}
+            className="absolute inset-0 bg-black/60"
+          />
+          <aside
+            aria-label="Filters"
+            className="absolute left-0 top-0 h-full w-[88vw] max-w-sm overflow-y-auto bg-surface p-4 shadow-2xl"
+          >
+            {filterPanel}
+          </aside>
+        </div>
+      ) : null}
+
       <section>
+        {/* Top picks — only when no query/filters active */}
+        {showTopPicks ? (
+          <div className="mb-8">
+            <div className="mb-3 flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-papaya" />
+              <h2 className="text-overline uppercase text-foreground-muted">
+                Top picks · highest 5y upside
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {topPicks.map((car) => (
+                <Link
+                  key={car.id}
+                  href={`/car-forecast/${car.slug}`}
+                  className="group block rounded-sm border border-border bg-surface-elevated p-3 transition-colors hover:border-papaya/60"
+                >
+                  <p className="line-clamp-2 text-sm font-semibold text-foreground">
+                    {car.displayName}
+                  </p>
+                  <p className="mt-1 text-xs text-foreground-muted">
+                    {car.segment ?? "—"}
+                  </p>
+                  <p className="mt-2 font-mono text-sm font-bold text-buy tabular-nums">
+                    +{((car.forecast?.cagr5yr ?? 0) * 100).toFixed(1)}% 5y
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-md">
             <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -339,21 +435,39 @@ export function ForecastDashboard({
               className="pl-9"
             />
           </div>
-          <p className="text-sm text-foreground-muted">
-            Showing <span className="font-mono text-foreground tabular-nums">{sortedCars.length.toLocaleString()}</span> of <span className="font-mono text-foreground tabular-nums">{serverTotal.toLocaleString()}</span>
-            {loading ? (
-              <Loader2 className="ml-2 inline h-3 w-3 animate-spin text-papaya" />
-            ) : null}
-          </p>
+          <div className="flex items-center justify-between gap-3 sm:justify-end">
+            {/* Mobile filter trigger */}
+            <button
+              type="button"
+              onClick={() => setMobileFiltersOpen(true)}
+              aria-label="Open filters"
+              className="md:hidden inline-flex items-center gap-2 rounded-sm border border-border bg-surface-elevated px-3 py-2 text-sm text-foreground hover:border-papaya/60"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Filters
+              {activeFilterCount > 0 ? (
+                <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-papaya px-1.5 text-[10px] font-bold text-papaya-foreground">
+                  {activeFilterCount}
+                </span>
+              ) : null}
+            </button>
+            <p className="text-sm text-foreground-muted">
+              Showing <span className="font-mono text-foreground tabular-nums">{sortedCars.length.toLocaleString()}</span> of <span className="font-mono text-foreground tabular-nums">{serverTotal.toLocaleString()}</span>
+              {loading ? (
+                <Loader2 className="ml-2 inline h-3 w-3 animate-spin text-papaya" />
+              ) : null}
+            </p>
+          </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
           {SORT_OPTIONS.map((o) => (
             <Button
               key={o.key}
               size="sm"
               variant={sortBy === o.key ? "primary" : "secondary"}
               onClick={() => setSortBy(o.key)}
+              className="shrink-0"
             >
               {o.label}
             </Button>
