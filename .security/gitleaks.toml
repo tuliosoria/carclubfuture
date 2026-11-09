@@ -1,0 +1,4 @@
+title = "Reviewed default Gitleaks rules"
+[extend]
+useDefault = true
+# No blanket allowlist or baseline. Review narrowly scoped exceptions explicitly.

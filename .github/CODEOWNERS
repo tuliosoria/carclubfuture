@@ -1,0 +1,12 @@
+# Merge into existing CODEOWNERS, do not replace established owners.
+# Review routing only: not enforcement without an approved branch rule.
+/.github/ @tuliosoria
+/.security/ @tuliosoria
+/scripts/security/ @tuliosoria
+**/auth/** @tuliosoria
+**/*auth* @tuliosoria
+/infra/ @tuliosoria
+/amplify/ @tuliosoria
+
+/src/lib/server/ @tuliosoria
+/src/app/api/ @tuliosoria

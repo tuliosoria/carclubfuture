@@ -1,0 +1,110 @@
+# Original local rules; no remote registry rules.
+rules:
+- id: security-no-eval
+  languages:
+  - javascript
+  - typescript
+  severity: ERROR
+  message: Dynamic evaluation requires security review.
+  pattern: eval(...)
+- id: security-no-tls-bypass
+  languages:
+  - javascript
+  - typescript
+  severity: ERROR
+  message: Do not disable TLS certificate verification.
+  pattern-either:
+  - pattern: process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+  - pattern: '{rejectUnauthorized: false, ...}'
+- id: security-no-untrusted-shell
+  languages:
+  - javascript
+  - typescript
+  severity: ERROR
+  message: Prefer an argument array without shell interpolation; review subprocess
+    input.
+  pattern-either:
+  - patterns:
+    - pattern-inside: 'import * as $CP from "child_process";
+
+        ...'
+    - pattern: $CP.exec($CMD, ...)
+    - pattern-not: $CP.exec("...", ...)
+  - patterns:
+    - pattern-inside: 'import $CP from "child_process";
+
+        ...'
+    - pattern: $CP.exec($CMD, ...)
+    - pattern-not: $CP.exec("...", ...)
+  - patterns:
+    - pattern-inside: 'import {exec as $EXEC} from "child_process";
+
+        ...'
+    - pattern: $EXEC($CMD, ...)
+    - pattern-not: $EXEC("...", ...)
+  - patterns:
+    - pattern-inside: 'import {exec} from "child_process";
+
+        ...'
+    - pattern: exec($CMD, ...)
+    - pattern-not: exec("...", ...)
+  - patterns:
+    - pattern-inside: 'const $CP = require("child_process");
+
+        ...'
+    - pattern: $CP.exec($CMD, ...)
+    - pattern-not: $CP.exec("...", ...)
+  - patterns:
+    - pattern-inside: 'const {exec: $EXEC} = require("child_process");
+
+        ...'
+    - pattern: $EXEC($CMD, ...)
+    - pattern-not: $EXEC("...", ...)
+  - patterns:
+    - pattern-inside: 'const {exec} = require("child_process");
+
+        ...'
+    - pattern: exec($CMD, ...)
+    - pattern-not: exec("...", ...)
+  - patterns:
+    - pattern-inside: 'import * as $CP from "node:child_process";
+
+        ...'
+    - pattern: $CP.exec($CMD, ...)
+    - pattern-not: $CP.exec("...", ...)
+  - patterns:
+    - pattern-inside: 'import $CP from "node:child_process";
+
+        ...'
+    - pattern: $CP.exec($CMD, ...)
+    - pattern-not: $CP.exec("...", ...)
+  - patterns:
+    - pattern-inside: 'import {exec as $EXEC} from "node:child_process";
+
+        ...'
+    - pattern: $EXEC($CMD, ...)
+    - pattern-not: $EXEC("...", ...)
+  - patterns:
+    - pattern-inside: 'import {exec} from "node:child_process";
+
+        ...'
+    - pattern: exec($CMD, ...)
+    - pattern-not: exec("...", ...)
+  - patterns:
+    - pattern-inside: 'const $CP = require("node:child_process");
+
+        ...'
+    - pattern: $CP.exec($CMD, ...)
+    - pattern-not: $CP.exec("...", ...)
+  - patterns:
+    - pattern-inside: 'const {exec: $EXEC} = require("node:child_process");
+
+        ...'
+    - pattern: $EXEC($CMD, ...)
+    - pattern-not: $EXEC("...", ...)
+  - patterns:
+    - pattern-inside: 'const {exec} = require("node:child_process");
+
+        ...'
+    - pattern: exec($CMD, ...)
+    - pattern-not: exec("...", ...)

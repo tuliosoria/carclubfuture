@@ -6,17 +6,31 @@ permissions:
   contents: read
 jobs:
   dependency-contract:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
           cache: npm
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Install pinned local scanners
+        run: bash scripts/security/install-tools.sh
+      - name: Scan reachable history and source tree
+        run: bash scripts/security/scan.sh source
       - run: npm ci --ignore-scripts
       - run: npm run test:security-deps
       - run: npm run verify
+      - name: Scan built application artifacts
+        run: bash scripts/security/scan.sh bundle .next/static .next/server public
+      - name: Generate build SBOM and artifact digests locally
+        run: |
+          bash scripts/security/sbom.sh . "$RUNNER_TEMP/security-sbom.cdx.json"
+          find .next/static .next/server public -type f -print0 | sort -z | xargs -0 sha256sum > "$RUNNER_TEMP/security-artifact-sha256.txt"
       - run: npm audit --omit=dev --audit-level=high
