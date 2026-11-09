@@ -30,7 +30,8 @@
     "build:brand": "node scripts/build-brand-features.mjs --output=src/lib/data/cars-ml/brand-features.json",
     "sync:macro": "node scripts/sync-macro-features.mjs",
     "build:limitations": "node scripts/build-limitations-report.mjs",
-    "sync:full": "node scripts/sync-full.mjs"
+    "sync:full": "node scripts/sync-full.mjs",
+    "test:security-deps": "node scripts/check-security-dependencies.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.658.0",
@@ -41,16 +42,15 @@
     "clsx": "^2.1.1",
     "google-trends-api": "^4.9.2",
     "lucide-react": "^0.468.0",
-    "next": "^16.2.6",
+    "next": "16.4.5",
     "pino": "^9.5.0",
     "pino-pretty": "^11.3.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "react-hook-form": "^7.54.0",
     "recharts": "^2.13.3",
     "server-only": "^0.0.1",
-    "tailwind-merge": "^2.5.5",
-    "zod": "^3.23.8"
+    "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
@@ -58,7 +58,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.16.0",
-    "eslint-config-next": "^16.2.6",
+    "eslint-config-next": "16.4.5",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.22.0",
     "typescript": "^5.7.0"
