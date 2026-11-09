@@ -1,0 +1,13 @@
+title = "Critical bundle credentials without path allowlists"
+# No extend/useDefault/allowlist: inspect eligible text at vendor and node_modules paths too.
+[[rules]]
+id = "openai-token-critical"
+description = "Possible OpenAI credential in emitted artifact"
+regex = '''\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{20,}\b'''
+keywords = ["sk-"]
+
+[[rules]]
+id = "private-key-header-critical"
+description = "Private key header in emitted artifact requires review"
+regex = '''-----BEGIN (?:RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'''
+keywords = ["PRIVATE KEY"]

@@ -6,7 +6,7 @@ credential_metadata=re.compile(r"-----BEGIN[^\n]*PRIVATE KEY|(?:AKIA|ASIA)[A-Z0-
 def safe_metadata(value,limit):
     return '[REDACTED_METADATA]' if credential_metadata.search(value) else value[:limit]
 
-for name in ('gitleaks-history.json','gitleaks-tree.json','gitleaks-bundle.json','semgrep.json'):
+for name in ('gitleaks-history.json','gitleaks-tree.json','gitleaks-bundle.json','gitleaks-critical.json','semgrep.json'):
     p=root/name
     if not p.is_file():continue
     try: payload=json.loads(p.read_text())

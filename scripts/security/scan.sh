@@ -36,8 +36,10 @@ case "$mode" in
     for artifact in "$@"; do
       [[ -d "$artifact" && ! -L "$artifact" ]] || { echo 'Artifact directory missing or symlinked'; exit 2; }
       [[ -n "$(find "$artifact" -type f -print -quit)" ]] || { echo 'Artifact directory empty'; exit 2; }
-      # No ignore rules from the source tree: scan actual emitted JS, maps and public files.
+      # Broad default rules retain their documented path exclusions.
+      # The complementary critical-credential config below has no path allowlists.
       run_check 'Secrets/bundle' gitleaks dir "${gitleaks_flags[@]}" --redact=100 --no-banner --exit-code 1 --report-format json --report-path "$report_dir/gitleaks-bundle.json" "$artifact"
+      run_check 'Critical credentials/bundle' gitleaks dir --config "$kit_root/.security/gitleaks-critical.toml" --gitleaks-ignore-path /dev/null --ignore-gitleaks-allow --timeout 300 --redact=100 --no-banner --exit-code 1 --report-format json --report-path "$report_dir/gitleaks-critical.json" "$artifact"
     done
     ;;
   *) echo 'Usage: scan.sh source | bundle DIR [DIR...]'; exit 2 ;;
